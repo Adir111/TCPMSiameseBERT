@@ -1,0 +1,2 @@
+bert_siamese_authorship_verification/data/processed/*
+bert_siamese_authorship_verification/logs/*

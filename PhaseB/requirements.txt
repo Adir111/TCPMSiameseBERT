@@ -1,12 +1,13 @@
-torch
+torch~=2.6.0
 torchvision
-transformers
-scikit-learn
-fastdtw
-numpy
+transformers~=4.50.0
+scikit-learn~=1.6.1
+fastdtw~=0.3.4
+numpy<2  # Downgraded to avoid NumPy 2.x issues
 pandas
 matplotlib
 seaborn
-PyYAML
-scipy
-scikit-learn-extra
+PyYAML~=6.0.2
+scipy~=1.15.2
+scikit-learn-extra~=0.3.0  # Ensure compatibility with scikit-learn
+nltk~=3.9.1

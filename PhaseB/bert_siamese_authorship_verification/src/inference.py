@@ -13,8 +13,7 @@ class InferenceEngine:
         self.model.eval()
 
     def predict_similarity(self, text1, text2):
-        inputs = self.tokenizer(text1, text2, padding="max_length", truncation=True,
-                                max_length=512, return_tensors="pt")
+        inputs = self.tokenizer(text1, text2, padding="max_length", truncation=True, max_length=512, return_tensors="pt")
         input_ids = inputs["input_ids"].to(self.device)
         attention_mask = inputs["attention_mask"].to(self.device)
 

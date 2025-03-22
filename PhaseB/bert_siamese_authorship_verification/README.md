@@ -36,3 +36,12 @@ bert_siamese_authorship_verification/
 │── README.md                 # Project documentation
 │── requirements.txt          # Python dependencies
 ```
+
+
+Usage steps:
+1) Put in data/raw/shakespeare the shakespeare dataset (txt files), and in data/raw/impostors put the impostors dataset (Look at the project architecture).
+2) Install the required packages (pip install -r requirements.txt).
+3) Preprocess the data - run the script to generate the dataset - python src/convert_txt_to_json.py
+4) Train the model using python src/train.py. This will load the processed dataset, train the Siamese network and save it as models/bert_siamese.pth
+5) Run Inference: To check authorship similarity between two text files, run: python main.py. It will print a similarity score between two texts.
+
