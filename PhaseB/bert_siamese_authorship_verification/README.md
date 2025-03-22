@@ -1,10 +1,11 @@
 Project Structure:
 
-PhaseB/
+```bash
+bert_siamese_authorship_verification/
 │── config/                   # Configuration files
 │   ├── config.yaml           # Hyperparameters and settings
 │── data/                     # Folder for datasets (training, validation, test sets)
-│   ├── processed/             # Processed dataset files
+│   ├── processed/            # Processed dataset files
 │   ├── raw/                  # Raw dataset files
 │── logs/                     # Log files from training and evaluation
 │── models/                   # Folder to store trained models and checkpoints
@@ -28,3 +29,4 @@ PhaseB/
 │── main.py                   # Entry point for running the application
 │── README.md                 # Project documentation
 │── requirements.txt          # Python dependencies
+```
