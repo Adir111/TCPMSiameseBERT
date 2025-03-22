@@ -1,0 +1,27 @@
+data:
+  train_path: "data/processed/train.json"
+  test_path: "data/processed/test.json"
+  val_path: "data/processed/val.json"
+
+training:
+  batch_size: 16
+  learning_rate: 2e-5
+  epochs: 3
+  optimizer: "AdamW"
+  gradient_clipping: 1.0
+
+model:
+  bert_model: "bert-base-uncased"
+  max_length: 512
+  hidden_size: 768
+  dropout: 0.3
+  cnn_filters: 256
+  lstm_hidden_size: 128
+  lstm_num_layers: 1
+  bidirectional: True
+
+dtw:
+  distance_metric: "euclidean"
+
+isolation_forest:
+  contamination: 0.05

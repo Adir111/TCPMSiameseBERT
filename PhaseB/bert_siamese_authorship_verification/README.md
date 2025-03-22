@@ -6,7 +6,13 @@ bert_siamese_authorship_verification/
 │   ├── config.yaml           # Hyperparameters and settings
 │── data/                     # Folder for datasets (training, validation, test sets)
 │   ├── processed/            # Processed dataset files
-│   ├── raw/                  # Raw dataset files
+│   ├── raw/
+│   │   ├── shakespeare/       # Folder containing Shakespeare's original works
+│   │   │   ├── ...
+│   │   ├── impostors/         # Folder containing impostors
+│   │   │   ├── impostor_1/
+│   │   │   │   ├── ...
+│   │   │   ├── ...
 │── logs/                     # Log files from training and evaluation
 │── models/                   # Folder to store trained models and checkpoints
 │   ├── bert_siamese.pth      # Saved model weights
