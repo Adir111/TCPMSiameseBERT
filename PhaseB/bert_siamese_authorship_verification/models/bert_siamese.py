@@ -46,7 +46,7 @@ class BertSiameseNetwork(nn.Module):
         self.final_fc_relu = nn.Sequential(
             nn.Linear(config['model']['fc']['in_features'], config['model']['fc']['out_features']),
             nn.ReLU(),
-            nn.Linear(config['model']['fc']['out_features'], 1),  # Reduce to 1 output
+            nn.Linear(config['model']['fc']['out_features'], 1),
             nn.Sigmoid()  # Ensure output is between 0 and 1 for BCELoss
         )
 
@@ -119,7 +119,7 @@ if __name__ == "__main__":
 
     # Create dummy input
     batch_size = 2
-    seq_length = config['bert']['maximum-sequence-length']
+    seq_length = config['bert']['maximum_sequence_length']
     input_ids = torch.randint(0, 30522, (batch_size, seq_length))
     _attention_mask = torch.ones((batch_size, seq_length))
 

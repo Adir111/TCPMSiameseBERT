@@ -1,7 +1,7 @@
 data:
-  train_path: "../data/processed/dataset.json"
-  test_path: "../data/processed/test.json"
-  val_path: "../data/processed/val.json"
+  train_path: "data/processed/dataset.json"
+  test_path: "data/processed/test.json"
+  val_path: "data/processed/val.json"
   model_path: "models/bert_siamese.pth"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"

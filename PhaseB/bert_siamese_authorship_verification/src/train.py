@@ -1,52 +1,51 @@
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from bert_siamese_authorship_verification.models.bert_siamese import BertSiameseNetwork
-from bert_siamese_authorship_verification.config.get_config import get_config
-from data_loader import DataLoader
-from preprocess import TextPreprocessor
-from evaluate import evaluate_model
-from dtw import compute_dtw_distance
-from isolation_forest import AnomalyDetector
-
-# Load config
-config = get_config()
-
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
-model = BertSiameseNetwork().to(device)
-
-# Define optimizer with BERT learning rate
-optimizer = optim.AdamW(
-    model.parameters(),
-    lr=float(config['bert']['learning_rate'])
-)
-
-criterion = nn.BCELoss()
-
-# Load Data
-data_loader = DataLoader(config['data']['train_path'])
-train_data = data_loader.load_data()
-preprocessor = TextPreprocessor()
-
-
-# Convert text embeddings for anomaly detection
-def get_embedding(text1, text2):
-    input_ids, attention_mask = preprocessor.tokenize_pairs(text1, text2)
-    with torch.no_grad():
-        embedding = model.bert(input_ids.to(device), attention_mask.to(device)).pooler_output.cpu().numpy()
-    return embedding.flatten()
-
-
-train_features = [get_embedding(t1, t2) for t1, t2, _ in train_data]
-anomaly_detector = AnomalyDetector()
-mask = anomaly_detector.fit_predict(train_features)
-
-# Filter out anomalies
-filtered_data = [train_data[i] for i in range(len(train_data)) if mask[i]]
-
-
 def train():
+    import torch
+    import torch.nn as nn
+    import torch.optim as optim
+    from bert_siamese_authorship_verification.models.bert_siamese import BertSiameseNetwork
+    from bert_siamese_authorship_verification.config.get_config import get_config
+    from bert_siamese_authorship_verification.src.data_loader import DataLoader
+    from bert_siamese_authorship_verification.src.preprocess import TextPreprocessor
+    from bert_siamese_authorship_verification.src.evaluate import evaluate_model
+    from bert_siamese_authorship_verification.src.dtw import compute_dtw_distance
+    from bert_siamese_authorship_verification.src.isolation_forest import AnomalyDetector
+
+    # Load config
+    config = get_config()
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    model = BertSiameseNetwork().to(device)
+
+    # Define optimizer with BERT learning rate
+    optimizer = optim.AdamW(
+        model.parameters(),
+        lr=float(config['bert']['learning_rate'])
+    )
+
+    criterion = nn.BCELoss()
+
+    # Load Data
+    data_loader = DataLoader(config['data']['train_path'])
+    train_data = data_loader.load_data()
+    preprocessor = TextPreprocessor()
+
+
+    # Convert text embeddings for anomaly detection
+    def get_embedding(text1, text2):
+        input_ids, attention_mask = preprocessor.tokenize_pairs(text1, text2)
+        with torch.no_grad():
+            embedding = model.bert(input_ids.to(device), attention_mask.to(device)).pooler_output.cpu().numpy()
+        return embedding.flatten()
+
+
+    train_features = [get_embedding(t1, t2) for t1, t2, _ in train_data]
+    anomaly_detector = AnomalyDetector()
+    mask = anomaly_detector.fit_predict(train_features)
+
+    # Filter out anomalies
+    filtered_data = [train_data[i] for i in range(len(train_data)) if mask[i]]
+
     model.train()
     y_true = []
     y_pred = []
@@ -92,7 +91,8 @@ def train():
                 print("Early stopping triggered. Training stopped.")
                 break
 
+    torch.save(model.state_dict(), "./models/bert_siamese.pth")
+
 
 if __name__ == "__main__":
     train()
-    torch.save(model.state_dict(), "../models/bert_siamese.pth")
