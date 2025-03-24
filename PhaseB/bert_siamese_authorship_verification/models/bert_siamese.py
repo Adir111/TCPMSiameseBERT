@@ -1,17 +1,10 @@
 import torch
 import torch.nn as nn
 from transformers import BertModel
-import yaml
-import os
-
-# Determine correct path for config.yaml
-config_path = os.path.join(os.path.dirname(__file__), "../config/config.yaml")
-if not os.path.exists(config_path):
-    config_path = os.path.join(os.path.dirname(__file__), "config/config.yaml")
+from bert_siamese_authorship_verification.config.get_config import get_config
 
 # Load config
-with open(config_path, "r") as f:
-    config = yaml.safe_load(f)
+config = get_config()
 
 
 class BertSiameseNetwork(nn.Module):
@@ -30,7 +23,7 @@ class BertSiameseNetwork(nn.Module):
             padding=config['model']['cnn']['padding']
         )
 
-        self.max_pool = nn.MaxPool1d(kernel_size=config['model']['cnn']['kernel_size'])
+        self.max_pool = nn.AdaptiveMaxPool1d(1)
 
         self.bilstm = nn.LSTM(
             input_size=config['model']['cnn']['filters'],
@@ -52,7 +45,9 @@ class BertSiameseNetwork(nn.Module):
         # Final FC + ReLU after CNN-BiLSTM
         self.final_fc_relu = nn.Sequential(
             nn.Linear(config['model']['fc']['in_features'], config['model']['fc']['out_features']),
-            nn.ReLU()
+            nn.ReLU(),
+            nn.Linear(config['model']['fc']['out_features'], 1),  # Reduce to 1 output
+            nn.Sigmoid()  # Ensure output is between 0 and 1 for BCELoss
         )
 
     @staticmethod
@@ -110,9 +105,13 @@ class BertSiameseNetwork(nn.Module):
         final_out1 = self.final_fc_relu(softmax_out1)
         final_out2 = self.final_fc_relu(softmax_out2)
 
-        # Compute Euclidean Distance
+        # Compute Absolute Difference
         distance = torch.abs(final_out1 - final_out2)
-        return distance
+
+        # Reduce to single similarity score
+        score = self.final_fc_relu[2](distance)  # Only apply last layer (Linear + Sigmoid)
+
+        return score
 
 
 if __name__ == "__main__":

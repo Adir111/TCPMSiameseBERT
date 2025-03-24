@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import yaml
 from bert_siamese_authorship_verification.models.bert_siamese import BertSiameseNetwork
+from bert_siamese_authorship_verification.config.get_config import get_config
 from data_loader import DataLoader
 from preprocess import TextPreprocessor
 from evaluate import evaluate_model
@@ -10,8 +10,7 @@ from dtw import compute_dtw_distance
 from isolation_forest import AnomalyDetector
 
 # Load config
-with open('../config/config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
+config = get_config()
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 

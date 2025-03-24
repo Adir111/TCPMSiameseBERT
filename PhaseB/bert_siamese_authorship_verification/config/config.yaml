@@ -10,7 +10,6 @@ training:
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
   batch_size: 2 # 32 # or 64
-  learning_rate: 2e-5 # VVVVVV
   epochs: 1 # 10-20 # VVVVVV
   early_stopping_patience: 5 # VVVVVV
 
@@ -32,7 +31,7 @@ model:
 
   fc:
     in_features: 128 # VVVVVV
-    out_features: 128 # VVVVVV
+    out_features: 1 # VVVVVV
 
 isolation_forest:
   number_of_trees: 100 # VVVVVV
@@ -41,4 +40,4 @@ bert:
   model: "bert-base-uncased" # VVVVVV
   maximum_sequence_length: 64 # 512 # tokens # VVVVVV
   batch_size_for_fine_tuning: 16 # or 32
-  learning_rate: 2e-5
+  learning_rate: 2e-5 # VVVVVV

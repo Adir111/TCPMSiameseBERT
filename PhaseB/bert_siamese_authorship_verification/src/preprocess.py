@@ -1,12 +1,10 @@
 import re
-import nltk
-import yaml
 from nltk.stem import WordNetLemmatizer
 from transformers import BertTokenizer
+from bert_siamese_authorship_verification.config.get_config import get_config
 
-
-with open('../config/config.yaml', 'r') as f:
-    config = yaml.safe_load(f)
+# Load config
+config = get_config()
 
 
 class TextPreprocessor:
