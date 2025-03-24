@@ -84,7 +84,7 @@ def train():
         if epoch_loss < best_loss:
             best_loss = epoch_loss
             no_improve_epochs = 0
-            torch.save(model.state_dict(), "../models/bert_siamese.pth")
+            torch.save(model.state_dict(), "./models/bert_siamese.pth")
         else:
             no_improve_epochs += 1
             if no_improve_epochs >= patience:
