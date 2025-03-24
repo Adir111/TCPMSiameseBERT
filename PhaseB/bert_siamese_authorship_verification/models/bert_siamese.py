@@ -2,10 +2,15 @@ import torch
 import torch.nn as nn
 from transformers import BertModel
 import yaml
+import os
+
+# Determine correct path for config.yaml
+config_path = os.path.join(os.path.dirname(__file__), "../config/config.yaml")
+if not os.path.exists(config_path):
+    config_path = os.path.join(os.path.dirname(__file__), "config/config.yaml")
 
 # Load config
-# with open('../config/config.yaml', 'r') as f:  # used for training
-with open('config/config.yaml', 'r') as f:  # used for main
+with open(config_path, "r") as f:
     config = yaml.safe_load(f)
 
 
@@ -13,50 +18,112 @@ class BertSiameseNetwork(nn.Module):
     def __init__(self):
         super(BertSiameseNetwork, self).__init__()
 
-        self.bert = BertModel.from_pretrained(config['model']['bert_model'])
+        # Load BERT model
+        self.bert = BertModel.from_pretrained(config['bert']['model'])
 
-        self.cnn = nn.Sequential(
-            nn.Conv1d(in_channels=config['model']['hidden_size'], out_channels=config['model']['cnn_filters'], kernel_size=3, padding=1),
-            nn.ReLU(),
-            nn.MaxPool1d(kernel_size=2)
+        # CNN-BiLSTM Block
+        self.conv = nn.Conv1d(
+            in_channels=config['model']['hidden_size'],
+            out_channels=config['model']['cnn']['filters'],
+            kernel_size=config['model']['cnn']['kernel_size'],
+            stride=config['model']['cnn']['stride'],
+            padding=config['model']['cnn']['padding']
         )
 
+        self.max_pool = nn.MaxPool1d(kernel_size=config['model']['cnn']['kernel_size'])
+
         self.bilstm = nn.LSTM(
-            input_size=config['model']['cnn_filters'],
-            hidden_size=config['model']['lstm_hidden_size'],
-            num_layers=config['model']['lstm_num_layers'],
+            input_size=config['model']['cnn']['filters'],
+            hidden_size=config['model']['bilstm']['hidden_units'],
+            num_layers=config['model']['bilstm']['number_of_layers'],
             bidirectional=config['model']['bidirectional'],
             batch_first=True
         )
 
-        self.fc = nn.Sequential(
-            nn.Linear(config['model']['lstm_hidden_size'] * 2, 128),
-            nn.ReLU(),
-            nn.Dropout(config['model']['dropout']),
-            nn.Linear(128, 1),
-            nn.Sigmoid()
+        self.dropout = nn.Dropout(config['model']['bilstm']['dropout'])
+
+        self.fc_relu = nn.Sequential(
+            nn.Linear(config['model']['bilstm']['hidden_units'] * 2, 128),
+            nn.ReLU()
         )
 
+        self.softmax = nn.Softmax(dim=config['model']['softmax_dim'])
+
+        # Final FC + ReLU after CNN-BiLSTM
+        self.final_fc_relu = nn.Sequential(
+            nn.Linear(config['model']['fc']['in_features'], config['model']['fc']['out_features']),
+            nn.ReLU()
+        )
+
+    @staticmethod
+    def mean_pooling(bert_output, attention_mask):
+        """Compute mean pooling for BERT embeddings"""
+        token_embeddings = bert_output.last_hidden_state  # (batch_size, seq_len, hidden_size)
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size())
+        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+        sum_mask = input_mask_expanded.sum(1)
+        return sum_embeddings / sum_mask
+
     def forward(self, input_ids1, attention_mask1, input_ids2, attention_mask2):
-        output1 = self.bert(input_ids1, attention_mask=attention_mask1).last_hidden_state
-        output2 = self.bert(input_ids2, attention_mask=attention_mask2).last_hidden_state
+        # BERT Processing
+        bert_output1 = self.bert(input_ids1, attention_mask=attention_mask1)
+        bert_output2 = self.bert(input_ids2, attention_mask=attention_mask2)
 
-        output1 = self.cnn(output1.permute(0, 2, 1))
-        output2 = self.cnn(output2.permute(0, 2, 1))
+        # Mean Pooling
+        pooled_output1 = self.mean_pooling(bert_output1, attention_mask1)
+        pooled_output2 = self.mean_pooling(bert_output2, attention_mask2)
 
-        output1, _ = self.bilstm(output1.permute(0, 2, 1))
-        output2, _ = self.bilstm(output2.permute(0, 2, 1))
+        # CNN expects (batch_size, channels, seq_len)
+        # Reshape to (batch_size, hidden_size, 1)
+        pooled_output1 = pooled_output1.unsqueeze(2)  # (batch_size, 1, hidden_size)
+        pooled_output2 = pooled_output2.unsqueeze(2)  # (batch_size, 1, hidden_size)
 
-        output1 = output1[:, -1, :]
-        output2 = output2[:, -1, :]
+        # CNN Processing
+        conv_out1 = self.conv(pooled_output1)  # (batch_size, filters, seq_len)
+        conv_out2 = self.conv(pooled_output2)  # (batch_size, filters, seq_len)
 
-        distance = torch.abs(output1 - output2)
-        return self.fc(distance)
+        # Max Pooling
+        pool_out1 = self.max_pool(conv_out1)  # (batch_size, filters, 1)
+        pool_out2 = self.max_pool(conv_out2)  # (batch_size, filters, 1)
+
+        # The BiLSTM expects input with shape (batch_size, seq_len, input_size)
+        bilstm_out1, _ = self.bilstm(pool_out1.permute(0, 2, 1))  # (batch_size, seq_len, hidden_size)
+        bilstm_out2, _ = self.bilstm(pool_out2.permute(0, 2, 1))  # (batch_size, seq_len, hidden_size)
+
+        # Extract last hidden state
+        bilstm_out1 = bilstm_out1[:, -1, :]  # (batch_size, hidden_size)
+        bilstm_out2 = bilstm_out2[:, -1, :]  # (batch_size, hidden_size)
+
+        # Dropout
+        bilstm_out1 = self.dropout(bilstm_out1)
+        bilstm_out2 = self.dropout(bilstm_out2)
+
+        # FC + ReLU
+        fc_relu_out1 = self.fc_relu(bilstm_out1)
+        fc_relu_out2 = self.fc_relu(bilstm_out2)
+
+        # Softmax
+        softmax_out1 = self.softmax(fc_relu_out1)
+        softmax_out2 = self.softmax(fc_relu_out2)
+
+        # Final FC + ReLU
+        final_out1 = self.final_fc_relu(softmax_out1)
+        final_out2 = self.final_fc_relu(softmax_out2)
+
+        # Compute Euclidean Distance
+        distance = torch.abs(final_out1 - final_out2)
+        return distance
 
 
 if __name__ == "__main__":
     model = BertSiameseNetwork()
-    input_ids = torch.randint(0, 30522, (2, config['model']['max_length']))  # Dummy input (batch_size=2, seq_len=512)
-    attention_mask = torch.ones((2, config['model']['max_length']))
-    output = model(input_ids, attention_mask, input_ids, attention_mask)
+
+    # Create dummy input
+    batch_size = 2
+    seq_length = config['bert']['maximum-sequence-length']
+    input_ids = torch.randint(0, 30522, (batch_size, seq_length))
+    _attention_mask = torch.ones((batch_size, seq_length))
+
+    # Test forward pass
+    output = model(input_ids, _attention_mask, input_ids, _attention_mask)
     print(output)

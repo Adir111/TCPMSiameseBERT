@@ -1,10 +1,16 @@
 import re
 import nltk
+import yaml
 from nltk.stem import WordNetLemmatizer
 from transformers import BertTokenizer
 
+
+with open('../config/config.yaml', 'r') as f:
+    config = yaml.safe_load(f)
+
+
 class TextPreprocessor:
-    def __init__(self, max_length=512):
+    def __init__(self, max_length=config['bert']['maximum_sequence_length']):
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.max_length = max_length
         self.lemmatizer = WordNetLemmatizer()
