@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 from transformers import BertModel
-from bert_siamese_authorship_verification.config.get_config import get_config
+from config.get_config import get_config
 
 # Load config
 config = get_config()
@@ -46,9 +46,10 @@ class BertSiameseNetwork(nn.Module):
         self.final_fc_relu = nn.Sequential(
             nn.Linear(config['model']['fc']['in_features'], config['model']['fc']['out_features']),
             nn.ReLU(),
-            nn.Linear(config['model']['fc']['out_features'], 1),
-            nn.Sigmoid()  # Ensure output is between 0 and 1 for BCELoss
+            nn.Linear(config['model']['fc']['out_features'], 1)
         )
+
+        self.scoring = nn.Sigmoid()
 
     @staticmethod
     def mean_pooling(bert_output, attention_mask):
@@ -109,7 +110,7 @@ class BertSiameseNetwork(nn.Module):
         distance = torch.abs(final_out1 - final_out2)
 
         # Reduce to single similarity score
-        score = self.final_fc_relu[2](distance)  # Only apply last layer (Linear + Sigmoid)
+        score = self.scoring(self.final_fc_relu[2](distance))  # Only apply last layer (Linear + Sigmoid)
 
         return score
 

@@ -1,8 +1,8 @@
 import os
 from src.preprocess import TextPreprocessor
 from src.inference import InferenceEngine
-from bert_siamese_authorship_verification.config.get_config import get_config
-from src.convert_txt_to_json import convert_texts_to_json
+from config.get_config import get_config
+from src.convert_txt_to_json import convert_texts_to_json, convert_texts_to_json_with_limits
 from src.train import train
 
 
@@ -18,6 +18,18 @@ DATASET_PATH = config['data']['train_path']
 
 def create_dataset():
     """ Converts raw text files into a structured dataset in JSON format. """
+    print("Create full dataset? (y/n)")
+    full_dataset = input().strip().lower() == "y"
+
+    if not full_dataset:
+        print("How many impostors and Shakespeare texts would you like to include in the dataset?")
+        shakespeare_size = int(input("Shakespeare texts: ").strip())
+        impostor_size = int(input("Impostor texts: ").strip())
+        print("🔄 Creating requested dataset...")
+        convert_texts_to_json_with_limits(SHAKESPEARE_PATH, IMPOSTORS_PATH, DATASET_PATH, shakespeare_size, impostor_size)
+        print(f"✅ Dataset created at {DATASET_PATH}")
+        return
+
     print("🔄 Creating dataset...")
     convert_texts_to_json(SHAKESPEARE_PATH, IMPOSTORS_PATH, DATASET_PATH)
     print(f"✅ Dataset created at {DATASET_PATH}")

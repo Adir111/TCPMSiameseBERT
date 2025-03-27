@@ -1,7 +1,8 @@
 import re
+import nltk
 from nltk.stem import WordNetLemmatizer
 from transformers import BertTokenizer
-from bert_siamese_authorship_verification.config.get_config import get_config
+from config.get_config import get_config
 
 # Load config
 config = get_config()
@@ -12,6 +13,12 @@ class TextPreprocessor:
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.max_length = max_length
         self.lemmatizer = WordNetLemmatizer()
+        try:
+            from nltk.corpus import wordnet
+            wordnet.ensure_loaded()  # This checks if it can be used
+        except LookupError:
+            nltk.download('wordnet')
+            nltk.download('omw-1.4')
 
     def clean_text(self, text):
         text = text.lower()

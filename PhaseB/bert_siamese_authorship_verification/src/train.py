@@ -2,18 +2,22 @@ def train():
     import torch
     import torch.nn as nn
     import torch.optim as optim
-    from bert_siamese_authorship_verification.models.bert_siamese import BertSiameseNetwork
-    from bert_siamese_authorship_verification.config.get_config import get_config
-    from bert_siamese_authorship_verification.src.data_loader import DataLoader
-    from bert_siamese_authorship_verification.src.preprocess import TextPreprocessor
-    from bert_siamese_authorship_verification.src.evaluate import evaluate_model
-    from bert_siamese_authorship_verification.src.dtw import compute_dtw_distance
-    from bert_siamese_authorship_verification.src.isolation_forest import AnomalyDetector
+    from models.bert_siamese import BertSiameseNetwork
+    from config.get_config import get_config
+    from src.data_loader import DataLoader
+    from src.preprocess import TextPreprocessor
+    from src.evaluate import evaluate_model
+    from src.dtw import compute_dtw_distance
+    from src.isolation_forest import AnomalyDetector
 
     # Load config
     config = get_config()
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
+    print("Using device:", device)
+    print("CUDA available:", torch.cuda.is_available())
+    print("CUDA device name:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else "CPU")
 
     model = BertSiameseNetwork().to(device)
 

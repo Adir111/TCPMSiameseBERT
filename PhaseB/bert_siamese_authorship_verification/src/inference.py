@@ -1,6 +1,6 @@
 import torch
 from transformers import BertTokenizer
-from bert_siamese_authorship_verification.models.bert_siamese import BertSiameseNetwork
+from models.bert_siamese import BertSiameseNetwork
 
 
 class InferenceEngine:

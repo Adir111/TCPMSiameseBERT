@@ -1,5 +1,5 @@
 from sklearn.ensemble import IsolationForest
-from bert_siamese_authorship_verification.config.get_config import get_config
+from config.get_config import get_config
 
 # Load config
 config = get_config()

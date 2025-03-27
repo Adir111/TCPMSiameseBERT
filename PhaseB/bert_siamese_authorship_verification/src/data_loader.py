@@ -1,5 +1,5 @@
 import json
-from bert_siamese_authorship_verification.src.preprocess import TextPreprocessor
+from src.preprocess import TextPreprocessor
 
 
 class DataLoader:
