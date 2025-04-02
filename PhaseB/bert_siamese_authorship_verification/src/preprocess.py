@@ -27,13 +27,40 @@ class TextPreprocessor:
         words = [self.lemmatizer.lemmatize(word) for word in words]
         return " ".join(words)
 
-    def tokenize_pairs(self, text1, text2):
-        tokens = self.tokenizer(
-            text1, text2,
+    @staticmethod
+    def divide_into_chunk_pair(text_1, text_2, chunk_size=20):
+        words_1 = text_1.split()
+        words_2 = text_2.split()
+
+        # Find minimum length to avoid index errors
+        min_length = min(len(words_1), len(words_2))
+        words_1 = words_1[:min_length]
+        words_2 = words_2[:min_length]
+
+        # Create chunks
+        chunks = []
+        for i in range(0, min_length, chunk_size):
+            chunk_1 = " ".join(words_1[i:i + chunk_size])
+            chunk_2 = " ".join(words_2[i:i + chunk_size])
+            chunks.append((chunk_1, chunk_2))
+        return chunks
+
+    @staticmethod
+    def divide_into_chunk(text, chunk_size=20):
+        words = text.split()
+        chunks = []
+        for i in range(0, len(words), chunk_size):
+            chunk = " ".join(words[i:i + chunk_size])
+            chunks.append(chunk)
+        return chunks
+
+    def tokenize_chunk(self, chunk):
+        token = self.tokenizer(
+            chunk,
             padding="max_length",
             truncation="longest_first",
             max_length=self.max_length,
             return_tensors="pt",
             return_overflowing_tokens=False
         )
-        return tokens["input_ids"], tokens["attention_mask"]
+        return token["input_ids"], token["attention_mask"]

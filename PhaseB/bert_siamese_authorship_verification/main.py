@@ -1,38 +1,34 @@
 import os
 from src.preprocess import TextPreprocessor
-from src.inference import InferenceEngine
 from config.get_config import get_config
-from src.convert_txt_to_json import convert_texts_to_json, convert_texts_to_json_with_limits
+from src.convert_txt_to_json import convert_texts_to_json
 from src.train import train
-
 
 # Load config
 config = get_config()
 
 # Paths
 MODEL_PATH = config['data']['model_path']
-SHAKESPEARE_PATH = config['data']['shakespeare_path']
+TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
-DATASET_PATH = config['data']['train_path']
 
 
 def create_dataset():
     """ Converts raw text files into a structured dataset in JSON format. """
     print("Create full dataset? (y/n)")
     full_dataset = input().strip().lower() == "y"
+    impostor_size = None
+    tested_collection_size = None
 
     if not full_dataset:
-        print("How many impostors and Shakespeare texts would you like to include in the dataset?")
-        shakespeare_size = int(input("Shakespeare texts: ").strip())
-        impostor_size = int(input("Impostor texts: ").strip())
-        print("🔄 Creating requested dataset...")
-        convert_texts_to_json_with_limits(SHAKESPEARE_PATH, IMPOSTORS_PATH, DATASET_PATH, shakespeare_size, impostor_size)
-        print(f"✅ Dataset created at {DATASET_PATH}")
-        return
+        print("Enter the number of impostor texts to include:")
+        impostor_size = int(input().strip())
+        print("Enter the number of Shakespeare texts to include:")
+        tested_collection_size = int(input().strip())
 
     print("🔄 Creating dataset...")
-    convert_texts_to_json(SHAKESPEARE_PATH, IMPOSTORS_PATH, DATASET_PATH)
-    print(f"✅ Dataset created at {DATASET_PATH}")
+    convert_texts_to_json(TESTED_COLLECTION_PATH, IMPOSTORS_PATH, tested_collection_size=tested_collection_size, impostor_size=impostor_size)
+    print(f"✅ Dataset created")
 
 
 def train_model():
@@ -43,21 +39,6 @@ def train_model():
         print("✅ Training completed!")
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")
-
-
-def compare_texts(file1, file2):
-    """ Reads two text files and computes their similarity score. """
-    with open(file1, "r", encoding="utf-8") as f1, open(file2, "r", encoding="utf-8") as f2:
-        text1, text2 = f1.read(), f2.read()
-
-    try:
-        # Initialize model and preprocessor
-        engine = InferenceEngine(model_path=MODEL_PATH)
-        preprocessor = TextPreprocessor()
-        similarity = engine.predict_similarity(text1, text2)
-        print(f"\n📊 Similarity Score: {similarity:.4f}")
-    except FileNotFoundError:
-        print("❌ ERROR - no model found, please train one first!")
 
 
 def select_directory(base_path):
@@ -99,7 +80,7 @@ def choose_text():
     origin_choice = input("Enter your choice (1/2): ").strip()
 
     if origin_choice == "1":
-        return select_file_from_directory(SHAKESPEARE_PATH)
+        return select_file_from_directory(TESTED_COLLECTION_PATH)
     elif origin_choice == "2":
         impostor_dir = select_directory(IMPOSTORS_PATH)
         return select_file_from_directory(impostor_dir)
@@ -108,60 +89,21 @@ def choose_text():
         return choose_text()
 
 
-def custom_text_selection():
-    """ Allows the user to manually select two texts for similarity comparison. """
-    print("\nChoose the first text:")
-    text1 = choose_text()
-
-    print("\nChoose the second text:")
-    text2 = choose_text()
-
-    compare_texts(text1, text2)
-
-
-def get_text_similarity():
-    """ Handles text similarity comparison between different texts. """
-    print("\nChoose an option:")
-    print("1 - Default: Shakespeare vs. Shakespeare")
-    print("2 - Default: Shakespeare vs. Impostor")
-    print("3 - Custom Text Selection")
-
-    choice = input("Enter your choice (1/2/3): ").strip()
-
-    if choice == "1":
-        compare_texts(
-            os.path.join(SHAKESPEARE_PATH, "A LOVERS COMPLAINT.txt"),
-            os.path.join(SHAKESPEARE_PATH, "A MIDSUMMER NIGHT_S DREAM.txt"),
-        )
-    elif choice == "2":
-        compare_texts(
-            os.path.join(SHAKESPEARE_PATH, "A MIDSUMMER NIGHT_S DREAM.txt"),
-            os.path.join(IMPOSTORS_PATH, "Benjamin Jonson/Discoveries Made Upon Men and Matter and Some Poems.txt"),
-        )
-    elif choice == "3":
-        custom_text_selection()
-    else:
-        print("❌ Invalid option. Please try again.")
-
-
 def main():
     """ Displays the menu and executes the selected action. """
     while True:
         print("\n📜 Menu:")
         print("1 - Create Dataset")
-        print("2 - Train Model")
-        print("3 - Get Text Similarity")
-        print("4 - Exit")
+        print("2 - Run Model Procedure")
+        print("3 - Exit")
 
-        option = input("Select an option (1/2/3/4): ").strip()
+        option = input("Select an option (1/2/3): ").strip()
 
         if option == "1":
             create_dataset()
         elif option == "2":
             train_model()
         elif option == "3":
-            get_text_similarity()
-        elif option == "4":
             print("👋 Exiting. Have a great day!")
             break
         else:

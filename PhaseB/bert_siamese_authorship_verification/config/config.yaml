@@ -1,5 +1,6 @@
 data:
-  train_path: "data/processed/dataset.json"
+  processed_tested_path: "data/processed/dataset_tested_collection.json"
+  processed_impostors_path: "data/processed/dataset_impostors.json"
   test_path: "data/processed/test.json"
   val_path: "data/processed/val.json"
   model_path: "models/bert_siamese.pth"
@@ -14,6 +15,7 @@ training:
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
   batch_size: 2 # 32 # or 64
+  chunk_size: 20 # VVVVVV
   epochs: 1 # 10-20 # VVVVVV
   early_stopping_patience: 5 # VVVVVV
 

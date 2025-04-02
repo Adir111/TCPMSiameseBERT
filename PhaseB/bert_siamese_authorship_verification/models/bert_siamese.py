@@ -114,6 +114,19 @@ class BertSiameseNetwork(nn.Module):
 
         return score
 
+    def forward_single(self, input_ids, attention_mask):
+        with torch.no_grad():
+            bert_output = self.bert(input_ids, attention_mask=attention_mask)
+            pooled_output = self.mean_pooling(bert_output, attention_mask).unsqueeze(2)
+            conv_out = self.conv(pooled_output)
+            pool_out = self.max_pool(conv_out)
+            bilstm_out, _ = self.bilstm(pool_out.permute(0, 2, 1))
+            bilstm_out = self.dropout(bilstm_out[:, -1, :])
+            fc_out = self.fc_relu(bilstm_out)
+            softmax_out = self.softmax(fc_out)
+            final_score = self.final_fc_relu(softmax_out)
+            return self.scoring(final_score)
+
 
 if __name__ == "__main__":
     model = BertSiameseNetwork()
