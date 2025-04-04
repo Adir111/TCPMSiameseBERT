@@ -34,14 +34,31 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
     for impostor_folder in os.listdir(impostor_dir):
         impostor_path = os.path.join(impostor_dir, impostor_folder)
         if os.path.isdir(impostor_path):
-            for filename in os.listdir(impostor_path):
-                with open(os.path.join(impostor_path, filename), "r", encoding="utf-8", errors="ignore") as f:
-                    text = f.read()
-                    impostor_dataset.append({"text1": text, "text2": text})
-                    if impostor_size is not None and len(impostor_dataset) == impostor_size:
+            files = os.listdir(impostor_path)
+            for i in range(len(files)):
+                for j in range(i + 1, len(files)):
+                    if impostor_size is not None and len(impostor_dataset) >= impostor_size:
                         break
-        if impostor_size is not None and len(impostor_dataset) == impostor_size:
-            break
+
+                    file1 = files[i]
+                    file2 = files[j]
+
+                    path1 = os.path.join(impostor_path, file1)
+                    path2 = os.path.join(impostor_path, file2)
+
+                    with open(path1, "r", encoding="utf-8", errors="ignore") as f1, \
+                            open(path2, "r", encoding="utf-8", errors="ignore") as f2:
+
+                        text1 = f1.read()
+                        text2 = f2.read()
+
+                        impostor_dataset.append({
+                            "text1": text1,
+                            "text2": text2,
+                            "pair_name": f"{file1}_vs_{file2}"
+                        })
+                if impostor_size is not None and len(impostor_dataset) >= impostor_size:
+                    break
 
     # Save to JSON
     with open(impostor_output_path, "w", encoding="utf-8") as json_file:

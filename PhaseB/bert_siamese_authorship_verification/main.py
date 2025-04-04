@@ -1,14 +1,16 @@
+import sys
 import os
-from src.preprocess import TextPreprocessor
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 from config.get_config import get_config
 from src.convert_txt_to_json import convert_texts_to_json
-from src.train import train
+from src.train import full_procedure
 
 # Load config
 config = get_config()
 
 # Paths
-MODEL_PATH = config['data']['model_path']
 TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
@@ -35,7 +37,7 @@ def train_model():
     """ Triggers the training script. """
     print("🚀 Starting training...")
     try:
-        train()
+        full_procedure()
         print("✅ Training completed!")
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")

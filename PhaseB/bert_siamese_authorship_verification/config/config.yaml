@@ -3,10 +3,9 @@ data:
   processed_impostors_path: "data/processed/dataset_impostors.json"
   test_path: "data/processed/test.json"
   val_path: "data/processed/val.json"
-  model_path: "models/bert_siamese.pth"
+  trained_models_path: "models/saved_trained_models/"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
-
 
 training:
   optimizer:
@@ -14,36 +13,40 @@ training:
     initial_learning_rate: 1e-4
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
-  batch_size: 2 # 32 # or 64
-  chunk_size: 20 # VVVVVV
-  epochs: 1 # 10-20 # VVVVVV
-  early_stopping_patience: 5 # VVVVVV
+  batch_size: 32 # 32 # or 64 - How many chunks in a batch
+  chunk_size: 64 # Size of each chunk
+  epochs: 5 # 10-20
+  early_stopping_patience: 5
 
 model:
-  hidden_size: 768 # VVVVVVVV
-  softmax_dim: 1 # VVVVVV
-  bidirectional: True # VVVVVV
-
+  save_trained_models: True
+  load_trained_models: False
+  hidden_size: 768
+  softmax_dim: 1
+  bidirectional: True # BiLSTM
   cnn:
-    filters: 2 # 256 # VVVVVV
-    stride: 1 # VVVVVV
-    padding: "same" # VVVVVV
-    kernel_size: 3 # or 5 or 7 # VVVVVV
-
+    filters: 2 # 256
+    stride: 1
+    padding: "same"
+    kernel_size: 3 # or 5 or 7
   bilstm:
-    hidden_units: 16 # 128 # or 256 # vvvvvv
-    dropout: 0.5 # 0.2 - 0.5 # VVVVVV
-    number_of_layers: 300 # vvvvvv
-
+    hidden_units: 16 # 128 or 256
+    dropout: 0.5 # 0.2 - 0.5
+    number_of_layers: 300
   fc:
-    in_features: 128 # VVVVVV
-    out_features: 1 # VVVVVV
+    in_features: 128
+    out_features: 1
 
 isolation_forest:
-  number_of_trees: 100 # VVVVVV
+  number_of_trees: 100
 
 bert:
-  model: "bert-base-uncased" # VVVVVV
-  maximum_sequence_length: 64 # 512 # tokens # VVVVVV
+  model: "bert-base-uncased"
+  maximum_sequence_length: 64 # 512 tokens
   batch_size_for_fine_tuning: 16 # or 32
-  learning_rate: 2e-5 # VVVVVV
+  learning_rate: 2e-5
+
+wandb:
+  enabled: true
+  project: "siamese-authorship-verification"
+  api_key: 99cb11ef59cac847e6b99323c0d485a69157f548

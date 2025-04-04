@@ -29,7 +29,7 @@ class BertSiameseNetwork(nn.Module):
             input_size=config['model']['cnn']['filters'],
             hidden_size=config['model']['bilstm']['hidden_units'],
             num_layers=config['model']['bilstm']['number_of_layers'],
-            bidirectional=config['model']['bidirectional'],
+            bidirectional=config['model']['bidirectional'],  # True = BiLSTM
             batch_first=True
         )
 
@@ -49,7 +49,6 @@ class BertSiameseNetwork(nn.Module):
             nn.Linear(config['model']['fc']['out_features'], 1)
         )
 
-        self.scoring = nn.Sigmoid()
 
     @staticmethod
     def mean_pooling(bert_output, attention_mask):
@@ -106,15 +105,13 @@ class BertSiameseNetwork(nn.Module):
         final_out1 = self.final_fc_relu(softmax_out1)
         final_out2 = self.final_fc_relu(softmax_out2)
 
-        # Compute Absolute Difference
-        distance = torch.abs(final_out1 - final_out2)
-
-        # Reduce to single similarity score
-        score = self.scoring(self.final_fc_relu[2](distance))  # Only apply last layer (Linear + Sigmoid)
-
-        return score
+        # Euclidean distance between vectors (batch-wise)
+        distance = torch.abs(final_out1 - final_out2)  # shape: [batch_size, 1]
+        return distance
 
     def forward_single(self, input_ids, attention_mask):
+        # no gradient because forward_single is meant to be used to process a single chunk, so
+        # it's used when we're processing the tested collection - post training.
         with torch.no_grad():
             bert_output = self.bert(input_ids, attention_mask=attention_mask)
             pooled_output = self.mean_pooling(bert_output, attention_mask).unsqueeze(2)
@@ -125,7 +122,7 @@ class BertSiameseNetwork(nn.Module):
             fc_out = self.fc_relu(bilstm_out)
             softmax_out = self.softmax(fc_out)
             final_score = self.final_fc_relu(softmax_out)
-            return self.scoring(final_score)
+            return final_score
 
 
 if __name__ == "__main__":
