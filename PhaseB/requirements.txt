@@ -18,3 +18,5 @@ scikit-learn-extra~=0.3.0  # Ensure compatibility with scikit-learn
 nltk~=3.9.1
 pytest==8.3.5
 wandb==0.19.9
+keras==3.9.2
+tensorflow==2.19.0

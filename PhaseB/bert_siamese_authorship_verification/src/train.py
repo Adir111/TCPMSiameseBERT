@@ -1,17 +1,19 @@
 import torch
-import torch.nn as nn
-import torch.optim as optim
 import numpy as np
 import matplotlib.pyplot as plt
 import wandb
+import tensorflow as tf
+from keras.src.callbacks import EarlyStopping
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
 import sys
 
+from models.keras_bert_siamese import build_keras_siamese_model
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from models.bert_siamese import BertSiameseNetwork
+from models.pytorch_bert_siamese import BertSiameseNetwork
 from config.get_config import get_config
 from src.data_loader import DataLoader
 from src.preprocess import TextPreprocessor
@@ -20,7 +22,102 @@ from src.isolation_forest import AnomalyDetector
 from src.clustering import perform_kmedoids_clustering
 
 
-def full_procedure():
+def preprocess_and_divide(impostor_1, impostor_2):
+    config = get_config()
+    chunk_size = config['training']['batch_size'] // config['training']['chunk_factor']
+    preprocessor = TextPreprocessor()
+
+    tokens_1 = preprocessor.tokenize_text(impostor_1)
+    tokens_2 = preprocessor.tokenize_text(impostor_2)
+
+    chunks_1 = preprocessor.divide_tokens_into_chunks(tokens_1, chunk_size)
+    chunks_2 = preprocessor.divide_tokens_into_chunks(tokens_2, chunk_size)
+
+    x_labels, y_labels, chunks = preprocessor.create_model_x_y(chunks_1, chunks_2)
+    return x_labels, y_labels, chunks
+
+
+def train_network_keras(config, x, y, pair_name):
+    trained_models_path = config['data']['trained_models_path']
+    os.makedirs(trained_models_path, exist_ok=True)
+    model_path = os.path.join(trained_models_path, f"model_{pair_name}.h5")
+
+    print("-------------------------")
+    print("Started training model:", pair_name)
+    model = build_keras_siamese_model()
+    early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
+                                   patience=config['training']['early_stopping_patience'])
+    checkpoint = tf.keras.callbacks.ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
+
+    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+
+    print(model.summary())
+    history = model.fit(x, y, epochs=config['training']['epochs'], verbose=1)
+    model.save(model_path)
+    print("Accuracy:", history.history['accuracy'][-1])
+    print("Loss:", history.history['loss'][-1])
+    print("Validation Accuracy:", history.history['val_accuracy'][-1])
+    print("Finished training model:", pair_name)
+    print("-------------------------")
+
+    return model, history
+
+
+def display_training_results(history):
+    print("\n[INFO] Training History Summary:")
+    for epoch in range(len(history.history['loss'])):
+        print(f"Epoch {epoch + 1}: "
+              f"Loss = {history.history['loss'][epoch]:.4f}, "
+              f"Accuracy = {history.history['accuracy'][epoch]:.4f}, "
+              f"Val_Loss = {history.history['val_loss'][epoch]:.4f}, "
+              f"Val_Accuracy = {history.history['val_accuracy'][epoch]:.4f}")
+
+
+def display_loss_plot(history):
+    plt.plot(history.history['loss'], label='Training Loss')
+    plt.plot(history.history['val_loss'], label='Validation Loss')
+    plt.title("Loss per Epoch")
+    plt.xlabel("Epoch")
+    plt.ylabel("Loss")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+def display_accuracy_plot(history):
+    plt.plot(history.history['accuracy'], label='Training Accuracy')
+    plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+    plt.title("Accuracy per Epoch")
+    plt.xlabel("Epoch")
+    plt.ylabel("Accuracy")
+    plt.legend()
+    plt.grid(True)
+    plt.tight_layout()
+    plt.show()
+
+
+def classify_text():
+    # preprocess_and_divide(text_to_classify)
+    # Train X networks on X impostor pairs or load the saved trained X networks
+    # for each impostor pair:
+    #   preprocess_and_divide(impostor_pair)
+    #   train_network_keras()
+    #   display_training_results()
+    #   display_loss_plot()
+    #   display_accuracy_plot()
+    # OR load the respective saved trained network
+    #   np.asarray(model.predict(text_to_classify))[:, 0]
+    #   Calculate the mean value of each batch's chunks
+    #   Aggregate all mean values into a single list (signal representation of the text)
+    # After all impostor pairs, calculate the DTW distance between each pair of signals
+    # Detect anomalies using Isolation Forest
+    # Perform clustering on the anomaly scores
+    # Visualize the results with t-SNE
+    pass
+
+
+def full_procedure_pytorch():
     # Step 1: Start
     print("[INFO] Loading configuration and initializing device...")
     config = get_config()
@@ -33,7 +130,8 @@ def full_procedure():
     if config['wandb']['enabled']:
         print("[INFO] Logging into wandb")
         wandb.login(key=config['wandb']['api_key'])
-        wandb_run = wandb.init(project=config['wandb']['project'], config=config, name=f"run_{wandb.util.generate_id()}")
+        wandb_run = wandb.init(project=config['wandb']['project'], config=config,
+                               name=f"run_{wandb.util.generate_id()}")
 
     # Step 2: Preprocessing
     print("[INFO] Loading and preprocessing training data...")
@@ -44,6 +142,10 @@ def full_procedure():
     trained_models = []
     trained_models_path = config['data']['trained_models_path']
     os.makedirs(trained_models_path, exist_ok=True)
+
+    batch_size = config['training']['batch_size']
+    chunk_factor = config['training']['chunk_factor']
+    chunk_size = batch_size // chunk_factor
 
     for idx, (impostor_1, impostor_2, pair_name) in enumerate(cleaned_data):
         print(f"[INFO] Training model {idx + 1}/{len(cleaned_data)} - for impostor pair {pair_name}")
@@ -60,7 +162,7 @@ def full_procedure():
         # criterion = nn.BCELoss()
         model.train()
 
-        chunks = preprocessor.divide_into_chunk_pair(impostor_1, impostor_2, chunk_size=config['training']['chunk_size'])
+        chunks = preprocessor.divide_into_chunk_pair(impostor_1, impostor_2, chunk_size=chunk_size)
 
         # best_loss = float('inf')
         # patience = config['training']['early_stopping_patience']
@@ -77,34 +179,23 @@ def full_procedure():
 
                 # Forward pass (imp1, imp2)
                 similarity = model(input_ids1, attention_mask1, input_ids2, attention_mask2)
-                # similarity = distance from final_fc_relu output
-                # Transform into similarity score ∈ [0, 1]
-                # score = torch.exp(-similarity).clamp(min=0.0, max=1.0)
+
+                # Convert similarity distance to a similarity score in [0, 1]
+                score = torch.exp(-similarity).clamp(min=0.0, max=1.0)
 
                 # Determine label based on chunk origin (impostor 1 = 0, impostor 2 = 1)
                 # So each pair is (0, 1) — and the "correct" label is always 1 (they're from different authors)
                 # label_tensor = torch.tensor([[1.0]], dtype=torch.float32).to(device)
                 #
                 # # Compute loss
-                # loss_1 = criterion(score, label_tensor)
+                # loss = criterion(score, label_tensor)
                 # optimizer.zero_grad()
-                # loss_1.backward()
+                # loss.backward()
                 # optimizer.step()
 
-                # (imp2, imp1)
-                # similarity = model(input_ids2, attention_mask2, input_ids1, attention_mask1)
-                # score = torch.exp(-similarity).clamp(min=0.0, max=1.0)
-                # label_tensor = torch.tensor([[0.0]], dtype=torch.float32).to(device)
-                #
-                # loss_2 = criterion(score, label_tensor)
-                # optimizer.zero_grad()
-                # loss_2.backward()
-                # optimizer.step()
+                # epoch_loss = loss.item()
 
-                # Accumulate both losses
-                # epoch_loss += loss_1.item() + loss_2.item()
-
-            # avg_loss = epoch_loss / (2 * len(chunks))
+            # avg_loss = epoch_loss / len(chunks)
             # print(f"[EPOCH {epoch+1}] Loss: {avg_loss:.4f}")
             # if avg_loss < best_loss:
             #     best_loss = avg_loss
@@ -134,9 +225,8 @@ def full_procedure():
     anomaly_scores = []
 
     for text_idx, text in enumerate(tested_collection_data):
-        print(f"[INFO] Processing text {text_idx+1}/{len(tested_collection_data)} from tested collection...")
-        batch_size = config['training']['batch_size']
-        chunks = preprocessor.divide_into_chunk(text, chunk_size=config['training']['chunk_size'])
+        print(f"[INFO] Processing text {text_idx + 1}/{len(tested_collection_data)} from tested collection...")
+        chunks = preprocessor.divide_into_chunk(text, chunk_size=chunk_size)
 
         num_batches = len(chunks) // batch_size
         print("[INFO] Number of batches:", num_batches)
@@ -152,7 +242,7 @@ def full_procedure():
         dtw_matrix = np.zeros((amount_of_signals, amount_of_signals))
 
         for model_idx, model_state in enumerate(trained_models):
-            print(f"[INFO] Using trained model {model_idx+1}/{len(trained_models)} for signal extraction...")
+            print(f"[INFO] Using trained model {model_idx + 1}/{len(trained_models)} for signal extraction...")
             labels_matrix = [[0] * cols for _ in range(rows)]
             model = BertSiameseNetwork().to(device)
             model.load_state_dict(model_state)
@@ -167,7 +257,8 @@ def full_procedure():
                 similarity = model.forward_single(input_ids, attention_mask)
                 labels_matrix[i // cols][i % cols] = similarity.item()
 
-            signal = [[np.mean(row)] for row in labels_matrix]  # Fastdtw expects each signal to be [[0.1], [0.2], [0.3], ...]
+            signal = [[np.mean(row)] for row in
+                      labels_matrix]  # Fastdtw expects each signal to be [[0.1], [0.2], [0.3], ...]
 
             # Obtain signal representation of each text from each trained network
             signal_representations.append(signal)
@@ -226,5 +317,6 @@ def full_procedure():
         wandb_run.finish()
     plt.show()
 
+
 if __name__ == "__main__":
-    full_procedure()
+    full_procedure_pytorch()

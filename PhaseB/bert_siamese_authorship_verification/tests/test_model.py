@@ -3,7 +3,7 @@ import sys
 import os
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-from models.bert_siamese import BertSiameseNetwork
+from models.pytorch_bert_siamese import BertSiameseNetwork
 from config.get_config import get_config
 
 

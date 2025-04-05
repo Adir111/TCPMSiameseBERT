@@ -31,20 +31,29 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
                 break
 
     # Process impostors
-    for impostor_folder in os.listdir(impostor_dir):
-        impostor_path = os.path.join(impostor_dir, impostor_folder)
-        if os.path.isdir(impostor_path):
-            files = os.listdir(impostor_path)
-            for i in range(len(files)):
-                for j in range(i + 1, len(files)):
+    impostor_folders = [f for f in os.listdir(impostor_dir) if os.path.isdir(os.path.join(impostor_dir, f))]
+
+    for i in range(len(impostor_folders)):
+        for j in range(i + 1, len(impostor_folders)):
+            if impostor_size is not None and len(impostor_dataset) >= impostor_size:
+                break
+
+            impostor_1_folder = impostor_folders[i]
+            impostor_2_folder = impostor_folders[j]
+
+            impostor_1_path = os.path.join(impostor_dir, impostor_1_folder)
+            impostor_2_path = os.path.join(impostor_dir, impostor_2_folder)
+
+            impostor_1_files = os.listdir(impostor_1_path)
+            impostor_2_files = os.listdir(impostor_2_path)
+
+            for file1 in impostor_1_files:
+                for file2 in impostor_2_files:
                     if impostor_size is not None and len(impostor_dataset) >= impostor_size:
                         break
 
-                    file1 = files[i]
-                    file2 = files[j]
-
-                    path1 = os.path.join(impostor_path, file1)
-                    path2 = os.path.join(impostor_path, file2)
+                    path1 = os.path.join(impostor_1_path, file1)
+                    path2 = os.path.join(impostor_2_path, file2)
 
                     with open(path1, "r", encoding="utf-8", errors="ignore") as f1, \
                             open(path2, "r", encoding="utf-8", errors="ignore") as f2:

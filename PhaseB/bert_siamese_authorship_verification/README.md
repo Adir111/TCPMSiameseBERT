@@ -14,7 +14,7 @@ bert_siamese_authorship_verification/
 │   │   │   │   ├── ...
 │   │   │   ├── ...
 │── models/                   # Folder to store trained models and checkpoints
-│   ├── bert_siamese.py       # Model architecture implementation
+│   ├── pytorch_bert_siamese.py       # Model architecture implementation
 │── src/                      # Source code for training and evaluation
 │   ├── __init__.py           # Makes src a package
 │   ├── clustering.py         # Anomaly detection and K-Medoids clustering

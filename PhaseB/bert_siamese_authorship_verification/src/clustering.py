@@ -15,5 +15,5 @@ def perform_kmedoids_clustering(anomaly_scores, num_clusters=2):
         return None
 
     anomaly_scores = np.array(anomaly_scores).reshape(-1, 1)
-    kmedoids = KMedoids(n_clusters=num_clusters, random_state=42)
+    kmedoids = KMedoids(n_clusters=num_clusters, random_state=0)
     return kmedoids.fit_predict(anomaly_scores)
