@@ -1,11 +1,10 @@
---extra-index-url https://download.pytorch.org/whl/cu121
-torch==2.5.1+cu121
-torchaudio==2.5.1+cu121
-torchvision==0.20.1+cu121
+#--extra-index-url https://download.pytorch.org/whl/cu121
+#torch==2.5.1+cu121
+#torchaudio==2.5.1+cu121
+#torchvision==0.20.1+cu121
 
 # torch~=2.6.0
 # torchvision
-transformers~=4.50.0
 scikit-learn~=1.6.1
 fastdtw~=0.3.4
 numpy<2  # Downgraded to avoid NumPy 2.x issues
@@ -18,5 +17,6 @@ scikit-learn-extra~=0.3.0  # Ensure compatibility with scikit-learn
 nltk~=3.9.1
 pytest==8.3.5
 wandb==0.19.9
-keras==3.9.2
-tensorflow==2.19.0
+keras==2.11
+tensorflow==2.11
+transformers==4.36.0

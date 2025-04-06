@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from config.get_config import get_config
 from src.convert_txt_to_json import convert_texts_to_json
-from src.train import full_procedure
+from src.train import full_procedure_keras
 
 # Load config
 config = get_config()
@@ -37,7 +37,7 @@ def train_model():
     """ Triggers the training script. """
     print("🚀 Starting training...")
     try:
-        full_procedure()
+        full_procedure_keras()
         print("✅ Training completed!")
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")

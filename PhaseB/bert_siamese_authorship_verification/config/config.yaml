@@ -15,8 +15,8 @@ training:
     gradient_clipping_threshold: 1.0 # or 5.0
   batch_size: 400 # 32 # or 64 - How many chunks in a batch
   chunk_factor: 8 # Chunk to Batch ratio
-  epochs: 5 # 10-20
-  early_stopping_patience: 5
+  epochs: 1 # 10-20
+  early_stopping_patience: 2
   impostor_chunk_ratio: 2
 
 model:
