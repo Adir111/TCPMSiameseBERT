@@ -62,7 +62,7 @@ class TextPreprocessor:
         chunks[0] *= chunk_ratio
         chunks[1] *= chunk_ratio
 
-        return np.asarray(chunks[0]), np.asarray([0] * len(chunks[0])), np.asarray(chunks[1]), np.asarray([1] * len(chunks[1]))
+        return np.asarray(chunks[0]), np.asarray([0.0] * len(chunks[0])), np.asarray(chunks[1]), np.asarray([1.0] * len(chunks[1]))
 
     def encode_tokenized_chunks(self, tokenized_chunks, max_length):
         input_ids_list = []

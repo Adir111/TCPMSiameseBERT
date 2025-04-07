@@ -1,4 +1,5 @@
 import tensorflow as tf
+from keras import Sequential
 from tensorflow.keras import layers, Model
 from transformers import TFBertModel
 from config.get_config import get_config
@@ -6,45 +7,48 @@ from config.get_config import get_config
 
 def build_siamese_branch(bert_model):
     config = get_config()
-    input_ids = layers.Input(shape=(config['bert']['maximum_sequence_length'],), dtype=tf.int32, name="input_ids")
-    attention_mask = layers.Input(shape=(config['bert']['maximum_sequence_length'],), dtype=tf.int32,
-                                  name="attention_mask")
+    max_len = config['bert']['maximum_sequence_length']
+    kernel_size = config['model']['cnn']['kernel_size']
+    bilstm_layers = config['model']['bilstm']['hidden_units']
+    filters = config['model']['cnn']['filters']
+    stride = config['model']['cnn']['stride']
+    out_features = config['model']['fc']['out_features']
 
-    bert_output = bert_model(input_ids, attention_mask=attention_mask)[0]  # last_hidden_state
+    input_ids = layers.Input(shape=(max_len,), dtype=tf.int32, name="input_ids")
+    attention_mask = layers.Input(shape=(max_len,), dtype=tf.int32, name="attention_mask")
 
-    # Mean pooling
-    mask_expanded = tf.cast(tf.expand_dims(attention_mask, -1), tf.float32)
-    sum_embeddings = tf.reduce_sum(bert_output * mask_expanded, axis=1)
-    sum_mask = tf.reduce_sum(mask_expanded, axis=1)
-    pooled = sum_embeddings / tf.clip_by_value(sum_mask, 1e-9, 1e9)
+    # 1. BERT Encoding
+    bert_output = bert_model(input_ids, attention_mask=attention_mask)[0]  # (batch, seq_len, hidden_size)
 
-    # CNN expects (batch, channels, seq_len) → we simulate with Conv1D over features
-    cnn_input = tf.expand_dims(pooled, axis=-1)  # (batch, features, 1)
-    cnn_input = tf.transpose(cnn_input, perm=[0, 2, 1])  # (batch, 1, features)
+    # 2. Post-BERT Processing in Sequential
+    cnn_lstm_stack = Sequential(name="cnn_bilstm_stack")
+    for i in range(len(kernel_size)):
+        if i == 0:
+            cnn_lstm_stack.add(layers.Conv1D(filters=filters, kernel_size=kernel_size[i], strides=stride,
+                                             padding='valid', activation='relu',
+                                             input_shape=(max_len, 768)))
+        else:
+            cnn_lstm_stack.add(layers.Conv1D(filters=filters, kernel_size=kernel_size[i], strides=stride,
+                                             padding='valid', activation='relu'))
+        cnn_lstm_stack.add(layers.MaxPooling1D(pool_size=2))  # pooling helps stabilize sequence length
 
-    conv = layers.Conv1D(
-        filters=config['model']['cnn']['filters'],
-        kernel_size=config['model']['cnn']['kernel_size'],
-        strides=config['model']['cnn']['stride'],
-        padding='same'
-    )(cnn_input)
+    cnn_lstm_stack.add(layers.Bidirectional(layers.LSTM(
+        units=bilstm_layers,
+        return_sequences=True
+    )))
+    cnn_lstm_stack.add(layers.Bidirectional(layers.LSTM(
+        units=bilstm_layers,
+        go_backwards=True
+    )))
+    cnn_lstm_stack.add(layers.Dropout(0.25))
+    cnn_lstm_stack.add(layers.Dense(128, activation='relu'))
+    # cnn_lstm_stack.add(layers.Softmax(axis=config['model']['softmax_dim']))
+    cnn_lstm_stack.add(layers.Dense(out_features, activation='relu'))
 
-    pool = layers.GlobalMaxPooling1D()(conv)
+    # Apply CNN+BiLSTM Sequential block
+    output = cnn_lstm_stack(bert_output)
 
-    lstm = layers.Reshape((1, -1))(pool)
-    lstm = layers.Bidirectional(layers.LSTM(
-        units=config['model']['bilstm']['hidden_units'],
-        dropout=config['model']['bilstm']['dropout'],
-        return_sequences=False
-    ))(lstm)
-
-    dense = layers.Dense(128, activation='relu')(lstm)
-    softmax_out = layers.Softmax(axis=config['model']['softmax_dim'])(dense)
-
-    final = layers.Dense(config['model']['fc']['out_features'], activation='relu')(softmax_out)
-    final = layers.Dense(1)(final)
-
-    return Model(inputs=[input_ids, attention_mask], outputs=final)
+    return Model(inputs=[input_ids, attention_mask], outputs=output)
 
 
 def build_keras_siamese_model():
@@ -65,7 +69,12 @@ def build_keras_siamese_model():
     out1 = branch([input_ids1, attention_mask1])
     out2 = branch([input_ids2, attention_mask2])
 
-    # Compute L1 distance between the outputs
-    distance = layers.Lambda(lambda tensors: tf.abs(tensors[0] - tensors[1]))([out1, out2])
+    # Compute L2 Euclidean distance between the outputs, with a small epsilon to avoid division by zero
+    distance = layers.Lambda(
+        lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6))(
+        [out1, out2])
 
-    return Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=distance)
+    # Final sigmoid for binary classification
+    output = layers.Dense(1, activation='sigmoid')(distance)
+
+    return Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)

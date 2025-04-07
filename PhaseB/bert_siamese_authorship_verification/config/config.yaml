@@ -21,7 +21,7 @@ training:
 
 model:
   save_trained_models: True
-  load_trained_models: False
+  load_trained_models: True
   hidden_size: 768
   softmax_dim: 1
   bidirectional: True # BiLSTM
@@ -29,7 +29,7 @@ model:
     filters: 2 # 256
     stride: 1
     padding: "same"
-    kernel_size: 3 # or 5 or 7
+    kernel_size: [3, 6, 12]
   bilstm:
     hidden_units: 16 # 128 or 256
     dropout: 0.5 # 0.2 - 0.5

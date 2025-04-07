@@ -1,20 +1,20 @@
-# import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import wandb
 import tensorflow as tf
+from keras import Model
 from keras.callbacks import EarlyStopping, ModelCheckpoint
-from scipy.stats import triang
+from tensorflow_addons.optimizers import AdamW
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
 import sys
+from transformers import TFBertModel
 
 from models.keras_bert_siamese import build_keras_siamese_model
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-# from models.pytorch_bert_siamese import BertSiameseNetwork
 from config.get_config import get_config
 from src.data_loader import DataLoader
 from src.preprocess import TextPreprocessor
@@ -31,7 +31,8 @@ def preprocess_and_divide_text(text):
     tokens = preprocessor.tokenize_text(text)
 
     chunks = preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-    return chunks
+    encoded_chunks = preprocessor.encode_tokenized_chunks(np.asarray(chunks), config['bert']['maximum_sequence_length'])
+    return encoded_chunks
 
 
 def preprocess_and_divide_impostor_pair(impostor_1, impostor_2):
@@ -64,6 +65,10 @@ def train_network_keras(config, x, y, pair_name):
     os.makedirs(trained_models_path, exist_ok=True)
     model_path = os.path.join(trained_models_path, f"model_{pair_name}.h5")
 
+    lr = float(config['training']['optimizer']['initial_learning_rate'])
+    decay = float(config['training']['optimizer']['learning_rate_decay_factor'])
+    clipnorm = float(config['training']['optimizer']['gradient_clipping_threshold'])
+
     print("-------------------------")
     print("Started training model:", pair_name)
     model = build_keras_siamese_model()
@@ -71,13 +76,13 @@ def train_network_keras(config, x, y, pair_name):
                                    patience=config['training']['early_stopping_patience'])
     checkpoint = ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
 
-    model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
+    optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clipnorm)
+    model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
     print(model.summary())
 
-    # Todo: Fix validation split
     history = model.fit(x, y, epochs=config['training']['epochs'],
-                        validation_split=0.2,
+                        validation_split=0.33,
                         callbacks=[early_stopping, checkpoint],
                         verbose=1)
     model.save(model_path)
@@ -133,7 +138,10 @@ def load_trained_networks():
     for model_file in os.listdir(trained_networks_path):
         if model_file.endswith(".h5"):
             model_path = os.path.join(trained_networks_path, model_file)
-            model = tf.keras.models.load_model(model_path)
+            model = tf.keras.models.load_model(model_path, custom_objects={
+                'TFBertModel': TFBertModel,
+                'AdamW': AdamW
+            })
             trained_networks.append({
                 "model": model,
                 "model_name": model_file
@@ -152,39 +160,53 @@ def display_signal_plot(signal, model_name):
     plt.show()
 
 
+def extract_encoder_branch_from_siamese(siamese_model):
+    print("[INFO] Siamese Model Layers")
+    for i, layer in enumerate(siamese_model.layers):
+        print(i, layer.name, layer.output_shape)
+
+    # Access the internal branch model
+    # Assumes the siamese_model was created like: out1 = branch(...); out2 = branch(...)
+    # And the branch is a Functional or Sequential model named something like 'model'
+    branch_model = siamese_model.get_layer(index=4)  # This is the shared branch model
+    return Model(inputs=branch_model.input, outputs=branch_model.output)
+
+
 def classify_text(text_to_classify, trained_networks, batch_size):
     text_chunks = preprocess_and_divide_text(text_to_classify)
-    # Train X networks on X impostor pairs or load the saved trained X networks
-    # Classify in each trained network
+
     all_signal_representations = []
     for network in trained_networks:
-        # Todo: Model expects 4 inputs instead of 2 (we need one branch)
-        model = network['model']
+        siamese_model = network['model']
         model_name = network['model_name']
         print(f"[INFO] Classifying text with model {model_name}...")
-        # Convert text chunks to numpy array
-        text_chunks = np.array(text_chunks)
-        # Predict using the trained model
-        predictions = np.asarray(model.predict(text_chunks))[:, 0]
+
+        # Extract only the encoder branch (shared branch from Siamese model)
+        encoder_model = extract_encoder_branch_from_siamese(siamese_model)
+
+        # Predict embeddings or scores
+        predictions = np.asarray(encoder_model.predict([text_chunks['input_ids'], text_chunks['attention_mask']]))[:, 0]
         print(f"[INFO] Predictions for {model_name}: {predictions}")
 
-        # Calculate the mean value of each batch's chunks
+        # Aggregate scores into signal chunks
         signal = [np.mean(predictions[i:i + batch_size]) for i in range(0, len(predictions), batch_size)]
         all_signal_representations.append(signal)
+
         display_signal_plot(signal, model_name)
-    # Perform DTW on the signals (all_signal_representations = [signal_1, signal_2, ...], where each signal is a list of means)
+
+    # DTW distance matrix
     dtw_matrix = np.zeros((len(all_signal_representations), len(all_signal_representations)))
     for i in range(len(all_signal_representations)):
         for j in range(i + 1, len(all_signal_representations)):
             dtw_distance = compute_dtw_distance(all_signal_representations[i], all_signal_representations[j])
-            print(
-                f"[INFO] DTW distance between {trained_networks[i]['model_name']} and {trained_networks[j]['model_name']}: {dtw_distance}")
+            print(f"[INFO] DTW distance between {trained_networks[i]['model_name']} and {trained_networks[j]['model_name']}: {dtw_distance}")
             dtw_matrix[i][j] = dtw_distance
 
-    # Detect anomalies using Isolation Forest
+    # Anomaly detection
     anomaly_detector = AnomalyDetector()
     anomaly_vector = anomaly_detector.fit_score(dtw_matrix)
     print("[INFO] Anomaly vector:", anomaly_vector)
+
     return anomaly_vector
 
 
@@ -231,12 +253,15 @@ def full_procedure_keras():
     # Visualize the results with t-SNE
     print("[INFO] Visualizing results with t-SNE...")
     anomaly_array = np.array(anomaly_scores)
-    if anomaly_array.shape[1] < 2:
-        print("[WARN] Not enough variance for t-SNE — using PCA")
-        tsne_results = PCA(n_components=2).fit_transform(anomaly_array)
+    if anomaly_array.shape[0] < 2 or anomaly_array.shape[1] < 2:
+        print("[WARN] Not enough data points for PCA/t-SNE visualization.")
+        tsne_results = np.zeros((anomaly_array.shape[0], 2))  # dummy 2D points
     else:
-        tsne = TSNE(n_components=2, perplexity=min(5, len(anomaly_array) - 1), random_state=42)
-        tsne_results = tsne.fit_transform(anomaly_array)
+        try:
+            tsne_results = TSNE(n_components=2).fit_transform(anomaly_array)
+        except Exception as e:
+            print(f"[WARN] Not enough variance for t-SNE — using PCA: {e}")
+            tsne_results = PCA(n_components=2).fit_transform(anomaly_array)
 
     # Plot
     plt.figure(figsize=(10, 6))
