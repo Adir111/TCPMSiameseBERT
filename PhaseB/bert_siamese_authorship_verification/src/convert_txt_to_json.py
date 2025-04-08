@@ -26,7 +26,10 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
     for filename in os.listdir(shakespeare_dir):
         with open(os.path.join(shakespeare_dir, filename), "r", encoding="utf-8", errors="ignore") as f:
             text = f.read()
-            tested_collection.append(text)
+            tested_collection.append({
+                "text_name": filename,
+                "text": text
+            })
             if tested_collection_size is not None and len(tested_collection) == tested_collection_size:
                 break
 

@@ -86,13 +86,22 @@ class TextPreprocessor:
             "attention_mask": tf.convert_to_tensor(attention_mask_list)
         }
 
-    @staticmethod
-    def divide_tokens_into_chunks(tokens, chunk_size):
+    def divide_tokens_into_chunks(self, tokens, chunk_size):
         tokens = np.asarray(tokens)
         blocks = len(tokens) // chunk_size
         chunks = []
         for i in range(blocks):
             chunks.append(tokens[i * chunk_size:(i + 1) * chunk_size])
+
+        # Handle remaining tokens
+        remainder = len(tokens) % chunk_size
+        if remainder > 0:
+            last_chunk = tokens[-remainder:]
+            # Pad with tokenizer pad token if needed
+            pad_length = chunk_size - remainder
+            pad_token = self.tokenizer.pad_token
+            padded_chunk = np.concatenate([last_chunk, [pad_token] * pad_length])
+            chunks.append(padded_chunk)
         return chunks
 
     def tokenize_text(self, text):

@@ -1,8 +1,6 @@
 data:
   processed_tested_path: "data/processed/dataset_tested_collection.json"
   processed_impostors_path: "data/processed/dataset_impostors.json"
-  test_path: "data/processed/test.json"
-  val_path: "data/processed/val.json"
   trained_models_path: "models/saved_trained_models/"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
@@ -22,20 +20,18 @@ training:
 model:
   save_trained_models: True
   load_trained_models: True
-  hidden_size: 768
-  softmax_dim: 1
-  bidirectional: True # BiLSTM
+  softmax_dim: 1 # Unused
   cnn:
     filters: 2 # 256
     stride: 1
-    padding: "same"
+    padding: "valid"
     kernel_size: [3, 6, 12]
   bilstm:
     hidden_units: 16 # 128 or 256
     dropout: 0.5 # 0.2 - 0.5
     number_of_layers: 300
   fc:
-    in_features: 128
+    in_features: 128 # Unused
     out_features: 1
 
 isolation_forest:
@@ -44,8 +40,9 @@ isolation_forest:
 bert:
   model: "bert-base-uncased"
   maximum_sequence_length: 64 # 512 tokens
-  batch_size_for_fine_tuning: 16 # or 32
-  learning_rate: 2e-5
+  trainable: True
+  batch_size_for_fine_tuning: 16 # or 32 - Unused
+  learning_rate: 2e-5 # Unused
 
 wandb:
   enabled: true

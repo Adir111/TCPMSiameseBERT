@@ -1,3 +1,4 @@
+import numpy as np
 from scipy.spatial.distance import euclidean
 from fastdtw import fastdtw
 
@@ -10,5 +11,7 @@ def compute_dtw_distance(signal1, signal2):
     :param signal2: Second signal (list of floats)
     :return: DTW distance
     """
+    signal1 = [np.array([v]) for v in signal1]
+    signal2 = [np.array([v]) for v in signal2]
     distance, _ = fastdtw(signal1, signal2, dist=euclidean)
     return distance

@@ -32,4 +32,4 @@ class DataLoader:
         else:
             with open(self.data_path, "r") as f:
                 data = json.load(f)
-        return [self.preprocessor.clean_text(entry) for entry in data]
+        return [(entry["text_name"], self.preprocessor.clean_text(entry["text"])) for entry in data]

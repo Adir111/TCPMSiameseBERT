@@ -13,6 +13,7 @@ def build_siamese_branch(bert_model):
     filters = config['model']['cnn']['filters']
     stride = config['model']['cnn']['stride']
     out_features = config['model']['fc']['out_features']
+    padding = config['model']['cnn']['padding']
 
     input_ids = layers.Input(shape=(max_len,), dtype=tf.int32, name="input_ids")
     attention_mask = layers.Input(shape=(max_len,), dtype=tf.int32, name="attention_mask")
@@ -25,11 +26,11 @@ def build_siamese_branch(bert_model):
     for i in range(len(kernel_size)):
         if i == 0:
             cnn_lstm_stack.add(layers.Conv1D(filters=filters, kernel_size=kernel_size[i], strides=stride,
-                                             padding='valid', activation='relu',
+                                             padding=padding, activation='relu',
                                              input_shape=(max_len, 768)))
         else:
             cnn_lstm_stack.add(layers.Conv1D(filters=filters, kernel_size=kernel_size[i], strides=stride,
-                                             padding='valid', activation='relu'))
+                                             padding=padding, activation='relu'))
         cnn_lstm_stack.add(layers.MaxPooling1D(pool_size=2))  # pooling helps stabilize sequence length
 
     cnn_lstm_stack.add(layers.Bidirectional(layers.LSTM(
@@ -54,6 +55,7 @@ def build_siamese_branch(bert_model):
 def build_keras_siamese_model():
     config = get_config()
     bert_model = TFBertModel.from_pretrained(config['bert']['model'])
+    bert_model.trainable = config['bert']['trainable']  # Set to False for transfer learning
 
     # Two branches
     branch = build_siamese_branch(bert_model)
