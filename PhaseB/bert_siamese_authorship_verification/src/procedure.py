@@ -1,4 +1,6 @@
 import numpy as np
+import matplotlib
+matplotlib.use("Agg")  # Use non-interactive backend for matplotlib - so it works on Colab
 import matplotlib.pyplot as plt
 import wandb
 import tensorflow as tf
