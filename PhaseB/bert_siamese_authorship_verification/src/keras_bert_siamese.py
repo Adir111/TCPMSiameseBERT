@@ -47,6 +47,7 @@ def build_siamese_branch(bert_model):
             )
         ))
     cnn_lstm_stack.add(layers.Bidirectional(layers.LSTM(
+        units=bilstm_hidden_units,
         go_backwards=True
     )))
     cnn_lstm_stack.add(layers.Dropout(bilstm_dropout))
