@@ -230,8 +230,9 @@ def classify_text(text_to_classify, text_name, trained_networks, preprocessor: T
         predictions = np.asarray(encoder_model.predict([text_chunks['input_ids'], text_chunks['attention_mask']]))[:, 0]
         binary_outputs = (predictions > 0.5).astype(int)
         binary_outputs = binary_outputs.flatten()
+        binary_outputs = binary_outputs.tolist()
         print(f"[INFO] Predictions for {model_name}: {predictions}")
-        print(f"[INFO] Rounded up predictions for {model_name}: {binary_outputs.tolist()}")
+        print(f"[INFO] Rounded up predictions for {model_name}: {binary_outputs}")
 
         # Aggregate scores into signal chunks
         signal = [np.mean(binary_outputs[i:i + num_chunks_in_batch]) for i in range(0, len(binary_outputs), num_chunks_in_batch)]
@@ -300,7 +301,7 @@ def full_procedure():
     anomaly_scores = []
     for text_idx, entry in enumerate(tested_collection_data):
         text_name, text = entry
-        anomaly_vector = classify_text(text, text_name, trained_networks, num_chunks_in_batch, config, preprocessor)
+        anomaly_vector = classify_text(text, text_name, trained_networks, preprocessor, num_chunks_in_batch, config)
         anomaly_scores.append(anomaly_vector)
         wandb.log({
             f"anomaly_vector_text_{text_name}": wandb.Histogram(anomaly_vector)
