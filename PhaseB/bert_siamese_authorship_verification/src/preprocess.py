@@ -1,22 +1,20 @@
 import random
 import re
 import nltk
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-nltk.download('stopwords')
 import numpy as np
 import tensorflow as tf
 from transformers import BertTokenizer
-from config.get_config import get_config
 
-# Load config
-config = get_config()
+nltk.download('wordnet')
+nltk.download('omw-1.4')
+nltk.download('stopwords')
 
 
 class TextPreprocessor:
-    def __init__(self, max_length=config['bert']['maximum_sequence_length']):
+    def __init__(self, config):
+        self._config = config
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
-        self.max_length = max_length
+        self.max_length = config['bert']['maximum_sequence_length']
 
     @staticmethod
     def clean_text(text):
@@ -38,10 +36,8 @@ class TextPreprocessor:
         # Re-concatenate words into a text
         return " ".join(words)
 
-    @staticmethod
-    def create_model_x_y(chunks_imp_1, chunks_imp_2):
-        config = get_config()
-        chunk_ratio = config['training']['impostor_chunk_ratio']
+    def create_model_x_y(self, chunks_imp_1, chunks_imp_2):
+        chunk_ratio = self._config['training']['impostor_chunk_ratio']
         chunks = [chunks_imp_1, chunks_imp_2]
 
         lens = [len(chunks[0]), len(chunks[1])]
@@ -62,7 +58,8 @@ class TextPreprocessor:
         chunks[0] *= chunk_ratio
         chunks[1] *= chunk_ratio
 
-        return np.asarray(chunks[0]), np.asarray([0.0] * len(chunks[0])), np.asarray(chunks[1]), np.asarray([1.0] * len(chunks[1]))
+        return np.asarray(chunks[0]), np.asarray([0.0] * len(chunks[0])), np.asarray(chunks[1]), np.asarray(
+            [1.0] * len(chunks[1]))
 
     def encode_tokenized_chunks(self, tokenized_chunks, max_length):
         input_ids_list = []

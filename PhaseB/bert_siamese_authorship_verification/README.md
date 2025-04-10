@@ -23,7 +23,7 @@ bert_siamese_authorship_verification/
 │   ├── evaluate.py           # Evaluation metrics and testing
 │   ├── inference.py          # Script for making predictions
 │   ├── preprocess.py         # Tokenization, chunking, and data preparation
-│   ├── train.py              # Model training and inference procedure
+│   ├── procedure.py              # Model training and inference procedure
 ├── tests/                # ✅ All unit and integration tests
 │   ├── test_anomaly.py
 │   ├── test_data_loader.py

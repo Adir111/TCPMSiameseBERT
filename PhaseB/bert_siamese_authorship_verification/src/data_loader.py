@@ -5,9 +5,9 @@ from src.preprocess import TextPreprocessor
 
 
 class DataLoader:
-    def __init__(self, data_path):
+    def __init__(self, data_path, preprocessor: TextPreprocessor):
         self.data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', data_path))
-        self.preprocessor = TextPreprocessor()
+        self.preprocessor = preprocessor
 
     def load_cleaned_text_pair(self):
         is_dir = os.path.isdir(self.data_path)

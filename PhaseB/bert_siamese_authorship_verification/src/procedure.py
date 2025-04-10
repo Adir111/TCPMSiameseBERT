@@ -8,13 +8,12 @@ from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
 import sys
-from transformers import TFBertModel
 
-from src.keras_bert_siamese import build_keras_siamese_model
+from src.model import SiameseBertModel
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from config.get_config import get_config
+from utilities.config_loader import get_config
 from src.data_loader import DataLoader
 from src.preprocess import TextPreprocessor
 from src.dtw import compute_dtw_distance
@@ -67,12 +66,11 @@ def display_signal_plot(signal, model_name):
     plt.show()
 
 
-def preprocess_and_divide_text(text):
+def preprocess_and_divide_text(text, preprocessor: TextPreprocessor):
     config = get_config()
     batch_size = config['training']['batch_size']
     chunk_to_batch_ratio = config['training']['chunk_factor']
     chunk_size = batch_size // chunk_to_batch_ratio
-    preprocessor = TextPreprocessor()
 
     tokens = preprocessor.tokenize_text(text)
     chunks = preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
@@ -88,10 +86,9 @@ def preprocess_and_divide_text(text):
     return encoded_chunks
 
 
-def preprocess_and_divide_impostor_pair(impostor_1, impostor_2):
+def preprocess_and_divide_impostor_pair(impostor_1, impostor_2, preprocessor: TextPreprocessor):
     config = get_config()
     chunk_size = config['training']['batch_size'] // config['training']['chunk_factor']
-    preprocessor = TextPreprocessor()
 
     tokens_1 = preprocessor.tokenize_text(impostor_1)
     tokens_2 = preprocessor.tokenize_text(impostor_2)
@@ -121,9 +118,11 @@ def preprocess_and_divide_impostor_pair(impostor_1, impostor_2):
 
 
 def train_network_keras(config, x, y, pair_name):
+    save_trained_model = config['model']['save_trained_models']
+
     trained_models_path = config['data']['trained_models_path']
     os.makedirs(trained_models_path, exist_ok=True)
-    model_path = os.path.join(trained_models_path, f"model_{pair_name}.h5")
+    model_path = os.path.join(trained_models_path, f"model_{pair_name}_weights.h5")
 
     lr = float(config['training']['optimizer']['initial_learning_rate'])
     decay = float(config['training']['optimizer']['learning_rate_decay_factor'])
@@ -131,7 +130,8 @@ def train_network_keras(config, x, y, pair_name):
 
     print("-------------------------")
     print("Started training model:", pair_name)
-    model = build_keras_siamese_model()
+    model_object = SiameseBertModel(config, pair_name)
+    model = model_object.build_model()
     wandb.log({
         "model_trainable_variables": len(model.trainable_variables),
         "total_parameters": model.count_params()
@@ -151,8 +151,11 @@ def train_network_keras(config, x, y, pair_name):
                         # callbacks=[early_stopping, checkpoint],
                         callbacks=[checkpoint],
                         verbose=1)
-    model.save(model_path)
-    wandb.run.summary["trained_model_saved_as"] = pair_name
+    if save_trained_model:
+        print(f"[INFO] Saving model weights to {model_path}")
+        wandb.save(model_path)
+        model.save_weights(model_path)
+        wandb.run.summary["trained_model_saved_as"] = model_object.get_model_name()
 
     for epoch in range(len(history.history['loss'])):
         wandb.log({
@@ -166,14 +169,13 @@ def train_network_keras(config, x, y, pair_name):
     print("Accuracy:", history.history['accuracy'][-1])
     print("Loss:", history.history['loss'][-1])
     print("Validation Accuracy:", history.history['val_accuracy'][-1])
-    print("Finished training model:", pair_name)
+    print("Finished training model:", model_object.get_model_name())
     print("-------------------------")
 
-    return model, history
+    return model_object, history
 
 
-def load_trained_networks():
-    config = get_config()
+def load_trained_networks(config):
     trained_networks_path = config['data']['trained_models_path']
     os.makedirs(trained_networks_path, exist_ok=True)
 
@@ -181,14 +183,13 @@ def load_trained_networks():
     for model_file in os.listdir(trained_networks_path):
         if model_file.endswith(".h5"):
             model_path = os.path.join(trained_networks_path, model_file)
-            model = tf.keras.models.load_model(model_path, custom_objects={
-                'TFBertModel': TFBertModel,
-                'AdamW': AdamW
-            })
-            trained_networks.append({
-                "model": model,
-                "model_name": model_file
-            })
+
+            model_name = model_file.removeprefix("model_").removesuffix("_weights.h5")
+            siamese = SiameseBertModel(config, model_name)
+            model = siamese.build_model()
+            model.load_weights(model_path)
+
+            trained_networks.append(siamese)
     return trained_networks
 
 
@@ -212,17 +213,16 @@ def extract_encoder_branch_from_siamese(siamese_model):
     return tf.keras.Model(inputs=[input_ids, attention_mask], outputs=out)
 
 
-def classify_text(text_to_classify, text_name, trained_networks, num_chunks_in_batch):
-    text_chunks = preprocess_and_divide_text(text_to_classify)
+def classify_text(text_to_classify, text_name, trained_networks, preprocessor: TextPreprocessor, config, num_chunks_in_batch):
+    text_chunks = preprocess_and_divide_text(text_to_classify, preprocessor)
 
     all_signal_representations = []
     for network in trained_networks:
-        siamese_model = network['model']
-        model_name = network['model_name']
+        model_name = network.get_model_name()
         print(f"[INFO] Classifying text {text_name} with model {model_name}...")
 
         # Extract only the encoder branch (shared branch from Siamese model)
-        encoder_model = extract_encoder_branch_from_siamese(siamese_model)
+        encoder_model = network.build_encoder_with_classifier()
 
         # Predict embeddings or scores
         predictions = np.asarray(encoder_model.predict([text_chunks['input_ids'], text_chunks['attention_mask']]))[:, 0]
@@ -250,15 +250,16 @@ def classify_text(text_to_classify, text_name, trained_networks, num_chunks_in_b
             dtw_matrix[i][j] = dtw_distance
 
     # Anomaly detection
-    anomaly_detector = AnomalyDetector()
+    anomaly_detector = AnomalyDetector(config['isolation_forest']['number_of_trees'])
     anomaly_vector = anomaly_detector.fit_score(dtw_matrix)
     print("[INFO] Anomaly vector:", anomaly_vector)
 
     return anomaly_vector
 
 
-def full_procedure_keras():
+def full_procedure():
     config = get_config()
+    preprocessor = TextPreprocessor(config)
     if config.get("wandb", {}).get("enabled", False):
         wandb.login(key=config["wandb"]["api_key"])
         wandb.init(project=config["wandb"]["project"], config=config, name="full-procedure-run")
@@ -266,31 +267,29 @@ def full_procedure_keras():
     num_chunks_in_batch = config['training']['chunk_factor']
 
     load_trained = config['model'].get('load_trained_models', False)
-    trained_networks = load_trained_networks() if load_trained else []
+    trained_networks = load_trained_networks(config) if load_trained else []
 
-    data_loader = DataLoader(config['data']['processed_impostors_path'])
+    data_loader = DataLoader(config['data']['processed_impostors_path'], preprocessor)
     cleaned_impostor_data = data_loader.load_cleaned_text_pair()
 
     if len(trained_networks) == 0:
         for idx, (impostor_1, impostor_2, pair_name) in enumerate(cleaned_impostor_data):
             print(f"[INFO] Training model {idx + 1}/{len(cleaned_impostor_data)} - for impostor pair {pair_name}")
-            x, y = preprocess_and_divide_impostor_pair(impostor_1, impostor_2)
+            x, y = preprocess_and_divide_impostor_pair(impostor_1, impostor_2, preprocessor)
             model, history = train_network_keras(config, x, y, pair_name)
-            trained_networks.append({
-                "model": model,
-                "model_name": pair_name
-            })
+            trained_networks.append(model)
             display_training_results(history)
             # display_loss_plot(history)
             # display_accuracy_plot(history)
     else:
         print("[INFO] Loaded trained networks:")
         for network in trained_networks:
-            print(f"[INFO] Model name: {network['model_name']}")
-            wandb.run.summary["loaded_model"] = network['model_name']
+            model_name = network.get_model_name()
+            print(f"[INFO] Model name: {model_name}")
+            wandb.run.summary["loaded_model"] = model_name
 
     print("[INFO] Loading Shakespeare data for testing...")
-    tested_collection_texts = DataLoader(config['data']['processed_tested_path'])
+    tested_collection_texts = DataLoader(config['data']['processed_tested_path'], preprocessor)
     tested_collection_data = tested_collection_texts.load_cleaned_text()
 
     print("[INFO] Number of texts in tested collection:", len(tested_collection_data))
@@ -299,7 +298,7 @@ def full_procedure_keras():
     anomaly_scores = []
     for text_idx, entry in enumerate(tested_collection_data):
         text_name, text = entry
-        anomaly_vector = classify_text(text, text_name, trained_networks, num_chunks_in_batch)
+        anomaly_vector = classify_text(text, text_name, trained_networks, num_chunks_in_batch, config, preprocessor)
         anomaly_scores.append(anomaly_vector)
         wandb.log({
             f"anomaly_vector_text_{text_name}": wandb.Histogram(anomaly_vector)
@@ -347,4 +346,4 @@ def full_procedure_keras():
 
 
 if __name__ == "__main__":
-    full_procedure_keras()
+    full_procedure()

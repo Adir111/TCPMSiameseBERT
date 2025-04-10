@@ -1,12 +1,8 @@
 from sklearn.ensemble import IsolationForest
-from config.get_config import get_config
-
-# Load config
-config = get_config()
 
 
 class AnomalyDetector:
-    def __init__(self, number_of_trees=config['isolation_forest']['number_of_trees']):
+    def __init__(self, number_of_trees=100):
         """
         Initializes the Isolation Forest model.
 
