@@ -9,14 +9,19 @@ def build_siamese_branch(bert_model):
     config = get_config()
     max_len = config['bert']['maximum_sequence_length']
     kernel_size = config['model']['cnn']['kernel_size']
-    bilstm_layers = config['model']['bilstm']['hidden_units']
+    bilstm_layers = config['model']['bilstm']['number_of_layers']
+    bilstm_hidden_units = config['model']['bilstm']['hidden_units']
+    bilstm_dropout = config['model']['bilstm']['dropout']
     filters = config['model']['cnn']['filters']
     stride = config['model']['cnn']['stride']
+    in_features = config['model']['fc']['in_features']
     out_features = config['model']['fc']['out_features']
     padding = config['model']['cnn']['padding']
 
     input_ids = layers.Input(shape=(max_len,), dtype=tf.int32, name="input_ids")
     attention_mask = layers.Input(shape=(max_len,), dtype=tf.int32, name="attention_mask")
+
+    # Todo: Print BERT walks and CNN-BiLSTM convergence
 
     # 1. BERT Encoding
     bert_output = bert_model(input_ids, attention_mask=attention_mask)[0]  # (batch, seq_len, hidden_size)
@@ -33,16 +38,19 @@ def build_siamese_branch(bert_model):
                                              padding=padding, activation='relu'))
         cnn_lstm_stack.add(layers.MaxPooling1D(pool_size=2))  # pooling helps stabilize sequence length
 
+    for i in range(bilstm_layers - 1): # -1 because the last layer is a go_backwards BiLSTM
+        return_seq = i < config['model']['bilstm']['number_of_layers'] - 1
+        cnn_lstm_stack.add(layers.Bidirectional(
+            layers.LSTM(
+                units=bilstm_hidden_units,
+                return_sequences=return_seq
+            )
+        ))
     cnn_lstm_stack.add(layers.Bidirectional(layers.LSTM(
-        units=bilstm_layers,
-        return_sequences=True
-    )))
-    cnn_lstm_stack.add(layers.Bidirectional(layers.LSTM(
-        units=bilstm_layers,
         go_backwards=True
     )))
-    cnn_lstm_stack.add(layers.Dropout(0.25))
-    cnn_lstm_stack.add(layers.Dense(128, activation='relu'))
+    cnn_lstm_stack.add(layers.Dropout(bilstm_dropout))
+    cnn_lstm_stack.add(layers.Dense(in_features, activation='relu'))
     # cnn_lstm_stack.add(layers.Softmax(axis=config['model']['softmax_dim']))
     cnn_lstm_stack.add(layers.Dense(out_features, activation='relu'))
 

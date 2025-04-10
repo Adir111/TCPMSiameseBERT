@@ -2,8 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import wandb
 import tensorflow as tf
-from keras import Model
-from keras.callbacks import EarlyStopping, ModelCheckpoint
+from keras.callbacks import ModelCheckpoint
 from tensorflow_addons.optimizers import AdamW
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -11,7 +10,7 @@ import os
 import sys
 from transformers import TFBertModel
 
-from models.keras_bert_siamese import build_keras_siamese_model
+from src.keras_bert_siamese import build_keras_siamese_model
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -128,7 +127,7 @@ def train_network_keras(config, x, y, pair_name):
 
     lr = float(config['training']['optimizer']['initial_learning_rate'])
     decay = float(config['training']['optimizer']['learning_rate_decay_factor'])
-    clipnorm = float(config['training']['optimizer']['gradient_clipping_threshold'])
+    clip_norm = float(config['training']['optimizer']['gradient_clipping_threshold'])
 
     print("-------------------------")
     print("Started training model:", pair_name)
@@ -137,19 +136,20 @@ def train_network_keras(config, x, y, pair_name):
         "model_trainable_variables": len(model.trainable_variables),
         "total_parameters": model.count_params()
     })
-
-    early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
-                                   patience=config['training']['early_stopping_patience'])
+    # Todo: Disable early stopping for now
+    # early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
+    #                                patience=config['training']['early_stopping_patience'])
     checkpoint = ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
 
-    optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clipnorm)
+    optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clip_norm)
     model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
     print(model.summary())
 
     history = model.fit(x, y, epochs=config['training']['epochs'],
                         validation_split=0.33,
-                        callbacks=[early_stopping, checkpoint],
+                        # callbacks=[early_stopping, checkpoint],
+                        callbacks=[checkpoint],
                         verbose=1)
     model.save(model_path)
     wandb.run.summary["trained_model_saved_as"] = pair_name

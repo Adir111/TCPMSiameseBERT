@@ -80,4 +80,5 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
 
 
 if __name__ == "__main__":
-    convert_texts_to_json("../data/raw/shakespeare", "../data/raw/impostors", "../data/processed/dataset.json")
+    convert_texts_to_json(
+        "../../../../../bert_siamese_authorship_verification/bert_siamese_authorship_verification/data/raw/shakespeare", "../data/raw/impostors", "../data/processed/dataset.json")
