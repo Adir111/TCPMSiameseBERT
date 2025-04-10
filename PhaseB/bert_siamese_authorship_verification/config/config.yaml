@@ -19,7 +19,7 @@ training:
 model:
   save_trained_models: True
   load_trained_models: True
-  softmax_dim: 1 # Unused
+  softmax_dim: 1 # Unused currently
   cnn:
     filters: 128 # 256
     stride: 1
@@ -30,7 +30,7 @@ model:
     dropout: 0.25 # 0.2 - 0.5
     number_of_layers: 300
   fc:
-    in_features: 128 # Unused
+    in_features: 128
     out_features: 1
 
 isolation_forest:
@@ -40,8 +40,6 @@ bert:
   model: "bert-base-uncased"
   maximum_sequence_length: 512
   trainable: True
-  batch_size_for_fine_tuning: 16 # or 32 - Unused
-  learning_rate: 2e-5 # Unused
 
 wandb:
   enabled: true
