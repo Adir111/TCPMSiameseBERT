@@ -39,7 +39,7 @@ class TextPreprocessor:
         # Re-concatenate words into a text
         return " ".join(words)
 
-    def create_model_x_y(self, chunks_imp_1, chunks_imp_2):
+    def balance_impostor_dataset(self, chunks_imp_1, chunks_imp_2):
         chunk_ratio = self._config['training']['impostor_chunk_ratio']
         chunks = [chunks_imp_1, chunks_imp_2]
 
@@ -61,8 +61,17 @@ class TextPreprocessor:
         chunks[0] *= chunk_ratio
         chunks[1] *= chunk_ratio
 
-        return np.asarray(chunks[0]), np.asarray([0.0] * len(chunks[0])), np.asarray(chunks[1]), np.asarray(
-            [1.0] * len(chunks[1]))
+        return chunks[0], chunks[1]
+
+    # def create_model_x_y(self, chunks_imp_1, chunks_imp_2):
+    #     x1_chunks, x2_chunks = self.balance_impostor_dataset(chunks_imp_1, chunks_imp_2)
+    #
+    #     x1 = np.asarray(x1_chunks)
+    #     y1 = np.asarray([0] * len(x1_chunks))
+    #     x2 = np.asarray(x2_chunks)
+    #     y2 = np.asarray([1] * len(x2_chunks))
+    #
+    #     return x1, y1, x2, y2
 
     def encode_tokenized_chunks(self, tokenized_chunks, max_length):
         """
@@ -90,6 +99,19 @@ class TextPreprocessor:
         return {
             "input_ids": tf.convert_to_tensor(input_ids_list, dtype=tf.int32),
             "attention_mask": tf.convert_to_tensor(attention_mask_list, dtype=tf.int32)
+        }
+
+    def encode_single_chunk(self, token_chunk, max_len):
+        ids = self.tokenizer.convert_tokens_to_ids(token_chunk[:max_len])
+        attention_mask = [1] * len(ids)
+        padding_length = max_len - len(ids)
+        if padding_length > 0:
+            ids += [self.tokenizer.pad_token_id] * padding_length
+            attention_mask += [0] * padding_length
+
+        return {
+            "input_ids": ids,
+            "attention_mask": attention_mask
         }
 
     def divide_tokens_into_chunks(self, tokens, chunk_size):

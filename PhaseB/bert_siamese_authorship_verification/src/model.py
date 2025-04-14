@@ -5,8 +5,9 @@ from transformers import TFBertModel
 
 
 class SiameseBertModel:
-    def __init__(self, config, model_name="Default"):
+    def __init__(self, config, logger, model_name="Default"):
         self.config = config
+        self.logger = logger
         self.max_len = self.config['bert']['maximum_sequence_length']
         self.kernel_size = self.config['model']['cnn']['kernel_size']
         self.bilstm_layers = self.config['model']['bilstm']['number_of_layers']
@@ -68,6 +69,8 @@ class SiameseBertModel:
         return Model(inputs=[input_ids, attention_mask], outputs=output)
 
     def build_model(self):
+        self.logger.log(f"Started building model {self.get_model_name()}...")
+
         # Shared branch
         self._branch = self._build_siamese_branch()
 
@@ -92,6 +95,7 @@ class SiameseBertModel:
         output = layers.Dense(1, activation='sigmoid')(distance)
 
         model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)
+        self.logger.log(f"Finished building model {self.get_model_name()}...")
         return model
 
     def build_encoder_with_classifier(self):

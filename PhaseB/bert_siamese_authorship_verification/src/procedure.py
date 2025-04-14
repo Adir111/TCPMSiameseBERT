@@ -1,5 +1,6 @@
+import random
 import numpy as np
-import wandb
+import tensorflow as tf
 from keras.callbacks import ModelCheckpoint
 from tensorflow_addons.optimizers import AdamW
 from sklearn.decomposition import PCA
@@ -41,7 +42,7 @@ class Procedure:
                 model_path = os.path.join(trained_networks_path, model_file)
 
                 model_name = model_file.removeprefix("model_").removesuffix("_weights.h5")
-                siamese = SiameseBertModel(self.config, model_name)
+                siamese = SiameseBertModel(self.config, self.logger, model_name)
                 model = siamese.build_model()
                 model.load_weights(model_path)
 
@@ -67,12 +68,72 @@ class Procedure:
         encoded_chunks = self.preprocessor.encode_tokenized_chunks(np.asarray(chunks), self.max_token_length)
         return encoded_chunks
 
+    def make_siamese_pairs(self, chunks_1, chunks_2):
+        max_len = self.config['bert']['maximum_sequence_length']
+        input_ids1, attention_mask1 = [], []
+        input_ids2, attention_mask2 = [], []
+        labels = []
+
+        # -------------------------------
+        # Positive pairs (same impostor)
+        # -------------------------------
+        pos_pairs = []
+
+        for i in range(0, len(chunks_1) - 1, 2):
+            pos_pairs.append((chunks_1[i], chunks_1[i + 1]))
+        for i in range(0, len(chunks_2) - 1, 2):
+            pos_pairs.append((chunks_2[i], chunks_2[i + 1]))
+
+        # -------------------------------
+        # Negative pairs (different impostors)
+        # -------------------------------
+        neg_pairs = list(zip(chunks_1, chunks_2))  # already balanced in length
+
+        # To avoid label imbalance, downsample the larger group
+        num_pairs = min(len(pos_pairs), len(neg_pairs))
+        pos_pairs = random.sample(pos_pairs, num_pairs)
+        neg_pairs = random.sample(neg_pairs, num_pairs)
+
+        # -------------------------------
+        # Encode positive pairs
+        # -------------------------------
+        for a, b in pos_pairs:
+            enc1 = self.preprocessor.encode_single_chunk(a, max_len)
+            enc2 = self.preprocessor.encode_single_chunk(b, max_len)
+            input_ids1.append(enc1["input_ids"])
+            attention_mask1.append(enc1["attention_mask"])
+            input_ids2.append(enc2["input_ids"])
+            attention_mask2.append(enc2["attention_mask"])
+            labels.append(1)
+
+        # -------------------------------
+        # Encode negative pairs
+        # -------------------------------
+        for a, b in neg_pairs:
+            enc1 = self.preprocessor.encode_single_chunk(a, max_len)
+            enc2 = self.preprocessor.encode_single_chunk(b, max_len)
+            input_ids1.append(enc1["input_ids"])
+            attention_mask1.append(enc1["attention_mask"])
+            input_ids2.append(enc2["input_ids"])
+            attention_mask2.append(enc2["attention_mask"])
+            labels.append(0)
+
+        # Final tensors
+        x = [
+            tf.convert_to_tensor(input_ids1),
+            tf.convert_to_tensor(attention_mask1),
+            tf.convert_to_tensor(input_ids2),
+            tf.convert_to_tensor(attention_mask2)
+        ]
+        y = np.array(labels)
+
+        return x, y
+
     def preprocess_and_divide_impostor_pair(self, impostor_1_texts, impostor_2_texts, pair_name):
         chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
 
-        chunks_1 = []
-        chunks_2 = []
-
+        # Tokenize and chunk
+        chunks_1, chunks_2 = [], []
         for text in impostor_1_texts:
             tokens = self.preprocessor.tokenize_text(text)
             chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
@@ -83,25 +144,62 @@ class Procedure:
             chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
             chunks_2.extend(chunks)
 
-        x1_labels, y1_labels, x2_labels, y2_labels = self.preprocessor.create_model_x_y(chunks_1, chunks_2)
+        x1_chunks, x2_chunks = self.preprocessor.balance_impostor_dataset(chunks_1, chunks_2)
 
         self.logger.log({
             f"Pair {pair_name} - impostor 1 number of chunks": len(chunks_1),
             f"Pair {pair_name} - impostor 2 number of chunks": len(chunks_2),
-            f"Pair {pair_name} - x1_labels (chunks after balancing)": len(x1_labels),
-            f"Pair {pair_name} - x2_labels (chunks after balancing)": len(x2_labels)
+            f"Pair {pair_name} - x1_labels (chunks after balancing)": len(x1_chunks),
+            f"Pair {pair_name} - x2_labels (chunks after balancing)": len(x2_chunks)
         })
 
-        enc1 = self.preprocessor.encode_tokenized_chunks(x1_labels, self.max_token_length)
-        enc2 = self.preprocessor.encode_tokenized_chunks(x2_labels, self.max_token_length)
+        # Create pairs
+        x, y = self.make_siamese_pairs(x1_chunks, x2_chunks)
 
-        x = [
-            enc1["input_ids"], enc1["attention_mask"],
-            enc2["input_ids"], enc2["attention_mask"]
-        ]
-        y = np.array(y1_labels + y2_labels)
+        self.logger.log({
+            f"Pair {pair_name} - Total pairs": len(y),
+            f"Y label distribution": dict(zip(*np.unique(y, return_counts=True)))
+        })
 
         return x, y
+
+    # def preprocess_and_divide_impostor_pair_zeev_method(self, impostor_1_texts, impostor_2_texts, pair_name):
+    #     chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
+    #
+    #     chunks_1 = []
+    #     chunks_2 = []
+    #
+    #     for text in impostor_1_texts:
+    #         tokens = self.preprocessor.tokenize_text(text)
+    #         chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
+    #         chunks_1.extend(chunks)
+    #
+    #     for text in impostor_2_texts:
+    #         tokens = self.preprocessor.tokenize_text(text)
+    #         chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
+    #         chunks_2.extend(chunks)
+    #
+    #     x1_labels, y1_labels, x2_labels, y2_labels = self.preprocessor.create_model_x_y(chunks_1, chunks_2)
+    #
+    #     self.logger.log({
+    #         f"Pair {pair_name} - impostor 1 number of chunks": len(chunks_1),
+    #         f"Pair {pair_name} - impostor 2 number of chunks": len(chunks_2),
+    #         f"Pair {pair_name} - x1_labels (chunks after balancing)": len(x1_labels),
+    #         f"Pair {pair_name} - x2_labels (chunks after balancing)": len(x2_labels)
+    #     })
+    #
+    #     enc1 = self.preprocessor.encode_tokenized_chunks(x1_labels, self.max_token_length)
+    #     enc2 = self.preprocessor.encode_tokenized_chunks(x2_labels, self.max_token_length)
+    #
+    #     x = [
+    #         enc1["input_ids"], enc1["attention_mask"],
+    #         enc2["input_ids"], enc2["attention_mask"]
+    #     ]
+    #     y = np.concatenate([y1_labels, y2_labels])
+    #     unique, counts = np.unique(y, return_counts=True)
+    #     self.logger.log(f"Y label distribution: {dict(zip(unique, counts))}")
+    #
+    #     return x, y
 
     def train_network_keras(self, x, y, pair_name):
         save_trained_model = self.config['model']['save_trained_models']
@@ -116,12 +214,13 @@ class Procedure:
         clip_norm = float(self.config['training']['optimizer']['gradient_clipping_threshold'])
 
         self.logger.log(f"-------------------------\nStarted training model: {pair_name}")
-        model_object = SiameseBertModel(self.config, pair_name)
+        model_object = SiameseBertModel(self.config, self.logger, pair_name)
         model = model_object.build_model()
         self.logger.log({
             f"Model {pair_name} - Trainable Variables": len(model.trainable_variables),
             f"Model {pair_name} - Total Parameters": model.count_params()
         })
+
         # Todo: Disable early stopping for now
         # early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
         #                                patience=config['training']['early_stopping_patience'])
