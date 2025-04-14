@@ -1,7 +1,7 @@
 data:
   processed_tested_path: "data/processed/dataset_tested_collection.json"
   processed_impostors_path: "data/processed/dataset_impostors.json"
-  trained_models_path: "models/saved_trained_models/"
+  trained_models_path: "saved_trained_models/"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
 
