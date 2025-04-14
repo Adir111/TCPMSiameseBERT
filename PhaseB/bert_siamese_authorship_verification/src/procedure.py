@@ -107,6 +107,13 @@ def preprocess_and_divide_impostor_pair(impostor_1_texts, impostor_2_texts, prep
 
     x1_labels, y1_labels, x2_labels, y2_labels = preprocessor.create_model_x_y(chunks_1, chunks_2)
 
+    wandb.log({
+        "impostor_1_chunk_count": len(chunks_1),
+        "impostor_2_chunk_count": len(chunks_2),
+        "x1_labels (chunks after balancing)": len(x1_labels),
+        "x2_labels (chunks after balancing)": len(x2_labels)
+    })
+
     enc1 = preprocessor.encode_tokenized_chunks(x1_labels, config['bert']['maximum_sequence_length'])
     enc2 = preprocessor.encode_tokenized_chunks(x2_labels, config['bert']['maximum_sequence_length'])
 
@@ -276,9 +283,9 @@ def full_procedure():
     cleaned_impostor_pairs = data_loader.load_impostors()
 
     if len(trained_networks) == 0:
-        for idx, (impostor_1, impostor_2, pair_name) in enumerate(cleaned_impostor_data):
-            print(f"[INFO] Training model {idx + 1}/{len(cleaned_impostor_data)} - for impostor pair {pair_name}")
-            x, y = preprocess_and_divide_impostor_pair(impostor_1, impostor_2, preprocessor)
+        for idx, (impostor_1_texts, impostor_2_texts, pair_name) in enumerate(cleaned_impostor_pairs):
+            print(f"[INFO] Training model {idx + 1}/{len(cleaned_impostor_pairs)} - for impostor pair {pair_name}")
+            x, y = preprocess_and_divide_impostor_pair(impostor_1_texts, impostor_2_texts, preprocessor)
             model, history = train_network_keras(config, x, y, pair_name)
             trained_networks.append(model)
             display_training_results(history)

@@ -3,6 +3,7 @@ import re
 import nltk
 import numpy as np
 import tensorflow as tf
+import string
 from transformers import BertTokenizer
 
 nltk.download('wordnet')
@@ -25,6 +26,7 @@ class TextPreprocessor:
         text = text.replace("\r", " ")  # Replace carriage returns with spaces
         text = text.replace("\t", " ")  # Replace tabs with spaces
         text = re.sub(r"\s+", " ", text)  # Replace multiple spaces with a single space
+        text = text.translate(str.maketrans("", "", string.punctuation))  # Remove Punctuation
 
         words = text.split()
         # Remove non-alphabetic characters
