@@ -43,5 +43,6 @@ bert:
 
 wandb:
   enabled: true
+  run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   api_key: 99cb11ef59cac847e6b99323c0d485a69157f548

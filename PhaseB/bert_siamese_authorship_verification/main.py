@@ -5,7 +5,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utilities.config_loader import get_config
 from utilities.convert_txt_to_json import convert_texts_to_json
-from src.procedure import full_procedure
+from src.procedure import Procedure
 
 # Load config
 config = get_config()
@@ -39,7 +39,7 @@ def train_model():
     """ Triggers the training script. """
     print("🚀 Starting training...")
     try:
-        full_procedure()
+        Procedure().full_procedure()
         print("✅ Training completed!")
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")
