@@ -17,29 +17,30 @@ class DataLoader:
 
             with open(self.data_path, "r") as f:
                 data = json.load(f)
-            data_len = len(data)
+                data_len = len(data)
 
-            cleaned_dataset = []
-            for impostor in data:
-                cleaned_texts = []
-                for text in impostor.texts:
-                    cleaned_texts.append(self.preprocessor.clean_text(text))
-                cleaned_dataset.append({
-                    "author": impostor.author,
-                    "texts": cleaned_texts
-                })
+                cleaned_dataset = []
+                for impostor in data:
+                    cleaned_texts = []
+                    for text in impostor["texts"]:
+                        cleaned_texts.append(self.preprocessor.clean_text(text))
 
-            impostor_pairs = []
-            for i in range(data_len):
-                for j in range(i + 1, data_len):
-                    pair_name = f'{cleaned_dataset[i]["author"]}_vs_{cleaned_dataset[j]["author"]}'
-                    impostor_pairs.append((
-                        cleaned_dataset[i],
-                        cleaned_dataset[j],
-                        pair_name
-                    ))
+                    cleaned_dataset.append({
+                        "author": impostor["author"],
+                        "texts": cleaned_texts
+                    })
 
-            return impostor_pairs
+                impostor_pairs = []
+                for i in range(data_len):
+                    for j in range(i + 1, data_len):
+                        pair_name = f'{cleaned_dataset[i]["author"]}_vs_{cleaned_dataset[j]["author"]}'
+                        impostor_pairs.append((
+                            cleaned_dataset[i]["texts"],
+                            cleaned_dataset[j]["texts"],
+                            pair_name
+                        ))
+
+                return impostor_pairs
         except KeyError as e:
             raise KeyError(f"Missing expected key in JSON data while loading impostors: {e}")
         except Exception as e:

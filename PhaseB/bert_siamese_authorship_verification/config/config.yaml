@@ -13,7 +13,7 @@ training:
   batch_size: 200 # 32 # or 64 - How many chunks in a batch
   chunk_factor: 4 # Chunk to Batch ratio
   epochs: 1 # 10-20
-  early_stopping_patience: 5
+  early_stopping_patience: 2
   impostor_chunk_ratio: 2
 
 model:
@@ -21,14 +21,14 @@ model:
   load_trained_models: True
   softmax_dim: 1 # Unused currently
   cnn:
-    filters: 128 # 256
+    filters: 16 # 128 or 256
     stride: 1
     padding: "valid"
     kernel_size: [3, 6, 12]
   bilstm:
-    hidden_units: 128 # 128 or 256
+    hidden_units: 16 # 128 or 256
     dropout: 0.25 # 0.2 - 0.5
-    number_of_layers: 100
+    number_of_layers: 5
   fc:
     in_features: 128
     out_features: 1
@@ -42,7 +42,7 @@ bert:
   trainable: True
 
 wandb:
-  enabled: true
+  enabled: false
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   api_key: 99cb11ef59cac847e6b99323c0d485a69157f548

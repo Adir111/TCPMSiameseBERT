@@ -24,7 +24,7 @@ def create_dataset():
 
     if not full_dataset:
         while impostor_size is None or impostor_size < 2:
-            print("Enter the number of impostors to include:")
+            print("Enter the number of impostors to include (at least 2):")
             impostor_size = int(input().strip())
         print("Enter the number of Shakespeare texts to include:")
         tested_collection_size = int(input().strip())

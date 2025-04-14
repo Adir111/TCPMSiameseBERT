@@ -65,25 +65,31 @@ class TextPreprocessor:
             [1.0] * len(chunks[1]))
 
     def encode_tokenized_chunks(self, tokenized_chunks, max_length):
+        """
+        Converts pre-tokenized WordPiece chunks into padded input_ids and attention_masks as tensors.
+        Each chunk is a list/array of WordPiece strings.
+        """
         input_ids_list = []
         attention_mask_list = []
 
         for chunk in tokenized_chunks:
+            # Truncate and convert to token IDs
             ids = self.tokenizer.convert_tokens_to_ids(chunk[:max_length])
             attention_mask = [1] * len(ids)
 
-            # Pad if shorter than max_length
+            # Pad to max_length if needed
             padding_length = max_length - len(ids)
             if padding_length > 0:
-                ids += [self.tokenizer.pad_token_id] * padding_length
+                pad_id = self.tokenizer.pad_token_id
+                ids += [pad_id] * padding_length
                 attention_mask += [0] * padding_length
 
             input_ids_list.append(ids)
             attention_mask_list.append(attention_mask)
 
         return {
-            "input_ids": tf.convert_to_tensor(input_ids_list),
-            "attention_mask": tf.convert_to_tensor(attention_mask_list)
+            "input_ids": tf.convert_to_tensor(input_ids_list, dtype=tf.int32),
+            "attention_mask": tf.convert_to_tensor(attention_mask_list, dtype=tf.int32)
         }
 
     def divide_tokens_into_chunks(self, tokens, chunk_size):
@@ -105,9 +111,5 @@ class TextPreprocessor:
         return chunks
 
     def tokenize_text(self, text):
-        tokens = self.tokenizer.tokenize(
-            text,
-            return_tensors='tf',
-            max_length=self.max_length
-        )
+        tokens = self.tokenizer.tokenize(text)
         return tokens

@@ -76,12 +76,12 @@ class Procedure:
         for text in impostor_1_texts:
             tokens = self.preprocessor.tokenize_text(text)
             chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-            chunks_1.append(chunks)
+            chunks_1.extend(chunks)
 
         for text in impostor_2_texts:
             tokens = self.preprocessor.tokenize_text(text)
             chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-            chunks_2.append(chunks)
+            chunks_2.extend(chunks)
 
         x1_labels, y1_labels, x2_labels, y2_labels = self.preprocessor.create_model_x_y(chunks_1, chunks_2)
 
@@ -109,6 +109,7 @@ class Procedure:
         trained_models_path = self.config['data']['trained_models_path']
         os.makedirs(trained_models_path, exist_ok=True)
         model_path = os.path.join(trained_models_path, f"model_{pair_name}_weights.h5")
+        model_checkpoint_path = os.path.join(trained_models_path, f"model_{pair_name}_best_weights.h5")
 
         lr = float(self.config['training']['optimizer']['initial_learning_rate'])
         decay = float(self.config['training']['optimizer']['learning_rate_decay_factor'])
@@ -124,7 +125,7 @@ class Procedure:
         # Todo: Disable early stopping for now
         # early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
         #                                patience=config['training']['early_stopping_patience'])
-        checkpoint = ModelCheckpoint(model_path, monitor='val_loss', save_best_only=True, mode='min')
+        checkpoint = ModelCheckpoint(model_checkpoint_path, monitor='val_loss', save_best_only=True, mode='min')
 
         optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clip_norm)
         model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
@@ -197,7 +198,7 @@ class Procedure:
         # Anomaly detection
         anomaly_detector = AnomalyDetector(self.config['isolation_forest']['number_of_trees'])
         anomaly_vector = anomaly_detector.fit_score(dtw_matrix)
-        print("[INFO] Anomaly vector:", anomaly_vector)
+        self.logger.log(f"[INFO] Anomaly vector: {anomaly_vector} for text {text_name}")
 
         return anomaly_vector
 

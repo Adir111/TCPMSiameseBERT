@@ -103,8 +103,10 @@ def get_logger(config):
             config=config,
         )
         _logger_instance = WrappedWandbLogger(wandb)
+        _logger_instance.log("[INFO] WandB logger initialized")
     else:
         _logger_instance = NoOpWandb()
+        _logger_instance.log("[INFO] NoOpWandb logger initialized")
 
     return _logger_instance
 
