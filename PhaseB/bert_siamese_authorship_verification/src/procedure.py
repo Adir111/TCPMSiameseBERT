@@ -88,22 +88,22 @@ def preprocess_and_divide_text(text, preprocessor: TextPreprocessor):
     return encoded_chunks
 
 
-def preprocess_and_divide_impostor_pair(impostor_1, impostor_2, preprocessor: TextPreprocessor):
+def preprocess_and_divide_impostor_pair(impostor_1_texts, impostor_2_texts, preprocessor: TextPreprocessor):
     config = get_config()
     chunk_size = config['training']['batch_size'] // config['training']['chunk_factor']
 
-    tokens_1 = preprocessor.tokenize_text(impostor_1)
-    tokens_2 = preprocessor.tokenize_text(impostor_2)
+    chunks_1 = []
+    chunks_2 = []
 
-    chunks_1 = preprocessor.divide_tokens_into_chunks(tokens_1, chunk_size)
-    chunks_2 = preprocessor.divide_tokens_into_chunks(tokens_2, chunk_size)
+    for text in impostor_1_texts:
+        tokens = preprocessor.tokenize_text(text)
+        chunks = preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
+        chunks_1.append(chunks)
 
-    wandb.log({
-        "impostor_1_token_count": len(tokens_1),
-        "impostor_2_token_count": len(tokens_2),
-        "impostor_1_chunk_count": len(chunks_1),
-        "impostor_2_chunk_count": len(chunks_2)
-    })
+    for text in impostor_2_texts:
+        tokens = preprocessor.tokenize_text(text)
+        chunks = preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
+        chunks_2.append(chunks)
 
     x1_labels, y1_labels, x2_labels, y2_labels = preprocessor.create_model_x_y(chunks_1, chunks_2)
 
@@ -273,7 +273,7 @@ def full_procedure():
     trained_networks = load_trained_networks(config) if load_trained else []
 
     data_loader = DataLoader(config['data']['processed_impostors_path'], preprocessor)
-    cleaned_impostor_data = data_loader.load_cleaned_text_pair()
+    cleaned_impostor_pairs = data_loader.load_impostors()
 
     if len(trained_networks) == 0:
         for idx, (impostor_1, impostor_2, pair_name) in enumerate(cleaned_impostor_data):
@@ -293,7 +293,7 @@ def full_procedure():
 
     print("[INFO] Loading Shakespeare data for testing...")
     tested_collection_texts = DataLoader(config['data']['processed_tested_path'], preprocessor)
-    tested_collection_data = tested_collection_texts.load_cleaned_text()
+    tested_collection_data = tested_collection_texts.load_tested_collection_text()
 
     print("[INFO] Number of texts in tested collection:", len(tested_collection_data))
     wandb.log({"tested_texts_count": len(tested_collection_data)})

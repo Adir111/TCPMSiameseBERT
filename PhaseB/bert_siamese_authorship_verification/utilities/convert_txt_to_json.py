@@ -1,5 +1,8 @@
 import os
 import json
+import sys
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utilities.config_loader import get_config
 
@@ -37,40 +40,25 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
     impostor_folders = [f for f in os.listdir(impostor_dir) if os.path.isdir(os.path.join(impostor_dir, f))]
 
     for i in range(len(impostor_folders)):
-        for j in range(i + 1, len(impostor_folders)):
-            if impostor_size is not None and len(impostor_dataset) >= impostor_size:
-                break
+        if impostor_size is not None and len(impostor_dataset) >= impostor_size:
+            break
 
-            impostor_1_folder = impostor_folders[i]
-            impostor_2_folder = impostor_folders[j]
+        impostor_folder = impostor_folders[i]
+        impostor_path = os.path.join(impostor_dir, impostor_folder)
+        impostor_files = os.listdir(impostor_path)
 
-            impostor_1_path = os.path.join(impostor_dir, impostor_1_folder)
-            impostor_2_path = os.path.join(impostor_dir, impostor_2_folder)
+        impostor_texts = []
 
-            impostor_1_files = os.listdir(impostor_1_path)
-            impostor_2_files = os.listdir(impostor_2_path)
+        for file in impostor_files:
+            path = os.path.join(impostor_path, file)
+            with open(path, "r", encoding="utf-8", errors="ignore") as f:
+                text = f.read()
+                impostor_texts.append(text)
 
-            for file1 in impostor_1_files:
-                for file2 in impostor_2_files:
-                    if impostor_size is not None and len(impostor_dataset) >= impostor_size:
-                        break
-
-                    path1 = os.path.join(impostor_1_path, file1)
-                    path2 = os.path.join(impostor_2_path, file2)
-
-                    with open(path1, "r", encoding="utf-8", errors="ignore") as f1, \
-                            open(path2, "r", encoding="utf-8", errors="ignore") as f2:
-
-                        text1 = f1.read()
-                        text2 = f2.read()
-
-                        impostor_dataset.append({
-                            "text1": text1,
-                            "text2": text2,
-                            "pair_name": f"{file1}_vs_{file2}"
-                        })
-                if impostor_size is not None and len(impostor_dataset) >= impostor_size:
-                    break
+        impostor_dataset.append({
+            "author": impostor_folder,
+            "texts": impostor_texts
+        })
 
     # Save to JSON
     with open(impostor_output_path, "w", encoding="utf-8") as json_file:
@@ -80,7 +68,14 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
 
 
 if __name__ == "__main__":
+    # Load config
+    config = get_config()
+
+    # Paths
+    TESTED_COLLECTION_PATH = '../' + config['data']['shakespeare_path']
+    IMPOSTORS_PATH = '../' + config['data']['impostors_path']
     convert_texts_to_json(
-        "../data/raw/shakespeare",
-        "../data/raw/impostors",
-        "../data/processed/dataset.json")
+        TESTED_COLLECTION_PATH,
+        IMPOSTORS_PATH,
+        tested_collection_size=2,
+        impostor_size=2)

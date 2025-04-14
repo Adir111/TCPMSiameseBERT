@@ -19,7 +19,7 @@ def test_signal_extraction_visual():
 
     # Load a random tested collection text
     data_loader = DataLoader(config['data']['processed_tested_path'])
-    tested_collection = data_loader.load_cleaned_text()
+    tested_collection = data_loader.load_tested_collection_text()
     random_text = random.choice(tested_collection)
 
     # Preprocess

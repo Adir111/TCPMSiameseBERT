@@ -24,7 +24,7 @@ def test_load_cleaned_text_pair_with_complex_text():
     file_path = write_temp_file(complex_json)
     loader = DataLoader(file_path)
 
-    pairs = loader.load_cleaned_text_pair()
+    pairs = loader.load_impostors()
     os.unlink(file_path)
 
     assert len(pairs) == 1
@@ -44,7 +44,7 @@ def test_load_cleaned_text_single_file_with_formatting():
     file_path = write_temp_file(complex_texts)
     loader = DataLoader(file_path)
 
-    cleaned = loader.load_cleaned_text()
+    cleaned = loader.load_tested_collection_text()
     os.unlink(file_path)
 
     assert len(cleaned) == 2
@@ -61,7 +61,7 @@ def test_load_cleaned_text_directory_with_complex_entries(tmp_path):
     (tmp_path / "f2.json").write_text(json.dumps(content2))
 
     loader = DataLoader(str(tmp_path))
-    cleaned = loader.load_cleaned_text()
+    cleaned = loader.load_tested_collection_text()
 
     assert len(cleaned) == 2
     assert all(isinstance(c, str) for c in cleaned)
