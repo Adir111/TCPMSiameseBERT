@@ -105,7 +105,9 @@ class TextPreprocessor:
         return chunks
 
     def tokenize_text(self, text):
-        tokens = self.tokenizer.tokenize(text)
-        tokens = tokens[:self.max_length]
-
+        tokens = self.tokenizer.tokenize(
+            text,
+            return_tensors='tf',
+            max_length=self.max_length
+        )
         return tokens
