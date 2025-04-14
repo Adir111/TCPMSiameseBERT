@@ -1,7 +1,7 @@
 import os
 import json
 
-from config_loader import get_config
+from utilities.config_loader import get_config
 
 
 def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=None, impostor_size=None):
