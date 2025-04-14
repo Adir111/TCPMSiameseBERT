@@ -18,7 +18,8 @@ class TextPreprocessor:
 
     @staticmethod
     def clean_text(text):
-        # Split text into words, convert to lowercase, remove punctuation from each word, remove non-alphabetic words and filter out stop words
+        # Split text into words, convert to lowercase, remove punctuation from each word,
+        # remove non-alphabetic words and filter out stop words
         text = text.lower()
         text = text.replace("\n", " ")  # Replace newlines with spaces
         text = text.replace("\r", " ")  # Replace carriage returns with spaces
