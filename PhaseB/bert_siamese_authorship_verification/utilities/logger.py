@@ -41,7 +41,7 @@ class NoOpWandb:
         return None
 
     @staticmethod
-    def log_summary(name):
+    def log_summary(summary_name, name):
         print(f"[NoOpWandb] Logging summary with name={name}")
 
     def __getattr__(self, name):
@@ -75,8 +75,8 @@ class WrappedWandbLogger:
     def Histogram(self, *args, **kwargs):
         return self._wandb.Histogram(*args, **kwargs)
 
-    def log_summary(self, name):
-        self._wandb.run.summary["loaded_model"] = name
+    def log_summary(self, summary_name, name):
+        self._wandb.run.summary[summary_name] = name
 
     def log(self, data):
         if isinstance(data, str):

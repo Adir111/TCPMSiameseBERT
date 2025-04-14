@@ -109,7 +109,7 @@ class Procedure:
         trained_models_path = self.config['data']['trained_models_path']
         os.makedirs(trained_models_path, exist_ok=True)
         model_path = os.path.join(trained_models_path, f"model_{pair_name}_weights.h5")
-        model_checkpoint_path = os.path.join(trained_models_path, f"model_{pair_name}_best_weights.h5")
+        model_checkpoint_path = os.path.join(trained_models_path, f"best_weights/model_{pair_name}_best_weights.h5")
 
         lr = float(self.config['training']['optimizer']['initial_learning_rate'])
         decay = float(self.config['training']['optimizer']['learning_rate_decay_factor'])
@@ -141,7 +141,7 @@ class Procedure:
             self.logger.log(f"[INFO] Saving model weights to {model_path}")
             self.logger.save(model_path)
             model.save_weights(model_path)
-            wandb.run.summary["trained_model_saved_as"] = model_object.get_model_name()
+            self.logger.log_summary("trained_model_saved_as", model_object.get_model_name())
 
         for epoch in range(len(history.history['loss'])):
             self.logger.log({

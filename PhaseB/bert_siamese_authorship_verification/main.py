@@ -37,10 +37,10 @@ def create_dataset():
 
 def train_model():
     """ Triggers the training script. """
-    print("🚀 Starting training...")
+    print("🚀 Starting Full Procedure...")
     try:
         Procedure().full_procedure()
-        print("✅ Training completed!")
+        print("✅ Procedure completed!")
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")
 
