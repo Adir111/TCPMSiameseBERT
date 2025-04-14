@@ -1,7 +1,9 @@
+import io
 import tensorflow as tf
 from keras import Sequential
 from tensorflow.keras import layers, Model
 from transformers import TFBertModel
+from contextlib import redirect_stdout
 
 
 class SiameseBertModel:
@@ -30,6 +32,12 @@ class SiameseBertModel:
 
     def set_model_name(self, name):
         self._model_name = name
+
+    @staticmethod
+    def get_model_summary_string(model):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            model.summary()
+            return buf.getvalue()
 
     def _build_siamese_branch(self):
         input_ids = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
@@ -92,6 +100,7 @@ class SiameseBertModel:
         )([out1, out2])
 
         # Final binary classifier
+        # Todo: Deprecate this layer
         output = layers.Dense(1, activation='sigmoid')(distance)
 
         model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)
@@ -107,6 +116,8 @@ class SiameseBertModel:
         attention_mask = tf.keras.Input(shape=self._branch.input[1].shape[1:], dtype=tf.int32, name="attention_mask")
 
         x = self._branch([input_ids, attention_mask])
+
+        # Todo: replace with Relu activation
         out = tf.keras.layers.Dense(1, activation="sigmoid", name="chunk_classifier")(x)
 
         return tf.keras.Model(inputs=[input_ids, attention_mask], outputs=out)

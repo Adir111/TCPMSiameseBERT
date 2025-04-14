@@ -156,50 +156,15 @@ class Procedure:
         # Create pairs
         x, y = self.make_siamese_pairs(x1_chunks, x2_chunks)
 
+        labels, counts = np.unique(y, return_counts=True)
+        label_distribution = {str(k): int(v) for k, v in zip(labels, counts)}
+
         self.logger.log({
             f"Pair {pair_name} - Total pairs": len(y),
-            f"Y label distribution": dict(zip(*np.unique(y, return_counts=True)))
+            f"Y label distribution": label_distribution
         })
 
         return x, y
-
-    # def preprocess_and_divide_impostor_pair_zeev_method(self, impostor_1_texts, impostor_2_texts, pair_name):
-    #     chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
-    #
-    #     chunks_1 = []
-    #     chunks_2 = []
-    #
-    #     for text in impostor_1_texts:
-    #         tokens = self.preprocessor.tokenize_text(text)
-    #         chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-    #         chunks_1.extend(chunks)
-    #
-    #     for text in impostor_2_texts:
-    #         tokens = self.preprocessor.tokenize_text(text)
-    #         chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-    #         chunks_2.extend(chunks)
-    #
-    #     x1_labels, y1_labels, x2_labels, y2_labels = self.preprocessor.create_model_x_y(chunks_1, chunks_2)
-    #
-    #     self.logger.log({
-    #         f"Pair {pair_name} - impostor 1 number of chunks": len(chunks_1),
-    #         f"Pair {pair_name} - impostor 2 number of chunks": len(chunks_2),
-    #         f"Pair {pair_name} - x1_labels (chunks after balancing)": len(x1_labels),
-    #         f"Pair {pair_name} - x2_labels (chunks after balancing)": len(x2_labels)
-    #     })
-    #
-    #     enc1 = self.preprocessor.encode_tokenized_chunks(x1_labels, self.max_token_length)
-    #     enc2 = self.preprocessor.encode_tokenized_chunks(x2_labels, self.max_token_length)
-    #
-    #     x = [
-    #         enc1["input_ids"], enc1["attention_mask"],
-    #         enc2["input_ids"], enc2["attention_mask"]
-    #     ]
-    #     y = np.concatenate([y1_labels, y2_labels])
-    #     unique, counts = np.unique(y, return_counts=True)
-    #     self.logger.log(f"Y label distribution: {dict(zip(unique, counts))}")
-    #
-    #     return x, y
 
     def train_network_keras(self, x, y, pair_name):
         save_trained_model = self.config['model']['save_trained_models']
@@ -229,7 +194,8 @@ class Procedure:
         optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clip_norm)
         model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
-        self.logger.log(model.summary())
+        summary_str = model_object.get_model_summary_string(model)
+        self.logger.log(summary_str)
 
         history = model.fit(x, y, epochs=self.config['training']['epochs'],
                             validation_split=0.33,
@@ -279,6 +245,7 @@ class Procedure:
             # Aggregate scores into signal chunks
             signal = [np.mean(binary_outputs[i:i + self.num_chunks_in_batch]) for i in
                       range(0, len(binary_outputs), self.num_chunks_in_batch)]
+            self.logger.log(f"[INFO] Signal representation for {model_name}: {signal}")
             all_signal_representations.append(signal)
 
             self.data_visualizer.display_signal_plot(signal, text_name, model_name)

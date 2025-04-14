@@ -63,16 +63,6 @@ class TextPreprocessor:
 
         return chunks[0], chunks[1]
 
-    # def create_model_x_y(self, chunks_imp_1, chunks_imp_2):
-    #     x1_chunks, x2_chunks = self.balance_impostor_dataset(chunks_imp_1, chunks_imp_2)
-    #
-    #     x1 = np.asarray(x1_chunks)
-    #     y1 = np.asarray([0] * len(x1_chunks))
-    #     x2 = np.asarray(x2_chunks)
-    #     y2 = np.asarray([1] * len(x2_chunks))
-    #
-    #     return x1, y1, x2, y2
-
     def encode_tokenized_chunks(self, tokenized_chunks, max_length):
         """
         Converts pre-tokenized WordPiece chunks into padded input_ids and attention_masks as tensors.

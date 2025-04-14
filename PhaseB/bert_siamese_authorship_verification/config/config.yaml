@@ -7,18 +7,18 @@ data:
 
 training:
   optimizer:
-    initial_learning_rate: 1e-5
+    initial_learning_rate: 1e-3
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
   batch_size: 400 # 32 # or 64 - How many chunks in a batch
   chunk_factor: 8 # Chunk to Batch ratio
-  epochs: 5 # 10-20
-  early_stopping_patience: 5
+  epochs: 2 # 10-20
+  early_stopping_patience: 2
   impostor_chunk_ratio: 2
 
 model:
   save_trained_models: True
-  load_trained_models: False
+  load_trained_models: True
   softmax_dim: 1 # Unused currently
   cnn:
     filters: 128 # 128 or 256

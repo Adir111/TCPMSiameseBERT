@@ -12,7 +12,7 @@ class DataVisualizer:
 
     def _finalize_plot(self, label):
         if self._is_wandb:
-            self.logger.log({label: self.logger.Image(plt.gcf())})
+            self.logger.log({label: self.logger.wandb.Image(plt.gcf())})
         else:
             plt.show()
 
