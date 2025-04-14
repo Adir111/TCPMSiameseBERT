@@ -10,8 +10,8 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=
     impostor_dataset = []
     tested_collection = []
 
-    tested_collection_output_path = config['data']['processed_tested_path']
-    impostors_output_path = config['data']['processed_impostors_path']
+    tested_collection_output_path = '../' + config['data']['processed_tested_path']
+    impostors_output_path = '../' + config['data']['processed_impostors_path']
 
     shakespeare_dir = os.path.join(os.getcwd(), shakespeare_dir)
     impostor_dir = os.path.join(os.getcwd(), impostor_dir)
