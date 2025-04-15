@@ -101,12 +101,8 @@ class SiameseBertModel:
             lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6)
         )([out1, out2])
 
-        normalized_distance = Lambda(
-            lambda d: tf.clip_by_value(d / tf.reduce_max(d), 0.0, 1.0)
-        )(distance)
-
         # Output will be in [0, 1], suitable for BCE
-        output = Dense(1, activation="sigmoid")(normalized_distance)
+        output = Dense(1, activation="sigmoid")(distance)
 
         model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)
         self.logger.log(f"Finished building model {self.get_model_name()}...")
