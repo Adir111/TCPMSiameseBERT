@@ -1,7 +1,8 @@
 import io
 import tensorflow as tf
-from keras import Sequential
-from tensorflow.keras import layers, Model
+from keras import Sequential, Input, Model
+from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
+from keras.layers.convolutional import MaxPooling1D, Conv1D
 from transformers import TFBertModel
 from contextlib import redirect_stdout
 
@@ -10,16 +11,19 @@ class SiameseBertModel:
     def __init__(self, config, logger, model_name="Default"):
         self.config = config
         self.logger = logger
-        self.max_len = self.config['bert']['maximum_sequence_length']
         self.kernel_size = self.config['model']['cnn']['kernel_size']
         self.bilstm_layers = self.config['model']['bilstm']['number_of_layers']
-        self.bilstm_hidden_units = self.config['model']['bilstm']['hidden_units']
+        self.bilstm_output_units = int(self.bilstm_layers * 2)
         self.bilstm_dropout = self.config['model']['bilstm']['dropout']
+        self.embedding_dim = self.config['model']['bilstm']['dimension']
         self.filters = self.config['model']['cnn']['filters']
         self.stride = self.config['model']['cnn']['stride']
+        self.pool_size = self.config['model']['cnn']['pool_size']
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
         self.padding = self.config['model']['cnn']['padding']
+
+        self.chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
 
         self.bert_model = TFBertModel.from_pretrained(self.config['bert']['model'])
         self.bert_model.trainable = self.config['bert']['trainable']
@@ -40,8 +44,8 @@ class SiameseBertModel:
             return buf.getvalue()
 
     def _build_siamese_branch(self):
-        input_ids = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
-        attention_mask = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
+        input_ids = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids")
+        attention_mask = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask")
 
         # BERT output
         bert_output = self.bert_model(input_ids, attention_mask=attention_mask)[0]
@@ -50,27 +54,20 @@ class SiameseBertModel:
         cnn_lstm_stack = Sequential(name="cnn_bilstm_stack")
 
         for i in range(len(self.kernel_size)):
-            if i == 0:
-                cnn_lstm_stack.add(layers.Conv1D(filters=self.filters, kernel_size=self.kernel_size[i],
-                                                 strides=self.stride, padding=self.padding, activation='relu',
-                                                 input_shape=(self.max_len, 768)))
-            else:
-                cnn_lstm_stack.add(layers.Conv1D(filters=self.filters, kernel_size=self.kernel_size[i],
-                                                 strides=self.stride, padding=self.padding, activation='relu'))
-            cnn_lstm_stack.add(layers.MaxPooling1D(pool_size=2))
+            cnn_lstm_stack.add(Conv1D(filters=self.filters, kernel_size=self.kernel_size[i],
+                                      padding=self.padding, activation='relu',
+                                      input_shape=(self.chunk_size, self.embedding_dim)))
+            cnn_lstm_stack.add(MaxPooling1D(pool_size=self.pool_size))
 
-        for i in range(self.bilstm_layers - 1):
-            cnn_lstm_stack.add(layers.Bidirectional(
-                layers.LSTM(units=self.bilstm_hidden_units, return_sequences=True)
-            ))
-
-        cnn_lstm_stack.add(layers.Bidirectional(
-            layers.LSTM(units=self.bilstm_hidden_units, go_backwards=True)
+        cnn_lstm_stack.add(Bidirectional(
+            LSTM(units=self.bilstm_output_units, return_sequences=True, merge_mode='concat')))
+        cnn_lstm_stack.add(Bidirectional(
+            LSTM(units=self.bilstm_output_units, go_backwards=True)
         ))
 
-        cnn_lstm_stack.add(layers.Dropout(self.bilstm_dropout))
-        cnn_lstm_stack.add(layers.Dense(self.in_features, activation='relu'))
-        cnn_lstm_stack.add(layers.Dense(self.out_features, activation='relu'))
+        cnn_lstm_stack.add(Dropout(self.bilstm_dropout))
+        cnn_lstm_stack.add(Dense(self.in_features, activation='relu'))
+        cnn_lstm_stack.add(Dense(self.out_features, activation='relu'))
 
         output = cnn_lstm_stack(bert_output)
 
@@ -83,32 +80,28 @@ class SiameseBertModel:
         self._branch = self._build_siamese_branch()
 
         # Inputs for pair 1
-        input_ids1 = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids1")
-        attention_mask1 = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask1")
+        input_ids1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids1")
+        attention_mask1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask1")
 
         # Inputs for pair 2
-        input_ids2 = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids2")
-        attention_mask2 = layers.Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask2")
+        input_ids2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids2")
+        attention_mask2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask2")
 
         # Branch outputs
         out1 = self._branch([input_ids1, attention_mask1])
         out2 = self._branch([input_ids2, attention_mask2])
 
         # Distance computation
-        distance = layers.Lambda(
+        distance = tf.abs(Lambda(
             lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6)
-        )([out1, out2])
+        )([out1, out2]))
 
-        # Final binary classifier
-        # Todo: Deprecate this layer
-        output = layers.Dense(1, activation='sigmoid')(distance)
-
-        model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)
+        model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=distance)
         self.logger.log(f"Finished building model {self.get_model_name()}...")
         return model
 
     def build_encoder_with_classifier(self):
-        """Creates a classifier model using the stored encoder branch"""
+        """ Creates a classifier model using the stored encoder branch """
         if self._branch is None:
             raise RuntimeError("You must call build_model() first to initialize the branch.")
 

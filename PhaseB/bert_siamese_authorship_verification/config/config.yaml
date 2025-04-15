@@ -15,20 +15,21 @@ training:
   epochs: 2 # 10-20
   early_stopping_patience: 2
   impostor_chunk_ratio: 2
+  validation_split: 0.25
 
 model:
   save_trained_models: True
   load_trained_models: True
-  softmax_dim: 1 # Unused currently
   cnn:
     filters: 128 # 128 or 256
     stride: 1
     padding: "valid"
     kernel_size: [3, 6, 12]
+    pool_size: 1
   bilstm:
-    hidden_units: 128 # 128 or 256
     dropout: 0.25 # 0.2 - 0.5
     number_of_layers: 100
+    dimension: 300
   fc:
     in_features: 128
     out_features: 1
@@ -42,7 +43,7 @@ bert:
   trainable: True
 
 wandb:
-  enabled: True
+  enabled: False
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   api_key: 99cb11ef59cac847e6b99323c0d485a69157f548

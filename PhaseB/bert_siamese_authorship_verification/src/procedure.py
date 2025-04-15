@@ -1,7 +1,7 @@
 import random
 import numpy as np
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint
+from keras.callbacks import ModelCheckpoint, EarlyStopping
 from tensorflow_addons.optimizers import AdamW
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -186,7 +186,7 @@ class Procedure:
             f"Model {pair_name} - Total Parameters": model.count_params()
         })
 
-        # Todo: Disable early stopping for now
+        # Todo: Re-enable early stopping
         # early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
         #                                patience=config['training']['early_stopping_patience'])
         checkpoint = ModelCheckpoint(model_checkpoint_path, monitor='val_loss', save_best_only=True, mode='min')
@@ -198,7 +198,7 @@ class Procedure:
         self.logger.log(summary_str)
 
         history = model.fit(x, y, epochs=self.config['training']['epochs'],
-                            validation_split=0.33,
+                            validation_split=self.config['training']['validation_split'],
                             # callbacks=[early_stopping, checkpoint],
                             callbacks=[checkpoint],
                             verbose=1)
@@ -254,12 +254,13 @@ class Procedure:
         dtw_matrix = np.zeros((len(all_signal_representations), len(all_signal_representations)))
         for i in range(len(all_signal_representations)):
             for j in range(i + 1, len(all_signal_representations)):
-                s1 = np.asarray(all_signal_representations[i]).flatten()
-                s2 = np.asarray(all_signal_representations[j]).flatten()
+                s1 = all_signal_representations[i]
+                s2 = all_signal_representations[j]
                 dtw_distance = compute_dtw_distance(s1, s2)
+                self.logger.log(f"[Testing] DTW Distance is: {dtw_distance}")
                 self.logger.log(
                     f"[INFO] DTW distance between {self.trained_networks[i].get_model_name()} and {self.trained_networks[j].get_model_name()}: {dtw_distance}")
-                dtw_matrix[i][j] = dtw_distance
+                dtw_matrix[i, j] = dtw_distance
 
         # Anomaly detection
         anomaly_detector = AnomalyDetector(self.config['isolation_forest']['number_of_trees'])
@@ -290,7 +291,7 @@ class Procedure:
             self.logger.log("[INFO] Loaded trained networks:")
             for network in self.trained_networks:
                 model_name = network.get_model_name()
-                self.logger.log(f"[INFO] Model name: {model_name}")
+                self.logger.log(f"Model name: {model_name}")
                 self.logger.log_summary("loaded_model", model_name)
 
         self.logger.log("[INFO] Loading Shakespeare data for testing...")

@@ -83,7 +83,7 @@ class WrappedWandbLogger:
             if hasattr(self.wandb, "termlog"):
                 self.wandb.termlog(data)
             else:
-                print(f"[NoOpWandb] {data}")
+                raise AttributeError("WandB instance does not have 'termlog' method.")
         elif isinstance(data, dict):
             self.wandb.log(data)
         else:

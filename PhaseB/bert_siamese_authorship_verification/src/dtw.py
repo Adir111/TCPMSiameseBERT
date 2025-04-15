@@ -1,18 +1,13 @@
-import numpy as np
-from scipy.spatial.distance import euclidean
-from fastdtw import fastdtw
+from dtaidistance import dtw
 
 
-# Todo: use https://pypi.org/project/dtaidistance/
-def compute_dtw_distance(signal1, signal2):
+def compute_dtw_distance(signal_1, signal_2):
     """
     Computes Dynamic Time Warping (DTW) distance between two signals.
 
-    :param signal1: First signal (list of floats)
-    :param signal2: Second signal (list of floats)
+    :param signal_1: First signal (list of floats)
+    :param signal_2: Second signal (list of floats)
     :return: DTW distance
     """
-    signal1 = [np.array([v]) for v in signal1]
-    signal2 = [np.array([v]) for v in signal2]
-    distance, _ = fastdtw(signal1, signal2, dist=euclidean)
+    distance = dtw.distance(signal_1, signal_2)
     return distance
