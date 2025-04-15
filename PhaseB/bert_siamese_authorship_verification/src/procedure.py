@@ -1,8 +1,6 @@
 import random
 import numpy as np
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow_addons.optimizers import AdamW
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
@@ -14,6 +12,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utilities.config_loader import get_config
 from utilities.logger import get_logger
+from utilities.env_handler import is_tf_2_10
 from utilities.data_visualizer import DataVisualizer
 from src.data_loader import DataLoader
 from src.preprocess import TextPreprocessor
@@ -21,6 +20,13 @@ from src.dtw import compute_dtw_distance
 from src.isolation_forest import AnomalyDetector
 from src.clustering import perform_kmedoids_clustering
 from src.model import SiameseBertModel
+
+if is_tf_2_10():
+    from keras.callbacks import ModelCheckpoint, EarlyStopping
+    from tensorflow_addons.optimizers import AdamW
+else:
+    from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
+    from tensorflow.keras.optimizers import AdamW
 
 
 class Procedure:

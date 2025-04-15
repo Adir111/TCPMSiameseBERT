@@ -14,10 +14,11 @@ wandb==0.19.9
 # Install tensorflow-gpu on Local only.
 tensorflow-gpu==2.10.0 ; sys_platform == "win32"
 keras==2.10.0 ; sys_platform == "win32"
+tensorflow-addons==0.22.0 ; sys_platform == "win32"
 
 # Install tensorflow and keras on Colab only.
-tensorflow==2.15.0 ; sys_platform == "linux"
-keras==2.15.0 ; sys_platform == "linux"
+tensorflow==2.16.1 ; sys_platform == "linux"
+keras==3.2.1 ; sys_platform == "linux"
+tf-keras==2.16.0 ; sys_platform == "linux"
 
-tensorflow-addons==0.22.0
 transformers==4.36.0

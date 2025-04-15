@@ -15,6 +15,8 @@ nltk.download('stopwords')
 class TextPreprocessor:
     def __init__(self, config):
         self._config = config
+
+        # Todo: Replace with from tokenizers import BertWordPieceTokenizer - faster because written in Rust.
         self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
         self.max_length = config['bert']['maximum_sequence_length']
 
