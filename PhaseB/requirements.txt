@@ -16,6 +16,7 @@ wandb==0.19.9
 # So keras. must be replaced with tensorflow.keras
 tensorflow==2.18.0 ; sys_platform == "linux"
 transformers==4.51.0 ; sys_platform == "linux"
+tf-keras==2.18.0 ; sys_platform == "linux"
 
 # Local (Windows): use tensorflow-gpu + keras 2.10.0
 tensorflow-gpu==2.10.0 ; sys_platform == "win32"
