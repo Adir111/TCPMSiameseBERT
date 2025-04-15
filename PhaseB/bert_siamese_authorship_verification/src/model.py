@@ -1,10 +1,20 @@
 import io
+import os
+import sys
 import tensorflow as tf
 from keras import Sequential, Input, Model
 from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
-from keras.layers.convolutional import MaxPooling1D, Conv1D
 from transformers import TFBertModel
 from contextlib import redirect_stdout
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from utilities.env_handler import is_tf_2_10
+
+if is_tf_2_10():
+    from keras.layers.convolutional import MaxPooling1D, Conv1D
+else:
+    from keras.layers import Conv1D, MaxPooling1D
 
 
 class SiameseBertModel:
