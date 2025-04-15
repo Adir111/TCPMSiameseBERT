@@ -15,15 +15,13 @@ class SiameseBertModel:
         self.bilstm_layers = self.config['model']['bilstm']['number_of_layers']
         self.bilstm_output_units = int(self.bilstm_layers * 2)
         self.bilstm_dropout = self.config['model']['bilstm']['dropout']
-        self.embedding_dim = self.config['model']['bilstm']['dimension']
         self.filters = self.config['model']['cnn']['filters']
-        self.stride = self.config['model']['cnn']['stride']
         self.pool_size = self.config['model']['cnn']['pool_size']
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
         self.padding = self.config['model']['cnn']['padding']
 
-        self.chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
+        self.max_len = self.config['bert']['maximum_sequence_length']
 
         self.bert_model = TFBertModel.from_pretrained(self.config['bert']['model'])
         self.bert_model.trainable = self.config['bert']['trainable']
@@ -44,8 +42,8 @@ class SiameseBertModel:
             return buf.getvalue()
 
     def _build_siamese_branch(self):
-        input_ids = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids")
-        attention_mask = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask")
+        input_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
+        attention_mask = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
 
         # BERT output
         bert_output = self.bert_model(input_ids, attention_mask=attention_mask)[0]
@@ -56,11 +54,11 @@ class SiameseBertModel:
         for i in range(len(self.kernel_size)):
             cnn_lstm_stack.add(Conv1D(filters=self.filters, kernel_size=self.kernel_size[i],
                                       padding=self.padding, activation='relu',
-                                      input_shape=(self.chunk_size, self.embedding_dim)))
+                                      input_shape=(self.max_len, 768)))
             cnn_lstm_stack.add(MaxPooling1D(pool_size=self.pool_size))
 
         cnn_lstm_stack.add(Bidirectional(
-            LSTM(units=self.bilstm_output_units, return_sequences=True, merge_mode='concat')))
+            LSTM(units=self.bilstm_output_units, return_sequences=True), merge_mode='concat'))
         cnn_lstm_stack.add(Bidirectional(
             LSTM(units=self.bilstm_output_units, go_backwards=True)
         ))
@@ -80,23 +78,30 @@ class SiameseBertModel:
         self._branch = self._build_siamese_branch()
 
         # Inputs for pair 1
-        input_ids1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids1")
-        attention_mask1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask1")
+        input_ids1 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids1")
+        attention_mask1 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask1")
 
         # Inputs for pair 2
-        input_ids2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids2")
-        attention_mask2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask2")
+        input_ids2 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids2")
+        attention_mask2 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask2")
 
         # Branch outputs
         out1 = self._branch([input_ids1, attention_mask1])
         out2 = self._branch([input_ids2, attention_mask2])
 
         # Distance computation
-        distance = tf.abs(Lambda(
+        distance = Lambda(
             lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6)
-        )([out1, out2]))
+        )([out1, out2])
 
-        model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=distance)
+        normalized_distance = Lambda(
+            lambda d: tf.clip_by_value(d / tf.reduce_max(d), 0.0, 1.0)
+        )(distance)
+
+        # Output will be in [0, 1], suitable for BCE
+        output = tf.keras.layers.Dense(1, activation="sigmoid")(normalized_distance)
+
+        model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)
         self.logger.log(f"Finished building model {self.get_model_name()}...")
         return model
 

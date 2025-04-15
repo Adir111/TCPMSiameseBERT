@@ -1,4 +1,5 @@
 import random
+import copy
 import re
 import nltk
 import numpy as np
@@ -41,7 +42,7 @@ class TextPreprocessor:
 
     def balance_impostor_dataset(self, chunks_imp_1, chunks_imp_2):
         chunk_ratio = self._config['training']['impostor_chunk_ratio']
-        chunks = [chunks_imp_1, chunks_imp_2]
+        chunks = [copy.deepcopy(chunks_imp_1), copy.deepcopy(chunks_imp_2)]
 
         lens = [len(chunks[0]), len(chunks[1])]
         max_idx = lens.index(max(lens))

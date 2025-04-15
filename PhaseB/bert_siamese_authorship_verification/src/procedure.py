@@ -8,7 +8,7 @@ from sklearn.manifold import TSNE
 import os
 import sys
 
-from src.model import SiameseBertModel
+tf.get_logger().setLevel('ERROR')
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -20,6 +20,7 @@ from src.preprocess import TextPreprocessor
 from src.dtw import compute_dtw_distance
 from src.isolation_forest import AnomalyDetector
 from src.clustering import perform_kmedoids_clustering
+from src.model import SiameseBertModel
 
 
 class Procedure:
@@ -257,7 +258,6 @@ class Procedure:
                 s1 = all_signal_representations[i]
                 s2 = all_signal_representations[j]
                 dtw_distance = compute_dtw_distance(s1, s2)
-                self.logger.log(f"[Testing] DTW Distance is: {dtw_distance}")
                 self.logger.log(
                     f"[INFO] DTW distance between {self.trained_networks[i].get_model_name()} and {self.trained_networks[j].get_model_name()}: {dtw_distance}")
                 dtw_matrix[i, j] = dtw_distance
