@@ -110,7 +110,7 @@ class SiameseBertModel:
         )(distance)
 
         # Output will be in [0, 1], suitable for BCE
-        output = tf.keras.layers.Dense(1, activation="sigmoid")(normalized_distance)
+        output = Dense(1, activation="sigmoid")(normalized_distance)
 
         model = Model(inputs=[input_ids1, attention_mask1, input_ids2, attention_mask2], outputs=output)
         self.logger.log(f"Finished building model {self.get_model_name()}...")
@@ -121,12 +121,12 @@ class SiameseBertModel:
         if self._branch is None:
             raise RuntimeError("You must call build_model() first to initialize the branch.")
 
-        input_ids = tf.keras.Input(shape=self._branch.input[0].shape[1:], dtype=tf.int32, name="input_ids")
-        attention_mask = tf.keras.Input(shape=self._branch.input[1].shape[1:], dtype=tf.int32, name="attention_mask")
+        input_ids = Input(shape=self._branch.input[0].shape[1:], dtype=tf.int32, name="input_ids")
+        attention_mask = Input(shape=self._branch.input[1].shape[1:], dtype=tf.int32, name="attention_mask")
 
         x = self._branch([input_ids, attention_mask])
 
         # Todo: replace with Relu activation
-        out = tf.keras.layers.Dense(1, activation="sigmoid", name="chunk_classifier")(x)
+        out = Dense(1, activation="sigmoid", name="chunk_classifier")(x)
 
-        return tf.keras.Model(inputs=[input_ids, attention_mask], outputs=out)
+        return Model(inputs=[input_ids, attention_mask], outputs=out)
