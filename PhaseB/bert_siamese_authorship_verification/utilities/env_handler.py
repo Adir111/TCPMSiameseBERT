@@ -7,5 +7,5 @@ def is_colab():
 
 
 def is_tf_2_10():
-    # Colab uses 2.18.0 <=
+    # Colab uses 2.15.0 <=
     return tf.__version__.startswith("2.10")
