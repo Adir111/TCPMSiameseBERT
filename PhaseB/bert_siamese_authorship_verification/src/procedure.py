@@ -167,7 +167,7 @@ class Procedure:
 
         return x, y
 
-    def train_network_keras(self, x, y, pair_name):
+    def train_network(self, x, y, pair_name):
         save_trained_model = self.config['model']['save_trained_models']
 
         trained_models_path = self.config['data']['trained_models_path']
@@ -281,7 +281,7 @@ class Procedure:
                 self.logger.log(f"[INFO] Training model {idx + 1}/{len(cleaned_impostor_pairs)} - for impostor pair {pair_name}")
 
                 x, y = self.preprocess_and_divide_impostor_pair(impostor_1_texts, impostor_2_texts, pair_name)
-                model, history = self.train_network_keras(x, y, pair_name)
+                model, history = self.train_network(x, y, pair_name)
 
                 self.trained_networks.append(model)
 
