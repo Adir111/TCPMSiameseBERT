@@ -1,6 +1,7 @@
 import random
 import numpy as np
 import tensorflow as tf
+import transformers
 from tensorflow.keras.optimizers.legacy import Adam
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -37,6 +38,9 @@ class Procedure:
         self.num_chunks_in_batch = self.config['training']['chunk_factor']
         self.max_token_length = self.config['bert']['maximum_sequence_length']
         self.trained_networks = []
+
+        self.logger.log(f"[INFO] Transformers version: {transformers.__version__}")
+        self.logger.log(f"[INFO] TensorFlow version: {tf.__version__}")
 
     def load_trained_networks(self):
         trained_networks_path = self.config['data']['trained_models_path']
