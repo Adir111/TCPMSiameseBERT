@@ -1,10 +1,15 @@
 import io
 import tensorflow as tf
+from packaging import version
 from keras import Sequential, Input, Model
 from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
-from keras.layers.convolutional import MaxPooling1D, Conv1D
 from transformers import TFBertModel
 from contextlib import redirect_stdout
+
+if version.parse(tf.__version__) >= version.parse("2.11.0"):
+    from keras.layers import Conv1D, MaxPooling1D
+else:
+    from keras.layers.convolutional import Conv1D, MaxPooling1D
 
 
 class SiameseBertModel:
