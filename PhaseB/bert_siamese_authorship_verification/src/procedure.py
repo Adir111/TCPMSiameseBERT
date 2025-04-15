@@ -1,8 +1,7 @@
 import random
 import numpy as np
 import tensorflow as tf
-from keras.callbacks import ModelCheckpoint, EarlyStopping
-from tensorflow_addons.optimizers import AdamW
+from tensorflow.keras.optimizers.legacy import Adam
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
@@ -14,6 +13,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from utilities.config_loader import get_config
 from utilities.logger import get_logger
+from utilities.env_handler import is_tf_2_10
 from utilities.data_visualizer import DataVisualizer
 from src.data_loader import DataLoader
 from src.preprocess import TextPreprocessor
@@ -21,6 +21,11 @@ from src.dtw import compute_dtw_distance
 from src.isolation_forest import AnomalyDetector
 from src.clustering import perform_kmedoids_clustering
 from src.model import SiameseBertModel
+
+if is_tf_2_10():
+    from keras.callbacks import ModelCheckpoint, EarlyStopping
+else:
+    from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
 
 
 class Procedure:
@@ -176,7 +181,6 @@ class Procedure:
         model_checkpoint_path = os.path.join(trained_models_path, f"best_weights/model_{pair_name}_best_weights.h5")
 
         lr = float(self.config['training']['optimizer']['initial_learning_rate'])
-        decay = float(self.config['training']['optimizer']['learning_rate_decay_factor'])
         clip_norm = float(self.config['training']['optimizer']['gradient_clipping_threshold'])
 
         self.logger.log(f"-------------------------\nStarted training model: {pair_name}")
@@ -192,7 +196,7 @@ class Procedure:
         #                                patience=config['training']['early_stopping_patience'])
         checkpoint = ModelCheckpoint(model_checkpoint_path, monitor='val_loss', save_best_only=True, mode='min')
 
-        optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clip_norm)
+        optimizer = Adam(learning_rate=lr, clipnorm=clip_norm)
         model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
 
         summary_str = model_object.get_model_summary_string(model)
