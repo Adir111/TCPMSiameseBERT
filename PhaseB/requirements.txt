@@ -15,7 +15,7 @@ transformers==4.36.0
 
 # Colab (Linux): install tensorflow + keras 2.18.0 for CUDA 12.5
 tensorflow==2.18.0 ; sys_platform == "linux"
-keras==3.3.3 ; sys_platform == "linux"
+keras==3.5.0 ; sys_platform == "linux"
 
 # Local (Windows): use tensorflow-gpu + keras 2.10.0
 tensorflow-gpu==2.10.0 ; sys_platform == "win32"
