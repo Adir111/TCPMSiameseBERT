@@ -1,45 +1,74 @@
 import sys
 import os
+import unittest
+from tokenizers import BertWordPieceTokenizer
+import numpy as np
+import tensorflow as tf
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from src.preprocess import TextPreprocessor
 
 
-def test_chunking_basic():
-    text = "This is a simple sentence used for chunk testing."
-    preprocessor = TextPreprocessor()
-    chunks = preprocessor.divide_into_chunk(text, chunk_size=4)
-
-    assert isinstance(chunks, list)
-    assert all(isinstance(chunk, str) for chunk in chunks)
-    assert all(len(chunk.split()) <= 4 for chunk in chunks), "Each chunk should have <= 4 words"
-
-
-def test_chunking_exact_length():
-    text = "one two three four five six"
-    preprocessor = TextPreprocessor()
-    chunks = preprocessor.divide_into_chunk(text, chunk_size=2)
-
-    assert len(chunks) == 3, "Should split into 3 chunks of size 2"
-    assert chunks == ['one two', 'three four', 'five six']
+class DummyConfig:
+    def __init__(self):
+        self.config = {
+            'bert': {
+                'maximum_sequence_length': 8,
+                "vocab_path": "tokenizer_vocab/bert-base-uncased.txt"
+            },
+            'training': {
+                'impostor_chunk_ratio': 1
+            }
+        }
 
 
-def test_chunking_with_remainder():
-    text = "one two three four five"
-    preprocessor = TextPreprocessor()
-    chunks = preprocessor.divide_into_chunk(text, chunk_size=2)
+class TextPreprocessorTestCase(unittest.TestCase):
+    @classmethod
+    def setUpClass(cls):
+        cls.config = DummyConfig().config
+        cls.preprocessor = TextPreprocessor(cls.config)
 
-    assert len(chunks) == 3
-    assert chunks[-1] == "five", "Final chunk should contain the remainder word"
+    def test_tokenize_text(self):
+        text = "Hello, world! This is a test."
+        tokens = self.preprocessor.tokenize_text(text)
+        # Strip punctuation from expected tokens for BERT tokenization
+        expected_tokens_clean = self.preprocessor.tokenizer.encode("Hello, world! This is a test.").tokens
+        self.assertEqual(tokens, expected_tokens_clean)
+
+    def test_divide_tokens_into_chunks(self):
+        tokens = [f"token{i}" for i in range(10)]
+        chunk_size = 4
+        chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
+        expected = [
+            ['token0', 'token1', 'token2', 'token3'],
+            ['token4', 'token5', 'token6', 'token7'],
+            ['token8', 'token9', '[PAD]', '[PAD]']
+        ]
+        self.assertEqual(len(chunks), 3)
+        self.assertListEqual(chunks[-1].tolist(), expected[-1])
+
+    def test_encode_tokenized_chunks(self):
+        token_chunks = [
+            ['hello', 'world'],
+            ['test', 'sentence', 'two']
+        ]
+        max_len = self.config['bert']['maximum_sequence_length']
+        encoded = self.preprocessor.encode_tokenized_chunks(token_chunks)
+
+        self.assertIn('input_ids', encoded)
+        self.assertIn('attention_mask', encoded)
+
+        input_ids = encoded['input_ids'].numpy()
+        attention_mask = encoded['attention_mask'].numpy()
+
+        self.assertEqual(input_ids.shape, (2, max_len))
+        self.assertEqual(attention_mask.shape, (2, max_len))
+
+        # Padding check (assuming max_len = 8)
+        self.assertTrue(np.all(attention_mask[0][4:] == 0))
+        self.assertTrue(np.all(attention_mask[1][5:] == 0))
 
 
-def test_chunk_pair_splits_equally():
-    text1 = "A B C D E F"
-    text2 = "1 2 3 4 5 6"
-    preprocessor = TextPreprocessor()
-    chunk_pairs = preprocessor.divide_into_chunk_pair(text1, text2, chunk_size=2)
-
-    assert isinstance(chunk_pairs, list)
-    assert all(isinstance(pair, tuple) for pair in chunk_pairs)
-    assert all(len(pair) == 2 for pair in chunk_pairs)
-    assert chunk_pairs[0] == ('A B', '1 2')
+if __name__ == '__main__':
+    unittest.main()

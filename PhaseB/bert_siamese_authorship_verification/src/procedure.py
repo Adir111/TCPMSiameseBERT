@@ -36,7 +36,6 @@ class Procedure:
         self.data_visualizer = DataVisualizer(self.logger)
         self.preprocessor = TextPreprocessor(self.config)
         self.num_chunks_in_batch = self.config['training']['chunk_factor']
-        self.max_token_length = self.config['bert']['maximum_sequence_length']
         self.trained_networks = []
 
     def load_trained_networks(self):
@@ -72,11 +71,10 @@ class Procedure:
             f"classification - {text_name} chunk size": chunk_size
         })
 
-        encoded_chunks = self.preprocessor.encode_tokenized_chunks(np.asarray(chunks), self.max_token_length)
+        encoded_chunks = self.preprocessor.encode_tokenized_chunks(np.asarray(chunks))
         return encoded_chunks
 
     def make_siamese_pairs(self, chunks_1, chunks_2):
-        max_len = self.config['bert']['maximum_sequence_length']
         input_ids1, attention_mask1 = [], []
         input_ids2, attention_mask2 = [], []
         labels = []
@@ -105,8 +103,8 @@ class Procedure:
         # Encode positive pairs
         # -------------------------------
         for a, b in pos_pairs:
-            enc1 = self.preprocessor.encode_single_chunk(a, max_len)
-            enc2 = self.preprocessor.encode_single_chunk(b, max_len)
+            enc1 = self.preprocessor.encode_single_chunk(a)
+            enc2 = self.preprocessor.encode_single_chunk(b)
             input_ids1.append(enc1["input_ids"])
             attention_mask1.append(enc1["attention_mask"])
             input_ids2.append(enc2["input_ids"])
@@ -117,8 +115,8 @@ class Procedure:
         # Encode negative pairs
         # -------------------------------
         for a, b in neg_pairs:
-            enc1 = self.preprocessor.encode_single_chunk(a, max_len)
-            enc2 = self.preprocessor.encode_single_chunk(b, max_len)
+            enc1 = self.preprocessor.encode_single_chunk(a)
+            enc2 = self.preprocessor.encode_single_chunk(b)
             input_ids1.append(enc1["input_ids"])
             attention_mask1.append(enc1["attention_mask"])
             input_ids2.append(enc2["input_ids"])

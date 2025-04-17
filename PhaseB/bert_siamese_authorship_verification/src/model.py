@@ -1,4 +1,5 @@
 import io
+import os
 import tensorflow as tf
 from transformers import TFBertModel
 from contextlib import redirect_stdout
@@ -18,20 +19,23 @@ class SiameseBertModel:
     def __init__(self, config, logger, model_name="Default"):
         self.config = config
         self.logger = logger
-        self.kernel_size = self.config['model']['cnn']['kernel_size']
+
         self.bilstm_layers = self.config['model']['bilstm']['number_of_layers']
         self.bilstm_output_units = int(self.bilstm_layers * 2)
         self.bilstm_dropout = self.config['model']['bilstm']['dropout']
+
         self.filters = self.config['model']['cnn']['filters']
         self.pool_size = self.config['model']['cnn']['pool_size']
+        self.padding = self.config['model']['cnn']['padding']
+        self.kernel_size = self.config['model']['cnn']['kernel_size']
+
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
-        self.padding = self.config['model']['cnn']['padding']
 
-        self.max_len = self.config['bert']['maximum_sequence_length']
-
-        self.bert_model = TFBertModel.from_pretrained(self.config['bert']['model'])
+        vocab_path = os.path.join(os.getcwd(), os.path.join("../", config['bert']['vocab_path']))
+        self.bert_model = TFBertModel.from_pretrained(vocab_path)
         self.bert_model.trainable = self.config['bert']['trainable']
+        self.max_len = self.config['bert']['maximum_sequence_length']
 
         self._branch = None
         self._model_name = model_name

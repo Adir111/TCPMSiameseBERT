@@ -10,8 +10,8 @@ training:
     initial_learning_rate: 1e-4
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
-  batch_size: 400 # 32 # or 64 - How many chunks in a batch
-  chunk_factor: 8 # Chunk to Batch ratio
+  batch_size: 512
+  chunk_factor: 8 # Chunk to Batch ratio -- chunk size = batch_size // chunk_factor
   epochs: 5 # 10-20
   early_stopping_patience: 2
   impostor_chunk_ratio: 2
@@ -36,8 +36,8 @@ isolation_forest:
   number_of_trees: 100
 
 bert:
-  model: "bert-base-uncased"
-  maximum_sequence_length: 128
+  vocab_path: "tokenizer_vocab/bert-base-uncased.txt"
+  maximum_sequence_length: 64
   trainable: True
 
 wandb:
