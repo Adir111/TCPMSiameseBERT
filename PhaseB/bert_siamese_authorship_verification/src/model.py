@@ -72,11 +72,14 @@ class SiameseBertModel:
 
         cnn_lstm_stack.add(Dropout(self.bilstm_dropout))
         cnn_lstm_stack.add(Dense(self.in_features, activation='relu'))
-        cnn_lstm_stack.add(Dense(self.out_features, activation='relu'))
+        # cnn_lstm_stack.add(Dense(self.out_features, activation='relu'))
+        x = cnn_lstm_stack(bert_output)
+        embedding = Dense(self.out_features, activation='relu', name="embedding")(x)
 
-        output = cnn_lstm_stack(bert_output)
+        # output = cnn_lstm_stack(bert_output)
 
-        return Model(inputs=[input_ids, attention_mask], outputs=output)
+        return Model(inputs=[input_ids, attention_mask], outputs=embedding)
+
 
     def build_model(self):
         self.logger.log(f"Started building model {self.get_model_name()}...")
@@ -118,7 +121,6 @@ class SiameseBertModel:
 
         x = self._branch([input_ids, attention_mask])
 
-        # Todo: replace with Relu activation
         out = Dense(1, activation="sigmoid", name="chunk_classifier")(x)
 
         return Model(inputs=[input_ids, attention_mask], outputs=out)

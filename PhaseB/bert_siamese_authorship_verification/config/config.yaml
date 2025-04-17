@@ -37,7 +37,7 @@ isolation_forest:
 
 bert:
   model: "bert-base-uncased"
-  maximum_sequence_length: 512
+  maximum_sequence_length: 128
   trainable: True
 
 wandb:
