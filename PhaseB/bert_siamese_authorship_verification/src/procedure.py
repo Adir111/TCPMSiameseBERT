@@ -124,13 +124,13 @@ class Procedure:
             labels.append(0)
 
         # Final tensors
-        x = [
-            tf.convert_to_tensor(input_ids1),
-            tf.convert_to_tensor(attention_mask1),
-            tf.convert_to_tensor(input_ids2),
-            tf.convert_to_tensor(attention_mask2)
-        ]
-        y = np.array(labels)
+        x = {
+            "input_ids1": np.asarray(input_ids1),
+            "attention_mask1": np.asarray(attention_mask1),
+            "input_ids2": np.asarray(input_ids2),
+            "attention_mask2": np.asarray(attention_mask2)
+        }
+        y = np.asarray(labels)
 
         return x, y
 
@@ -201,6 +201,11 @@ class Procedure:
 
         summary_str = model_object.get_model_summary_string(model)
         self.logger.log(summary_str)
+
+        for key, val in x.items():
+            print(f"{key}: shape = {val.shape}")
+
+        print(f"Labels shape = {y.shape}, unique = {np.unique(y)}")
 
         history = model.fit(x, y, epochs=self.config['training']['epochs'],
                             validation_split=self.config['training']['validation_split'],
