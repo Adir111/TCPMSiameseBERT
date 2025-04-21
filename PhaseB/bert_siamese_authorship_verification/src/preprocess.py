@@ -19,7 +19,7 @@ class TextPreprocessor:
     def __init__(self, config):
         self._config = config
         self.max_length = config['bert']['maximum_sequence_length']
-        vocab_path = os.path.join(os.getcwd(), os.path.join("../", config['bert']['vocab_path']))
+        vocab_path = os.path.join(os.getcwd(), config['bert']['vocab_path'])
 
         self.tokenizer = BertWordPieceTokenizer(vocab_path, lowercase=True)
 

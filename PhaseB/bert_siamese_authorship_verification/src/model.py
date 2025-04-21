@@ -32,8 +32,8 @@ class SiameseBertModel:
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
 
-        vocab_path = os.path.join(os.getcwd(), os.path.join("../", config['bert']['vocab_path']))
-        self.bert_model = TFBertModel.from_pretrained(vocab_path)
+        model_path = os.path.join(os.getcwd(), config['bert']['model_path'])
+        self.bert_model = TFBertModel.from_pretrained(model_path)
         self.bert_model.trainable = self.config['bert']['trainable']
         self.max_len = self.config['bert']['maximum_sequence_length']
 

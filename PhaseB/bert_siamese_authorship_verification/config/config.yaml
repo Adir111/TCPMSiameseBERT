@@ -37,6 +37,7 @@ isolation_forest:
 
 bert:
   vocab_path: "tokenizer_vocab/bert-base-uncased.txt"
+  model_path: "tokenizer_vocab"
   maximum_sequence_length: 64
   trainable: True
 
