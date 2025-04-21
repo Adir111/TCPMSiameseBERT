@@ -19,7 +19,7 @@ training:
 
 model:
   save_trained_models: True
-  load_trained_models: True
+  load_trained_models: False
   cnn:
     filters: 128 # 128 or 256
     padding: "valid"
