@@ -106,7 +106,8 @@ class TextPreprocessor:
             "attention_mask": attention_mask
         }
 
-    def divide_tokens_into_chunks(self, tokens, chunk_size):
+    @staticmethod
+    def divide_tokens_into_chunks(tokens, chunk_size):
         tokens = np.asarray(tokens)
         blocks = len(tokens) // chunk_size
         chunks = []

@@ -138,16 +138,11 @@ class Procedure:
         chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
 
         # Tokenize and chunk
-        chunks_1, chunks_2 = [], []
-        for text in impostor_1_texts:
-            tokens = self.preprocessor.tokenize_text(text)
-            chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-            chunks_1.extend(chunks)
+        tokens = self.preprocessor.tokenize_text(impostor_1_texts)
+        chunks_1 = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
 
-        for text in impostor_2_texts:
-            tokens = self.preprocessor.tokenize_text(text)
-            chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-            chunks_2.extend(chunks)
+        tokens = self.preprocessor.tokenize_text(impostor_2_texts)
+        chunks_2 = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
 
         x1_chunks, x2_chunks = self.preprocessor.balance_impostor_dataset(chunks_1, chunks_2)
 

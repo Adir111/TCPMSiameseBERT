@@ -21,9 +21,10 @@ class DataLoader:
 
                 cleaned_dataset = []
                 for impostor in data:
-                    cleaned_texts = []
+                    cleaned_texts = ""
                     for text in impostor["texts"]:
-                        cleaned_texts.append(self.preprocessor.clean_text(text))
+                        cleaned_piece = self.preprocessor.clean_text(text)
+                        cleaned_texts += cleaned_piece + " "
 
                     cleaned_dataset.append({
                         "author": impostor["author"],
