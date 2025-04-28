@@ -1,81 +1,79 @@
-import os
 import json
-import sys
+from pathlib import Path
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utilities.config_loader import get_config
-
-
-def convert_texts_to_json(shakespeare_dir, impostor_dir, tested_collection_size=None, impostor_size=None):
-    config = get_config()
-
+def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
     impostor_dataset = []
-    tested_collection = []
+    shakespeare_collection = []
+    classify_text = {}
 
-    tested_collection_output_path = config['data']['processed_tested_path']
-    impostors_output_path = config['data']['processed_impostors_path']
+    data_sources_folder = Path(config['data']['organised_data_folder_path'])
+    shakespeare_collection_output_path = data_sources_folder / config['data']['shakespeare_data_source']
+    impostors_output_path = data_sources_folder / config['data']['impostors_data_source']
+    classify_text_output_path = data_sources_folder / config['data']['classify_text_data_source']
 
-    shakespeare_dir = os.path.join(os.getcwd(), shakespeare_dir)
-    impostor_dir = os.path.join(os.getcwd(), impostor_dir)
-    impostor_output_path = os.path.join(os.getcwd(), impostors_output_path)
-    tested_collection_output_path = os.path.join(os.getcwd(), tested_collection_output_path)
+    shakespeare_dir = Path(shakespeare_dir)
+    impostor_dir = Path(impostor_dir)
+    impostor_output_path = Path(impostors_output_path)
+    shakespeare_collection_output_path = Path(shakespeare_collection_output_path)
+    classify_text_output_path = Path(classify_text_output_path)
 
     # Ensure directory exists
-    os.makedirs(os.path.dirname(impostor_output_path), exist_ok=True)
-    os.makedirs(os.path.dirname(tested_collection_output_path), exist_ok=True)
+    impostor_output_path.parent.mkdir(parents=True, exist_ok=True)
+    shakespeare_collection_output_path.parent.mkdir(parents=True, exist_ok=True)
+    classify_text_output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    # Process the 'text to classify.txt'
+    classify_file_path = shakespeare_dir / 'text to classify.txt'
+    if not classify_file_path.exists():
+        raise FileNotFoundError(f"Error: 'text to classify.txt' is missing in the directory {shakespeare_dir}")
+
+    with classify_file_path.open("r", encoding="utf-8", errors="ignore") as f:
+        classify_text["text_name"] = 'text to classify.txt'
+        classify_text["text"] = f.read()
 
     # Process Shakespeare texts
-    for filename in os.listdir(shakespeare_dir):
-        with open(os.path.join(shakespeare_dir, filename), "r", encoding="utf-8", errors="ignore") as f:
+    for filename in shakespeare_dir.iterdir():
+        if shakespeare_collection_size is not None and len(shakespeare_collection) == shakespeare_collection_size:
+            break
+        if filename.name == 'text to classify.txt':
+            continue
+
+        with filename.open("r", encoding="utf-8", errors="ignore") as f:
             text = f.read()
-            tested_collection.append({
-                "text_name": filename,
+            shakespeare_collection.append({
+                "text_name": filename.name,
                 "text": text
             })
-            if tested_collection_size is not None and len(tested_collection) == tested_collection_size:
-                break
 
     # Process impostors
-    impostor_folders = [f for f in os.listdir(impostor_dir) if os.path.isdir(os.path.join(impostor_dir, f))]
+    impostor_folders = [f for f in impostor_dir.iterdir() if f.is_dir()]
 
     for i in range(len(impostor_folders)):
         if impostor_size is not None and len(impostor_dataset) >= impostor_size:
             break
 
         impostor_folder = impostor_folders[i]
-        impostor_path = os.path.join(impostor_dir, impostor_folder)
-        impostor_files = os.listdir(impostor_path)
+        impostor_files = impostor_folder.iterdir()
 
         impostor_texts = []
 
         for file in impostor_files:
-            path = os.path.join(impostor_path, file)
-            with open(path, "r", encoding="utf-8", errors="ignore") as f:
-                text = f.read()
-                impostor_texts.append(text)
+            if file.is_file():
+                with file.open("r", encoding="utf-8", errors="ignore") as f:
+                    text = f.read()
+                    impostor_texts.append(text)
+            else:
+                raise ValueError(f"Expected a file, but found a directory or unsupported file type: {file}")
 
         impostor_dataset.append({
-            "author": impostor_folder,
+            "author": impostor_folder.name,
             "texts": impostor_texts
         })
 
     # Save to JSON
-    with open(impostor_output_path, "w", encoding="utf-8") as json_file:
+    with impostor_output_path.open("w", encoding="utf-8") as json_file:
         json.dump(impostor_dataset, json_file, indent=4)
-    with open(tested_collection_output_path, "w", encoding="utf-8") as json_file:
-        json.dump(tested_collection, json_file, indent=4)
-
-
-if __name__ == "__main__":
-    # Load config
-    config = get_config()
-
-    # Paths
-    TESTED_COLLECTION_PATH = '../' + config['data']['shakespeare_path']
-    IMPOSTORS_PATH = '../' + config['data']['impostors_path']
-    convert_texts_to_json(
-        TESTED_COLLECTION_PATH,
-        IMPOSTORS_PATH,
-        tested_collection_size=2,
-        impostor_size=2)
+    with shakespeare_collection_output_path.open("w", encoding="utf-8") as json_file:
+        json.dump(shakespeare_collection, json_file, indent=4)
+    with classify_text_output_path.open("w", encoding="utf-8") as classify_file:
+        json.dump(classify_text, classify_file, indent=4)
