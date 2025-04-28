@@ -30,7 +30,7 @@ def create_dataset():
         tested_collection_size = int(input().strip())
 
     print("🔄 Creating dataset...")
-    convert_texts_to_json(TESTED_COLLECTION_PATH, IMPOSTORS_PATH, tested_collection_size=tested_collection_size,
+    convert_texts_to_json(config, TESTED_COLLECTION_PATH, IMPOSTORS_PATH, shakespeare_collection_size=tested_collection_size,
                           impostor_size=impostor_size)
     print(f"✅ Dataset created")
 
