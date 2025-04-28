@@ -1,6 +1,19 @@
 import json
 from pathlib import Path
 
+def save_to_json(data, output_path, data_name):
+    """
+    Save the given data to a JSON file and print the status.
+
+    Parameters:
+    - data: The data to be saved (dict or list)
+    - output_path: The path to the JSON file where data will be saved
+    - data_name: A name or description for the data being saved (used for logging)
+    """
+    with output_path.open("w", encoding="utf-8") as json_file:
+        json.dump(data, json_file, indent=4)
+    print(f"{data_name} saved to {output_path}.")
+
 def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
     impostor_dataset = []
     shakespeare_collection = []
@@ -45,8 +58,11 @@ def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_col
                 "text": text
             })
 
+    print(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
+
     # Process impostors
     impostor_folders = [f for f in impostor_dir.iterdir() if f.is_dir()]
+    count_impostors_texts = 0
 
     for i in range(len(impostor_folders)):
         if impostor_size is not None and len(impostor_dataset) >= impostor_size:
@@ -69,11 +85,13 @@ def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_col
             "author": impostor_folder.name,
             "texts": impostor_texts
         })
+        print(f"Handled {len(impostor_texts)} {impostor_folder.name} texts.")
+        count_impostors_texts += len(impostor_texts)
+
+    print(f"Handled {len(impostor_dataset)} impostor authors, with a total of {count_impostors_texts} texts.")
 
     # Save to JSON
-    with impostor_output_path.open("w", encoding="utf-8") as json_file:
-        json.dump(impostor_dataset, json_file, indent=4)
-    with shakespeare_collection_output_path.open("w", encoding="utf-8") as json_file:
-        json.dump(shakespeare_collection, json_file, indent=4)
-    with classify_text_output_path.open("w", encoding="utf-8") as classify_file:
-        json.dump(classify_text, classify_file, indent=4)
+    save_to_json(impostor_dataset, impostor_output_path, "Impostor dataset")
+    save_to_json(shakespeare_collection, shakespeare_collection_output_path, "Shakespeare collection")
+    save_to_json(classify_text, classify_text_output_path, "Text to classify data")
+
