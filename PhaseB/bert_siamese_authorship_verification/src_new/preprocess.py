@@ -1,3 +1,4 @@
+import random
 import nltk
 from transformers import BertTokenizer
 
@@ -68,3 +69,20 @@ class Preprocessor:
                 tokenized = self.tokenize_text(text)
                 preprocessed_collection.append(tokenized)
         return preprocessed_collection, tokens_count
+
+    @staticmethod
+    def equalize_chunks(chunks_list):
+        """
+        Helper to balance two lists of chunks to the same length.
+        """
+        lengths = [len(chunks_list[0]), len(chunks_list[1])]
+        i1 = lengths.index(max(lengths))
+        i2 = lengths.index(min(lengths))
+
+        temp = []
+        for _ in range(lengths[i1] // lengths[i2]):
+            temp += chunks_list[i2]
+
+        chunks_list[i2] = temp + random.sample(chunks_list[i2], lengths[i1] - len(temp))
+
+        return chunks_list
