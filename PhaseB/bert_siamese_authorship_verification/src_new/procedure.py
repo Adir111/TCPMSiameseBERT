@@ -1,22 +1,21 @@
-import random
 import numpy as np
 import tensorflow as tf
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
-import sys
 from pathlib import Path
 
-from src_new.data_loader import DataLoader
-from src_new.preprocess import Preprocessor
-from src.dtw import compute_dtw_distance
-from src.isolation_forest import AnomalyDetector
-from src.clustering import perform_kmedoids_clustering
-from src.model import SiameseBertModel
+from .data_loader import DataLoader
+from .preprocess import Preprocessor
+from PhaseB.bert_siamese_authorship_verification.utilities import env_handler, make_pairs
+# from src.dtw import compute_dtw_distance
+# from src.isolation_forest import AnomalyDetector
+# from src.clustering import perform_kmedoids_clustering
+# from src.model import SiameseBertModel
 
 tf.get_logger().setLevel('ERROR')
 
-if tf.__version__.startswith('2.10.'):
+if env_handler:
     from keras.callbacks import ModelCheckpoint, EarlyStopping
     from tensorflow_addons.optimizers import AdamW
 else:

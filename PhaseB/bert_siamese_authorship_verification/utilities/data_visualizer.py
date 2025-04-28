@@ -2,7 +2,7 @@ import matplotlib
 matplotlib.use("Agg")  # Use non-interactive backend for matplotlib - so it works on Colab
 import matplotlib.pyplot as plt
 
-from utilities.logger import WrappedWandbLogger
+from .logger import WrappedWandbLogger
 
 
 class DataVisualizer:
