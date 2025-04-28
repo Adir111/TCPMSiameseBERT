@@ -3,7 +3,6 @@ from utilities.logger import get_logger
 from utilities.data_visualizer import DataVisualizer
 from utilities.convert_txt_to_json import convert_texts_to_json
 from src_new.procedure import Procedure
-from src_new.preprocess import Preprocessor
 
 # Load config
 config = get_config()
@@ -40,17 +39,17 @@ def create_dataset():
 
 def train_model():
     """ Triggers the training script. """
-    print("🚀 Starting Full Procedure...")
     try:
         logger = get_logger(config)
+        logger.log("🚀 Starting Full Procedure...")
         procedure = Procedure(
             config,
             logger,
-            data_visualizer=DataVisualizer(logger),
-            preprocessor=Preprocessor(config)
+            data_visualizer=DataVisualizer(logger)
         )
         procedure.full_procedure()
-        print("✅ Procedure completed!")
+
+        logger.log("✅ Procedure completed!")
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")
 
