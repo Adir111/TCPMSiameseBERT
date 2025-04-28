@@ -1,6 +1,8 @@
 data:
-  processed_tested_path: "data/processed/dataset_tested_collection.json"
-  processed_impostors_path: "data/processed/dataset_impostors.json"
+  organised_data_folder_path: "data/data_sources"
+  shakespeare_data_source: "dataset_shakespeare_collection.json"
+  impostors_data_source: "dataset_impostors.json"
+  classify_text_data_source: "text_to_classify.json"
   trained_models_path: "saved_trained_models/"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
@@ -10,8 +12,8 @@ training:
     initial_learning_rate: 1e-4
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
-  batch_size: 400 # 32 # or 64 - How many chunks in a batch
-  chunk_factor: 8 # Chunk to Batch ratio
+  batch_size: 8 # Chunk to Batch ratio - chunk factor
+  chunk_size: 350 # 32 # or 64
   epochs: 5 # 10-20
   early_stopping_patience: 2
   impostor_chunk_ratio: 2
@@ -37,7 +39,7 @@ isolation_forest:
 
 bert:
   model: "bert-base-uncased"
-  maximum_sequence_length: 512
+  maximum_sequence_length: 512 # padding to that value
   trainable: True
 
 wandb:
