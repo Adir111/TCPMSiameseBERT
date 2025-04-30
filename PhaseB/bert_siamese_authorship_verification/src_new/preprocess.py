@@ -91,27 +91,25 @@ class Preprocessor:
 
     @staticmethod
     def create_xy(impostor1, impostor2):
-        # Assign labels
+        # Unpack the datasets
         impostor1_batches, impostor2_batches = impostor1[0], impostor2[0]
-        impostor1_chunks_count, impostor2_chunks_count = impostor1[1], impostor2[1]
-        x = impostor1_batches.concatenate(impostor2_batches)
 
-        paired_inputs = tf.data.Dataset.zip((impostor1_batches, impostor2_batches))
+        # Map impostor1 to label 1, impostor2 to label 2
+        def map_with_label(label):
+            def wrapper(example):
+                return ({
+                            'input_text1': example['input_ids'],
+                            'attention_mask1': example['attention_mask'],
+                            'input_text2': example['input_ids'],
+                            'attention_mask2': example['attention_mask'],
+                        }, label)
 
-        def map_to_model_input(impostor1_elem, impostor2_elem):
-            return {
-                'input_text1': impostor1_elem['input_ids'],
-                'attention_mask1': impostor1_elem['attention_mask'],
-                'input_text2': impostor2_elem['input_ids'],
-                'attention_mask2': impostor2_elem['attention_mask'],
-            }
+            return wrapper
 
-        x = paired_inputs.map(map_to_model_input)
+        labeled_impostor1 = impostor1_batches.map(map_with_label(tf.constant(1, dtype=tf.int32)))
+        labeled_impostor2 = impostor2_batches.map(map_with_label(tf.constant(2, dtype=tf.int32)))
 
-        # Labels: 1 for same-author (first impostor), 0 for different-author (second impostor)
-        y1 = tf.data.Dataset.from_tensor_slices(tf.ones(impostor1_chunks_count, dtype=tf.int32))
-        y2 = tf.data.Dataset.from_tensor_slices(tf.zeros(impostor2_chunks_count, dtype=tf.int32))
-        y = y1.concatenate(y2).take(x.cardinality())  # ensure label count matches x
-
-        dataset = tf.data.Dataset.zip((x, y)).shuffle(buffer_size=1000)
+        # Concatenate the datasets
+        dataset = labeled_impostor1.concatenate(labeled_impostor2)
+        dataset = dataset.shuffle(buffer_size=1000)
         return dataset
