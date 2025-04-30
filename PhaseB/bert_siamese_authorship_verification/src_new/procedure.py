@@ -122,11 +122,15 @@ class Procedure:
     def training_stage(self, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.log("[INFO] Starting training stage...")
-        model = self.model_creator.build_complete_model()
+        model = self.model_creator.build_model()
         model.summary()
         trainer = Trainer(self.config, model, self.batch_size)
         train_dataset = self.preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
-        history = trainer.train(train_dataset)
+        try:
+            history = trainer.train(train_dataset)
+        except Exception as e:
+            print(str(e))
+            exit(-1)
         self.logger.log("[INFO] ✅ Training stage has been completed!")
         print("----------------------")
         return history
