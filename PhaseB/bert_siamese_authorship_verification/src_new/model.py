@@ -35,40 +35,6 @@ class SiameseBertModel:
         self._branch = None
         self._model_name = model_name
 
-    @staticmethod
-    def __mean_pooling(last_hidden_state, attention_mask):
-        """
-        Perform mean pooling on the output of BERT's last hidden state.
-        """
-        # Mask padding tokens (attention_mask is 1 for real tokens, 0 for padding)
-        mask_expanded = tf.expand_dims(attention_mask, axis=-1)  # Shape: (batch_size, seq_len, 1)
-        masked_last_hidden_state = last_hidden_state * tf.cast(mask_expanded, tf.float32) # Apply the mask to the last_hidden_state
-        sum_hidden_state = tf.reduce_sum(masked_last_hidden_state, axis=1) # Sum the hidden states across the sequence length (seq_len) dimension, where padding is ignored
-        real_token_count = tf.reduce_sum(mask_expanded, axis=1) # Count the number of real tokens (excluding padding)
-        real_token_count = tf.cast(real_token_count, tf.float32)
-        mean_pooled_output = sum_hidden_state / real_token_count # Compute the mean by dividing the sum by the number of real tokens
-        return mean_pooled_output
-
-    def __run_bert_model(self, preprocessed_collection):
-        """
-        Pass the tokenized inputs into the BERT model and perform mean pooling.
-        """
-        pooled_outputs = []
-
-        for tokenized_input in preprocessed_collection:
-            # Extract the tokenized input (input_ids, attention_mask) from the dictionary
-            input_ids = tf.convert_to_tensor(tokenized_input['input_ids'])
-            attention_mask = tf.convert_to_tensor(tokenized_input['attention_mask'])
-
-            inputs = { 'input_ids': input_ids, 'attention_mask': attention_mask } # BERT expects inputs as a dictionary
-            output = self.bert_model(inputs) # Forward pass through the BERT model
-            last_hidden_state = output.last_hidden_state # Get the last hidden state (shape: [batch_size, seq_len, hidden_size])
-            pooled_output = self.__mean_pooling(last_hidden_state, attention_mask) # Apply mean pooling
-            pooled_outputs.append(pooled_output)
-
-        pooled_outputs = tf.stack(pooled_outputs) # Stack the pooled outputs to create a tensor of shape [batch_size, hidden_size]
-        return pooled_outputs
-
     def __get_cnn_bilstm_stack(self):
         inputs = Input(shape=(self.max_len, self.hidden_size))
 
