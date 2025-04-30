@@ -1,6 +1,6 @@
-import random
 import nltk
 from transformers import BertTokenizer
+import tensorflow as tf
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -32,7 +32,7 @@ class Preprocessor:
         )
         return encoded_input
 
-    def preprocess(self, collection, chunk_size):
+    def preprocess(self, collection):
         """
         Preprocess the collection of text data:
         - Tokenize the text
@@ -41,7 +41,6 @@ class Preprocessor:
 
         Parameters:
         - collection (list): List of text data (each is a long text in your case)
-        - chunk_size (int): Size of each chunk if text exceeds max_length (default=None)
 
         Returns:
         - preprocessed_collection (list): List of dictionaries containing tokenized text data
@@ -50,20 +49,24 @@ class Preprocessor:
         tokens_count = 0
 
         for text in collection:
-            # Check if chunk_size is provided and the text is too long for BERT
-            if chunk_size is not None and len(text.split()) > self.max_length:
+            # Tokenize the text first
+            tokens = self.tokenizer.tokenize(text)
+
+            if len(tokens) > self.max_length:
                 # Split text into chunks of chunk_size words
-                num_chunks = len(text.split()) // chunk_size
-                if len(text.split()) % chunk_size != 0:
+                num_chunks = len(tokens) // self.max_length
+                if len(tokens) % self.max_length != 0:
                     num_chunks += 1
 
-                chunks = [text.split()[i * chunk_size: (i + 1) * chunk_size] for i in range(num_chunks)]
-                # Join the chunks back into text and tokenize each chunk
+                chunks = [tokens[i * self.max_length: (i + 1) * self.max_length] for i in range(num_chunks)]
                 for chunk in chunks:
-                    chunk_text = ' '.join(chunk)
+                    chunk_text = self.tokenizer.convert_tokens_to_string(chunk)
                     tokenized = self.tokenize_text(chunk_text)
                     tokens_count += len(tokenized['input_ids'].numpy().flatten())
-                    preprocessed_collection.append(tokenized)
+                    preprocessed_collection.append({
+                        'input_ids': tokenized['input_ids'][0],
+                        'attention_mask': tokenized['attention_mask'][0]
+                    })
             else:
                 # If no chunking is needed, directly tokenize the text
                 tokenized = self.tokenize_text(text)
@@ -76,13 +79,39 @@ class Preprocessor:
         Helper to balance two lists of chunks to the same length.
         """
         lengths = [len(chunks_list[0]), len(chunks_list[1])]
-        i1 = lengths.index(max(lengths))
-        i2 = lengths.index(min(lengths))
+        i1 = lengths.index(max(lengths)) # index of longer list
+        i2 = lengths.index(min(lengths)) # index of shorter list
 
-        temp = []
-        for _ in range(lengths[i1] // lengths[i2]):
-            temp += chunks_list[i2]
+        repeated_chunks = chunks_list[i2] * (lengths[i1] // lengths[i2])
+        repeated_chunks += chunks_list[i2][:lengths[i1] % len(chunks_list[i2])]
 
-        chunks_list[i2] = temp + random.sample(chunks_list[i2], lengths[i1] - len(temp))
+        chunks_list[i2] = repeated_chunks
 
         return chunks_list
+
+    @staticmethod
+    def create_xy(impostor1, impostor2):
+        # Assign labels
+        impostor1_batches, impostor2_batches = impostor1[0], impostor2[0]
+        impostor1_chunks_count, impostor2_chunks_count = impostor1[1], impostor2[1]
+        x = impostor1_batches.concatenate(impostor2_batches)
+
+        paired_inputs = tf.data.Dataset.zip((impostor1_batches, impostor2_batches))
+
+        def map_to_model_input(impostor1_elem, impostor2_elem):
+            return {
+                'input_text1': impostor1_elem['input_ids'],
+                'attention_mask1': impostor1_elem['attention_mask'],
+                'input_text2': impostor2_elem['input_ids'],
+                'attention_mask2': impostor2_elem['attention_mask'],
+            }
+
+        x = paired_inputs.map(map_to_model_input)
+
+        # Labels: 1 for same-author (first impostor), 0 for different-author (second impostor)
+        y1 = tf.data.Dataset.from_tensor_slices(tf.ones(impostor1_chunks_count, dtype=tf.int32))
+        y2 = tf.data.Dataset.from_tensor_slices(tf.zeros(impostor2_chunks_count, dtype=tf.int32))
+        y = y1.concatenate(y2).take(x.cardinality())  # ensure label count matches x
+
+        dataset = tf.data.Dataset.zip((x, y)).shuffle(buffer_size=1000)
+        return dataset
