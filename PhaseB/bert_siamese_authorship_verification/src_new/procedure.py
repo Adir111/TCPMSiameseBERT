@@ -44,35 +44,6 @@ class Procedure:
         self.trained_networks = []
         self.model_creator = SiameseBertModel(config=config, logger=logger)
 
-
-    # def load_trained_networks(self):
-    #     trained_networks_path = (Path(__file__).parent.parent / self.config['data']['trained_models_path']).resolve()
-    #     os.makedirs(trained_networks_path, exist_ok=True)
-    #     trained_networks = []
-    #
-    #     for file in os.listdir(trained_networks_path):
-    #         file_path = trained_networks_path / file
-    #
-    #         if file_path.is_dir():
-    #             continue
-    #
-    #         # If it's a file, and it's not a .h5 file, log a warning
-    #         if not file.endswith(".h5"):
-    #             self.logger.log(
-    #                 f"[WARNING] Unexpected file {file_path} found. Only .h5 files are allowed.")
-    #
-    #         else:
-    #             model_path = file_path
-    #             model_name = file.removeprefix("model_").removesuffix("_weights.h5")
-    #             siamese = SiameseBertModel(self.config, self.logger, model_name)
-    #             model = siamese.build_model()
-    #             model.load_weights(model_path)
-    #
-    #             trained_networks.append(siamese)
-    #
-    #     return trained_networks
-
-
     def preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
         def _create_dataset_from_chunks(chunks):
             """Helper to create a TensorFlow dataset from already preprocessed chunks."""
