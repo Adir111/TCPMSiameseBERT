@@ -47,9 +47,10 @@ def train_model():
             logger,
             data_visualizer=DataVisualizer(logger)
         )
-        procedure.full_procedure()
+        procedure.run()
 
         logger.log("✅ Procedure completed!")
+        logger.log({"status": "completed"})
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")
 
