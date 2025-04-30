@@ -12,8 +12,10 @@ training:
     initial_learning_rate: 1e-4
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
-  batch_size: 8 # Chunk to Batch ratio - chunk factor
-  chunk_size: 350 # 32 # or 64
+  loss: "binary_crossentropy"
+  batch_factor: 8 # Chunk to Batch ratio
+  chunk_size: 400 # 32 # or 64
+  hidden_size: 768
   epochs: 5 # 10-20
   early_stopping_patience: 2
   impostor_chunk_ratio: 2
@@ -23,9 +25,9 @@ model:
   save_trained_models: True
   load_trained_models: True
   cnn:
-    filters: 128 # 128 or 256
+    filters: 64 # 128 or 256
     padding: "valid"
-    kernel_size: [3, 6, 12]
+    kernel_size: 3 # [3, 6, 12]
     pool_size: 1
   bilstm:
     dropout: 0.25 # 0.2 - 0.5
