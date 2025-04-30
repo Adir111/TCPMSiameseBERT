@@ -13,7 +13,7 @@ class Preprocessor:
         self.max_length = config['bert']['maximum_sequence_length']
         self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
 
-    def tokenize_text(self, text):
+    def __tokenize_text(self, text):
         """
         Tokenize text into BERT's format (input_ids, attention_mask).
 
@@ -61,7 +61,7 @@ class Preprocessor:
                 chunks = [tokens[i * self.max_length: (i + 1) * self.max_length] for i in range(num_chunks)]
                 for chunk in chunks:
                     chunk_text = self.tokenizer.convert_tokens_to_string(chunk)
-                    tokenized = self.tokenize_text(chunk_text)
+                    tokenized = self.__tokenize_text(chunk_text)
                     tokens_count += len(tokenized['input_ids'].numpy().flatten())
                     preprocessed_collection.append({
                         'input_ids': tokenized['input_ids'][0],
@@ -69,7 +69,7 @@ class Preprocessor:
                     })
             else:
                 # If no chunking is needed, directly tokenize the text
-                tokenized = self.tokenize_text(text)
+                tokenized = self.__tokenize_text(text)
                 preprocessed_collection.append(tokenized)
         return preprocessed_collection, tokens_count
 

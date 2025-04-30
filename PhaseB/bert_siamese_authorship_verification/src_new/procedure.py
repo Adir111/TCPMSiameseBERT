@@ -44,8 +44,8 @@ class Procedure:
         self.trained_networks = []
         self.model_creator = SiameseBertModel(config=config)
 
-    def preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
-        def _create_dataset_from_chunks(chunks):
+    def __preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
+        def __create_dataset_from_chunks(chunks):
             """Helper to create a TensorFlow dataset from already preprocessed chunks."""
             dataset = tf.data.Dataset.from_generator(
                 lambda: (chunk for chunk in chunks),
@@ -77,9 +77,9 @@ class Procedure:
         impostor_1_chunks, impostor_2_chunks = self.preprocessor.equalize_chunks([impostor_1_chunks, impostor_2_chunks])
 
         # Create datasets
-        impostor_1_dataset, impostor_1_chunks_count, impostor_1_batches_count = _create_dataset_from_chunks(impostor_1_chunks)
-        impostor_2_dataset, impostor_2_chunks_count, impostor_2_batches_count = _create_dataset_from_chunks(impostor_2_chunks)
-        shakespeare_dataset, shakespeare_chunks_count, shakespeare_batches_count = _create_dataset_from_chunks(shakespeare_chunks)
+        impostor_1_dataset, impostor_1_chunks_count, impostor_1_batches_count = __create_dataset_from_chunks(impostor_1_chunks)
+        impostor_2_dataset, impostor_2_chunks_count, impostor_2_batches_count = __create_dataset_from_chunks(impostor_2_chunks)
+        shakespeare_dataset, shakespeare_chunks_count, shakespeare_batches_count = __create_dataset_from_chunks(shakespeare_chunks)
 
         # Log after stabilizing
         self.logger.log(f"[INFO] After equalization: {impostor_1_name} - {impostor_1_batches_count} batches, {impostor_1_chunks_count} chunks")
@@ -90,7 +90,7 @@ class Procedure:
         print("----------------------")
         return (impostor_1_dataset, impostor_1_chunks_count), (impostor_2_dataset, impostor_2_chunks_count), shakespeare_dataset
 
-    def training_stage(self, impostor_1_preprocessed, impostor_2_preprocessed):
+    def __training_stage(self, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.log("[INFO] Starting training stage...")
         model = self.model_creator.build_model()
@@ -114,6 +114,7 @@ class Procedure:
 
         for idx, impostor_pair in enumerate(impostor_pairs):
             self.logger.log(f"[INFO] Training model number {idx + 1} for impostor pair: {impostor_pair[0]} and {impostor_pair[1]}")
-            impostor_1_preprocessed, impostor_2_preprocessed, shakespeare_data = self.preprocessing_stage(impostor_pair[0], impostor_pair[1], [])
-            history = self.training_stage(impostor_1_preprocessed, impostor_2_preprocessed)
+            impostor_1_preprocessed, impostor_2_preprocessed, shakespeare_data = self.__preprocessing_stage(
+                impostor_pair[0], impostor_pair[1], [])
+            history = self.__training_stage(impostor_1_preprocessed, impostor_2_preprocessed)
             self.logger.log(f"[INFO] Model {idx + 1} training complete.")

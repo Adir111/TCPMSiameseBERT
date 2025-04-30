@@ -8,7 +8,7 @@ class Trainer:
         self.loss=config['training']['loss']
         self.learning_rate = config['training']['optimizer']['initial_learning_rate']
 
-    def compile_model(self):
+    def __compile_model(self):
         """Compile the model with an optimizer, loss function, and metrics."""
         self.model.compile(
             optimizer=tf.keras.optimizers.Adam(learning_rate=self.learning_rate),
@@ -18,7 +18,7 @@ class Trainer:
 
     def train(self, train_dataset):
         """Train the model on the dataset."""
-        self.compile_model()
+        self.__compile_model()
         history = self.model.fit(
             train_dataset.batch(self.batch_size),
             epochs=self.epochs

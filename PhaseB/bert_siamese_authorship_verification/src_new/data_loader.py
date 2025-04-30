@@ -23,7 +23,7 @@ class DataLoader:
         self.impostor_dataset_name = impostor_dataset_name
         self.text_to_classify_name = text_to_classify_name
 
-    def _load_json_data(self, file_name):
+    def __load_json_data(self, file_name):
         """
         Utility method to load data from a JSON file.
         """
@@ -35,14 +35,14 @@ class DataLoader:
         """
         Load and return the Shakespeare dataset from JSON.
         """
-        data = self._load_json_data(self.shakespeare_dataset_name)
+        data = self.__load_json_data(self.shakespeare_dataset_name)
         return [_clean_text(item["text"]) for item in data]
 
     def get_impostor_texts_by_name(self, name):
         """
         Load and return the texts of a specific impostor by name.
         """
-        impostors = self._load_json_data(self.impostor_dataset_name)
+        impostors = self.__load_json_data(self.impostor_dataset_name)
         for impostor in impostors:
             if impostor["author"] == name:
                 return [_clean_text(text) for text in impostor["texts"]]
@@ -52,12 +52,12 @@ class DataLoader:
         """
         Return a list of all impostor names.
         """
-        impostors = self._load_json_data(self.impostor_dataset_name)
+        impostors = self.__load_json_data(self.impostor_dataset_name)
         return [impostor['author'] for impostor in impostors]
 
     def get_text_to_classify(self):
         """
         Load and return the text to classify from JSON.
         """
-        data = self._load_json_data(self.text_to_classify_name)
+        data = self.__load_json_data(self.text_to_classify_name)
         return _clean_text(data.get('text', ''))
