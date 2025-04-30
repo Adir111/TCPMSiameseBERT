@@ -98,10 +98,10 @@ class Preprocessor:
         def map_with_label(label):
             def wrapper(example):
                 return ({
-                            'input_text1': example['input_ids'],
-                            'attention_mask1': example['attention_mask'],
-                            'input_text2': example['input_ids'],
-                            'attention_mask2': example['attention_mask'],
+                            'input_text_1': example['input_ids'],
+                            'attention_mask_1': example['attention_mask'],
+                            'input_text_2': example['input_ids'],
+                            'attention_mask_2': example['attention_mask'],
                         }, label)
 
             return wrapper
