@@ -12,8 +12,7 @@ else:
     from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, Dropout, LSTM, Lambda
 
 class SiameseBertModel:
-    def __init__(self, config, logger):
-        self.logger = logger # TODO: not used, should use?
+    def __init__(self, config):
         self.kernel_size = config['model']['cnn']['kernel_size']
         bilstm_layers = config['model']['bilstm']['number_of_layers']
         self.bilstm_output_units = int(bilstm_layers * 2)
@@ -62,7 +61,6 @@ class SiameseBertModel:
         print(f"Output after CNN+BiLSTM: {output.shape}")  # Debug print
 
         return Model(inputs=[input_ids, attention_mask], outputs=output, name="siamese_branch")
-
 
     def build_model(self):
         """

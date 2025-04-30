@@ -42,7 +42,7 @@ class Procedure:
             text_to_classify_name=self.config['data']['classify_text_data_source']
         )
         self.trained_networks = []
-        self.model_creator = SiameseBertModel(config=config, logger=logger)
+        self.model_creator = SiameseBertModel(config=config)
 
     def preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
         def _create_dataset_from_chunks(chunks):
