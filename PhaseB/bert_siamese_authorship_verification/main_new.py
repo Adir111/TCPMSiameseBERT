@@ -1,7 +1,4 @@
-from utilities.config_loader import get_config
-from utilities.logger import get_logger
-from utilities.data_visualizer import DataVisualizer
-from utilities.convert_txt_to_json import convert_texts_to_json
+from utilities import get_config, get_logger, convert_texts_to_json
 from src_new.procedure import Procedure
 
 # Load config
@@ -12,7 +9,7 @@ TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
 
-def create_dataset():
+def __create_dataset():
     """ Converts raw text files into a structured dataset in JSON format. """
     print("Create full dataset? (y/n)")
     full_dataset = input().strip().lower() == "y"
@@ -37,16 +34,12 @@ def create_dataset():
     print(f"✅ Dataset created")
 
 
-def train_model():
+def __train_model():
     """ Triggers the training script. """
     try:
         logger = get_logger(config)
         logger.log("🚀 Starting Full Procedure...")
-        procedure = Procedure(
-            config,
-            logger,
-            data_visualizer=DataVisualizer(logger)
-        )
+        procedure = Procedure(config, logger)
         procedure.run()
 
         logger.log("✅ Procedure completed!")
@@ -66,9 +59,9 @@ def main():
         option = input("Select an option (1/2/3): ").strip()
 
         if option == "1":
-            create_dataset()
+            __create_dataset()
         elif option == "2":
-            train_model()
+            __train_model()
         elif option == "3":
             print("👋 Exiting. Have a great day!")
             break

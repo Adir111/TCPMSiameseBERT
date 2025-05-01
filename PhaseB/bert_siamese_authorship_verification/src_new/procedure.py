@@ -9,7 +9,7 @@ from .data_loader import DataLoader
 from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities import env_handler, make_pairs
+from PhaseB.bert_siamese_authorship_verification.utilities import env_handler, make_pairs, DataVisualizer
 
 # from src.dtw import compute_dtw_distance
 # from src.isolation_forest import AnomalyDetector
@@ -26,10 +26,10 @@ else:
 
 
 class Procedure:
-    def __init__(self, config, logger, data_visualizer):
+    def __init__(self, config, logger):
         self.config = config
         self.logger = logger
-        self.data_visualizer = data_visualizer
+        self.data_visualizer = DataVisualizer(logger)
         self.preprocessor = Preprocessor(config=config)
         self.max_length = config['bert']['maximum_sequence_length']
         self.chunk_size = config['training']['chunk_size']
