@@ -1,5 +1,4 @@
 import nltk
-import numpy as np
 from transformers import BertTokenizer
 import tensorflow as tf
 
@@ -117,9 +116,9 @@ class Preprocessor:
         x_train, y_train = zip(*train_data)
         x_test, y_test = zip(*test_data)
 
-        x_train = np.array([x.numpy() for x in x_train])
-        y_train = np.array([y.numpy() for y in y_train])
-        x_test = np.array([x.numpy() for x in x_test])
-        y_test = np.array([y.numpy() for y in y_test])
-
-        return x_train, y_train, x_test, y_test
+        return (
+            tf.stack(x_train),
+            tf.stack(y_train),
+            tf.stack(x_test),
+            tf.stack(y_test)
+        )
