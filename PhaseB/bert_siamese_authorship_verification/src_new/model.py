@@ -1,7 +1,7 @@
 import tensorflow as tf
 from transformers import TFBertModel
-
 from PhaseB.bert_siamese_authorship_verification.utilities.env_handler import is_tf_2_10
+from siamese import SiameseNetwork
 
 if is_tf_2_10():
     from keras import Input, Model
@@ -10,6 +10,7 @@ if is_tf_2_10():
 else:
     from tensorflow.keras import Input, Model
     from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, Dropout, LSTM, Lambda
+
 
 class SiameseBertModel:
     def __init__(self, config):
@@ -24,12 +25,11 @@ class SiameseBertModel:
         self.padding = config['model']['cnn']['padding']
         self.max_len = config['bert']['maximum_sequence_length']
         self.hidden_size = config['training']['hidden_size']
-
         self.bert_model = TFBertModel.from_pretrained(config['bert']['model'])
         self.bert_model.trainable = config['bert']['trainable']
 
-    def __get_cnn_bilstm_stack(self):
-        inputs = Input(shape=(self.max_len, self.hidden_size))
+    def __get_cnn_bilstm_stack(self, input_shape):
+        inputs = Input(shape=input_shape)
 
         # CNN Layer
         x = Conv1D(filters=self.filters, kernel_size=self.kernel_size, padding=self.padding)(inputs)
@@ -40,53 +40,50 @@ class SiameseBertModel:
 
         # Fully Connected Layer
         x = Dropout(self.bilstm_dropout)(x)
-        x = Dense(self.in_features, activation='relu')(x) # For binary classification
+        x = Dense(self.in_features, activation='relu')(x)  # For binary classification
 
         # Output Layer
         outputs = Dense(self.out_features, activation='relu')(x)
         model = Model(inputs=inputs, outputs=outputs, name="cnn_bilstm_stack")
         return model
 
-    def __build_siamese_branch(self):
-        input_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
-        attention_mask = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
+    def __create_base_model(self):
+        combined_input = Input(shape=(self.max_len * 2,), dtype=tf.int32, name="combined_input")
+        # input_ids = Input(shape=self.input_shape, dtype=tf.int32, name="input_ids")
+        # attention_mask = Input(shape=self.input_shape, dtype=tf.int32, name="attention_mask")
+        input_ids = Lambda(lambda x: x[:, :self.max_len])(combined_input)
+        attention_mask = Lambda(lambda x: x[:, self.max_len:])(combined_input)
 
         # BERT output
-        bert_output = self.bert_model(input_ids, attention_mask=attention_mask)[0]
-        print(f"BERT output shape: {bert_output.shape}")  # Debug print
+        bert_output = self.bert_model(
+            input_ids=input_ids,
+            attention_mask=attention_mask
+        )[0]
 
         # CNN BiLSTM output
-        cnn_bilstm_stack = self.__get_cnn_bilstm_stack()
+        cnn_bilstm_stack = self.__get_cnn_bilstm_stack((self.max_len, self.hidden_size))
         output = cnn_bilstm_stack(bert_output)
-        print(f"Output after CNN+BiLSTM: {output.shape}")  # Debug print
 
-        return Model(inputs=[input_ids, attention_mask], outputs=output, name="siamese_branch")
+        return Model(inputs=combined_input, outputs=output, name="siamese_branch")
+
+    @staticmethod
+    def __create_head_model(embedding_shape):
+        embedding_a = Input(shape=embedding_shape)
+        embedding_b = Input(shape=embedding_shape)
+
+        # Euclidean distance
+        distance = Lambda(
+            lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6),
+            name="euclidean_distance"
+        )([embedding_a, embedding_b])
+
+        # Output layer
+        output = Dense(1, activation="sigmoid", name="similarity_score")(distance)
+
+        return Model(inputs=[embedding_a, embedding_b], outputs=output, name="siamese_head_model")
 
     def build_model(self):
-        """
-        Build the full model with BERT + CNN + BiLSTM layers.
-        """
-        # Shared branch
-        shared_branch = self.__build_siamese_branch()
-
-        # Define the pair inputs for BERT
-        input_ids_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_text_1")
-        attention_mask_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask_1")
-        input_ids_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_text_2")
-        attention_mask_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask_2")
-
-        # Get BERT embeddings for both inputs
-        bert_output_1 = shared_branch([input_ids_1, attention_mask_1])
-        bert_output_2 = shared_branch([input_ids_2, attention_mask_2])
-
-        # Distance computation
-        distance = Lambda(
-            lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6)
-        )([bert_output_1, bert_output_2])
-
-        # Output will be in [0, 1], suitable for BCE
-        output = Dense(1, activation="sigmoid")(distance)
-
-        # Final Model
-        model = Model(inputs=[input_ids_1, attention_mask_1, input_ids_2, attention_mask_2], outputs=output, name="bert_siamese_with_cnn_bilstm")
-        return model
+        base_model = self.__create_base_model()
+        head_model = self.__create_head_model(base_model.output_shape[1:])
+        siamese_network = SiameseNetwork(base_model, head_model)
+        return siamese_network

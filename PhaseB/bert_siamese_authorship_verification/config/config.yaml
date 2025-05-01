@@ -19,7 +19,7 @@ training:
   epochs: 5 # 10-20
   early_stopping_patience: 2
   impostor_chunk_ratio: 2
-  validation_split: 0.25
+  test_split: 0.25
 
 model:
   save_trained_models: True

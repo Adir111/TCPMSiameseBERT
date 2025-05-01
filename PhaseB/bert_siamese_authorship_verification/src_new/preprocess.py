@@ -1,4 +1,5 @@
 import nltk
+import numpy as np
 from transformers import BertTokenizer
 import tensorflow as tf
 
@@ -9,9 +10,9 @@ nltk.download('stopwords')
 
 class Preprocessor:
     def __init__(self, config):
-        self._config = config
         self.max_length = config['bert']['maximum_sequence_length']
         self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
+        self.test_split = config['training']['test_split']
 
     def __tokenize_text(self, text):
         """
@@ -89,27 +90,36 @@ class Preprocessor:
 
         return chunks_list
 
-    @staticmethod
-    def create_xy(impostor1, impostor2):
-        # Unpack the datasets
+    def create_xy(self, impostor1, impostor2):
         impostor1_batches, impostor2_batches = impostor1[0], impostor2[0]
 
-        # Map impostor1 to label 1, impostor2 to label 2
         def map_with_label(label):
             def wrapper(example):
-                return ({
-                            'input_text_1': example['input_ids'],
-                            'attention_mask_1': example['attention_mask'],
-                            'input_text_2': example['input_ids'],
-                            'attention_mask_2': example['attention_mask'],
-                        }, label)
+                combined_input = tf.concat([example['input_ids'], example['attention_mask']], axis=-1)
+                return combined_input, label
 
             return wrapper
 
         labeled_impostor1 = impostor1_batches.map(map_with_label(tf.constant(1, dtype=tf.int32)))
         labeled_impostor2 = impostor2_batches.map(map_with_label(tf.constant(2, dtype=tf.int32)))
 
-        # Concatenate the datasets
         dataset = labeled_impostor1.concatenate(labeled_impostor2)
         dataset = dataset.shuffle(buffer_size=1000)
-        return dataset
+
+        # Materialize full dataset
+        all_data = list(dataset)
+
+        # Split into train/test
+        split_index = int((1 - self.test_split) * len(all_data))
+        train_data = all_data[:split_index]
+        test_data = all_data[split_index:]
+
+        x_train, y_train = zip(*train_data)
+        x_test, y_test = zip(*test_data)
+
+        x_train = np.array([x.numpy() for x in x_train])
+        y_train = np.array([y.numpy() for y in y_train])
+        x_test = np.array([x.numpy() for x in x_test])
+        y_test = np.array([y.numpy() for y in y_test])
+
+        return x_train, y_train, x_test, y_test
