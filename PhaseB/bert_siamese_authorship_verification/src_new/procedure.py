@@ -30,17 +30,12 @@ class Procedure:
         self.config = config
         self.logger = logger
         self.data_visualizer = data_visualizer
-        self.preprocessor = Preprocessor(config)
+        self.preprocessor = Preprocessor(config=config)
         self.max_length = config['bert']['maximum_sequence_length']
         self.chunk_size = config['training']['chunk_size']
         self.batch_factor = config['training']['batch_factor']
         self.batch_size = self.chunk_size // self.batch_factor
-        self.data_loader = DataLoader(
-            data_path=self.config['data']['organised_data_folder_path'],
-            shakespeare_dataset_name=self.config['data']['shakespeare_data_source'],
-            impostor_dataset_name=self.config['data']['impostors_data_source'],
-            text_to_classify_name=self.config['data']['classify_text_data_source']
-        )
+        self.data_loader = DataLoader(config=config)
         self.trained_networks = []
         self.model_creator = SiameseBertModel(config=config)
 

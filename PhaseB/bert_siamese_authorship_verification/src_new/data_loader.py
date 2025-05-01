@@ -17,11 +17,11 @@ def _clean_text(text):
 
 
 class DataLoader:
-    def __init__(self, data_path, shakespeare_dataset_name, impostor_dataset_name, text_to_classify_name):
-        self.data_path = (Path(__file__).parent.parent / data_path).resolve()
-        self.shakespeare_dataset_name = shakespeare_dataset_name
-        self.impostor_dataset_name = impostor_dataset_name
-        self.text_to_classify_name = text_to_classify_name
+    def __init__(self, config):
+        self.data_path = (Path(__file__).parent.parent / config['data']['organised_data_folder_path']).resolve()
+        self.shakespeare_dataset_name = config['data']['shakespeare_data_source']
+        self.impostor_dataset_name = config['data']['impostors_data_source']
+        self.text_to_classify_name = config['data']['classify_text_data_source']
 
     def __load_json_data(self, file_name):
         """
