@@ -1,16 +1,16 @@
 import numpy as np
 import tensorflow as tf
 from transformers import TFBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities.env_handler import is_tf_2_10
+# from PhaseB.bert_siamese_authorship_verification.utilities.env_handler import is_tf_2_10
 from siamese import SiameseNetwork
 
-if is_tf_2_10():
-    from keras import Input, Model
-    from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
-    from keras.layers.convolutional import Conv1D, MaxPooling1D
-else:
-    from tensorflow.keras import Input, Model
-    from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, Dropout, LSTM, Lambda
+# if is_tf_2_10():
+#     from keras import Input, Model
+#     from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
+#     from keras.layers.convolutional import Conv1D, MaxPooling1D
+# else:
+from tensorflow.keras import Input, Model
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, Dropout, LSTM, Lambda
 
 
 class SiameseBertModel:
