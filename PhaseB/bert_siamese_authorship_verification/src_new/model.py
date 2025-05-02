@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 from transformers import TFBertModel
 from PhaseB.bert_siamese_authorship_verification.utilities.env_handler import is_tf_2_10
@@ -48,11 +49,11 @@ class SiameseBertModel:
         return model
 
     def __create_base_model(self):
-        combined_input = Input(shape=(self.max_len * 2,), dtype=tf.int32, name="combined_input")
+        combined_input = Input(shape=(self.max_len * 2,), dtype=np.int32, name="combined_input")
         # input_ids = Input(shape=self.input_shape, dtype=tf.int32, name="input_ids")
         # attention_mask = Input(shape=self.input_shape, dtype=tf.int32, name="attention_mask")
-        input_ids = Lambda(lambda x: x[:, :self.max_len])(combined_input)
-        attention_mask = Lambda(lambda x: x[:, self.max_len:])(combined_input)
+        input_ids = Lambda(lambda x: tf.convert_to_tensor(x[:, :self.max_len], dtype=tf.int32))(combined_input)
+        attention_mask = Lambda(lambda x: tf.convert_to_tensor(x[:, self.max_len:], dtype=tf.int32))(combined_input)
 
         # BERT output
         bert_output = self.bert_model(

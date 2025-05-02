@@ -1,6 +1,7 @@
 import nltk
 from transformers import BertTokenizer
-import tensorflow as tf
+from sklearn.model_selection import train_test_split
+import numpy as np
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -32,6 +33,17 @@ class Preprocessor:
         )
         return encoded_input
 
+    def __handle_chunk(self, chunk_text, preprocessed_collection):
+        tokenized = self.__tokenize_text(chunk_text)
+        input_ids = tokenized['input_ids'].numpy().flatten()
+        attention_mask = tokenized['attention_mask'].numpy().flatten()
+        tokens_count = len(input_ids)
+        preprocessed_collection.append({
+            'input_ids': input_ids,
+            'attention_mask': attention_mask
+        })
+        return tokens_count
+
     def preprocess(self, collection):
         """
         Preprocess the collection of text data:
@@ -61,16 +73,10 @@ class Preprocessor:
                 chunks = [tokens[i * self.max_length: (i + 1) * self.max_length] for i in range(num_chunks)]
                 for chunk in chunks:
                     chunk_text = self.tokenizer.convert_tokens_to_string(chunk)
-                    tokenized = self.__tokenize_text(chunk_text)
-                    tokens_count += len(tokenized['input_ids'].numpy().flatten())
-                    preprocessed_collection.append({
-                        'input_ids': tokenized['input_ids'][0],
-                        'attention_mask': tokenized['attention_mask'][0]
-                    })
+                    tokens_count += self.__handle_chunk(chunk_text, preprocessed_collection)
             else:
                 # If no chunking is needed, directly tokenize the text
-                tokenized = self.__tokenize_text(text)
-                preprocessed_collection.append(tokenized)
+                tokens_count += self.__handle_chunk(text, preprocessed_collection)
         return preprocessed_collection, tokens_count
 
     @staticmethod
@@ -89,36 +95,26 @@ class Preprocessor:
 
         return chunks_list
 
-    def create_xy(self, impostor1, impostor2):
-        impostor1_batches, impostor2_batches = impostor1[0], impostor2[0]
+    def create_xy(self, impostor_1_chunks, impostor_2_chunks):
+        def __label_chunk(chunk, label):
+            return {
+                'input_ids': chunk['input_ids'],
+                'attention_mask': chunk['attention_mask'],
+                'label': label
+            }
 
-        def map_with_label(label):
-            def wrapper(example):
-                combined_input = tf.concat([example['input_ids'], example['attention_mask']], axis=-1)
-                return combined_input, label
+        if len(impostor_1_chunks) != len(impostor_2_chunks):
+            raise ValueError("The lengths of impostor_1_chunks and impostor_2_chunks do not match!")
 
-            return wrapper
+        all_data_labeled = [__label_chunk(chunk, 0) for chunk in impostor_1_chunks] + \
+                           [__label_chunk(chunk, 1) for chunk in impostor_2_chunks]
 
-        labeled_impostor1 = impostor1_batches.map(map_with_label(tf.constant(1, dtype=tf.int32)))
-        labeled_impostor2 = impostor2_batches.map(map_with_label(tf.constant(2, dtype=tf.int32)))
+        x_data = [np.concatenate((d['input_ids'], d['attention_mask'])) for d in all_data_labeled]
+        y_data = [data['label'] for data in all_data_labeled]
 
-        dataset = labeled_impostor1.concatenate(labeled_impostor2)
-        dataset = dataset.shuffle(buffer_size=1000)
+        x_data = np.stack(x_data)
+        y_data = np.array(y_data, dtype=np.int32)
 
-        # Materialize full dataset
-        all_data = list(dataset)
+        x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=self.test_split, random_state=42)
 
-        # Split into train/test
-        split_index = int((1 - self.test_split) * len(all_data))
-        train_data = all_data[:split_index]
-        test_data = all_data[split_index:]
-
-        x_train, y_train = zip(*train_data)
-        x_test, y_test = zip(*test_data)
-
-        return (
-            tf.stack(x_train),
-            tf.stack(y_train),
-            tf.stack(x_test),
-            tf.stack(y_test)
-        )
+        return x_train, y_train, x_test, y_test
