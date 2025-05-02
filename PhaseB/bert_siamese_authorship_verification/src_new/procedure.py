@@ -9,20 +9,13 @@ from .data_loader import DataLoader
 from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities import env_handler, make_pairs, DataVisualizer
+from PhaseB.bert_siamese_authorship_verification.utilities import make_pairs, DataVisualizer
 
 # from src.dtw import compute_dtw_distance
 # from src.isolation_forest import AnomalyDetector
 # from src.clustering import perform_kmedoids_clustering
 
 tf.get_logger().setLevel('ERROR')
-
-if env_handler:
-    from keras.callbacks import ModelCheckpoint, EarlyStopping
-    from tensorflow_addons.optimizers import AdamW
-else:
-    from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-    from tensorflow.keras.optimizers import AdamW
 
 
 class Procedure:
