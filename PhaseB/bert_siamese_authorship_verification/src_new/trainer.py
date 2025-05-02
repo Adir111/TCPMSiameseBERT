@@ -1,12 +1,21 @@
+import io
+from contextlib import redirect_stdout
 import tensorflow as tf
 
+
 class Trainer:
-    def __init__(self, config, model, batch_size):
+    def __init__(self, config, logger, model, batch_size):
+        self.logger = logger
         self.model = model
         self.batch_size = batch_size
         self.epochs = config['training']['epochs']
         self.loss = config['training']['loss']
         self.learning_rate = float(config['training']['optimizer']['initial_learning_rate'])
+
+    def get_model_summary_string(self):
+        with io.StringIO() as buf, redirect_stdout(buf):
+            self.model.summary()
+            return buf.getvalue()
 
     def __compile_model(self):
         """Compile the model with an optimizer, loss function, and metrics."""
@@ -15,6 +24,9 @@ class Trainer:
             loss='binary_crossentropy',
             metrics=['accuracy']
         )
+        self.logger.log(f"[INFO] Model compiled with loss: {self.loss}, learning rate: {self.learning_rate}")
+        summary = self.get_model_summary_string()
+        self.logger.log(summary)
 
     def train(self, x_train, y_train, x_test, y_test):
         """Train the model on the dataset."""
