@@ -6,7 +6,7 @@ class Trainer:
         self.batch_size = batch_size
         self.epochs = config['training']['epochs']
         self.loss = config['training']['loss']
-        self.learning_rate = config['training']['optimizer']['initial_learning_rate']
+        self.learning_rate = float(config['training']['optimizer']['initial_learning_rate'])
 
     def __compile_model(self):
         """Compile the model with an optimizer, loss function, and metrics."""
