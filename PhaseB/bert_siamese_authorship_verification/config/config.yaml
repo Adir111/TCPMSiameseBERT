@@ -26,9 +26,9 @@ model:
   save_trained_models: True
   load_trained_models: True
   cnn:
-    filters: 64 # 128 or 256
+    filters: 128 # 128 or 256
     padding: "valid"
-    kernel_size: 3 # [3, 6, 12]
+    kernel_size: [3, 6, 12]
     pool_size: 1
   bilstm:
     dropout: 0.25 # 0.2 - 0.5
@@ -42,7 +42,7 @@ isolation_forest:
 
 bert:
   model: "bert-base-uncased"
-  maximum_sequence_length: 512 # padding to that value
+  maximum_sequence_length: 64 # padding to that value
   trainable: True
 
 wandb:
