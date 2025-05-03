@@ -1,5 +1,5 @@
 from utilities import get_config, get_logger, convert_texts_to_json
-from src_new.procedure import Procedure
+from src.procedure import Procedure
 
 # Load config
 config = get_config()
