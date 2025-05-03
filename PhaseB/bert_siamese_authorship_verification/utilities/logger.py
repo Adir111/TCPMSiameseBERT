@@ -78,10 +78,16 @@ class WrappedWandbLogger:
     def log_summary(self, summary_name, name):
         self.wandb.run.summary[summary_name] = name
 
-    def log(self, data):
+    def info(self, data):
+        self.log(data, '[INFO] ')
+
+    def warn(self, data):
+        self.log(data, '[WARNING] ')
+
+    def log(self, data, prefix=''):
         if isinstance(data, str):
             if hasattr(self.wandb, "termlog"):
-                self.wandb.termlog(data)
+                self.wandb.termlog(prefix + data)
             else:
                 raise AttributeError("WandB instance does not have 'termlog' method.")
         elif isinstance(data, dict):
@@ -103,10 +109,10 @@ def get_logger(config):
             config=config,
         )
         _logger_instance = WrappedWandbLogger(wandb)
-        _logger_instance.log("[INFO] WandB logger initialized")
+        _logger_instance.info("WandB logger initialized")
     else:
         _logger_instance = NoOpWandb()
-        _logger_instance.log("[INFO] NoOpWandb logger initialized")
+        _logger_instance.info("NoOpWandb logger initialized")
 
     return _logger_instance
 

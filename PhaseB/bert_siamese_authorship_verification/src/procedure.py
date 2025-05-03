@@ -35,13 +35,13 @@ class Procedure:
     # def __preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
     def __preprocessing_stage(self, impostor_1_name, impostor_2_name):
         print("----------------------")
-        self.logger.log("[INFO] Starting preprocessing stage...")
+        self.logger.info("Starting preprocessing stage...")
 
         def __load_and_preprocess(impostor_name):
             impostor_texts = self.data_loader.get_impostor_texts_by_name(impostor_name)
             impostor_chunks, impostor_tokens_count = self.preprocessor.preprocess(impostor_texts)
-            self.logger.log(
-                f"[INFO] Before equalization: {impostor_name} - {len(impostor_chunks)} chunks with {impostor_tokens_count} tokens")
+            self.logger.info(
+                f"Before equalization: {impostor_name} - {len(impostor_chunks)} chunks with {impostor_tokens_count} tokens")
             return impostor_chunks, impostor_tokens_count
 
         impostor_1_chunks, impostor_1_tokens_count = __load_and_preprocess(impostor_1_name)
@@ -51,18 +51,18 @@ class Procedure:
         impostor_1_chunks, impostor_2_chunks = self.preprocessor.equalize_chunks([impostor_1_chunks, impostor_2_chunks])
 
         # Log after stabilizing
-        self.logger.log(f"[INFO] After equalization: {impostor_1_name} - {len(impostor_1_chunks)} chunks")
-        self.logger.log(f"[INFO] After equalization: {impostor_2_name} - {len(impostor_2_chunks)} chunks")
-        # self.logger.log(f"[INFO] Processed shakespeare: {shakespeare_count} samples")
+        self.logger.info(f"After equalization: {impostor_1_name} - {len(impostor_1_chunks)} chunks")
+        self.logger.info(f"After equalization: {impostor_2_name} - {len(impostor_2_chunks)} chunks")
+        # self.logger.info(f"Processed shakespeare: {shakespeare_count} samples")
 
-        self.logger.log("[INFO] ✅ Preprocessing stage has been completed!")
+        self.logger.info("✅ Preprocessing stage has been completed!")
         print("----------------------")
         return impostor_1_chunks, impostor_2_chunks
         # return (impostor_1_dataset, impostor_1_count), (impostor_2_dataset, impostor_2_count), shakespeare_dataset
 
     def __training_stage(self, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
-        self.logger.log("[INFO] Starting training stage...")
+        self.logger.info("Starting training stage...")
 
         model = self.model_creator.build_model()
         trainer = Trainer(self.config, self.logger, model, self.batch_size)
@@ -70,7 +70,7 @@ class Procedure:
         x_train, y_train, x_test, y_test = self.preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
         history = trainer.train(x_train, y_train, x_test, y_test)
 
-        self.logger.log("[INFO] ✅ Training stage has been completed!")
+        self.logger.info("✅ Training stage has been completed!")
         print("----------------------")
         return history
 
@@ -78,13 +78,13 @@ class Procedure:
         # shakespeare_data = self.data_loader.get_shakespeare_data()
         impostors_names = self.data_loader.get_impostors_name_list()
         impostor_pairs = make_pairs(impostors_names)
-        self.logger.log(f"[INFO] Batch size is {self.batch_size}")
+        self.logger.info(f"Batch size is {self.batch_size}")
 
         for idx, impostor_pair in enumerate(impostor_pairs):
-            self.logger.log(
-                f"[INFO] Training model number {idx + 1} for impostor pair: {impostor_pair[0]} and {impostor_pair[1]}")
+            self.logger.info(
+                f"Training model number {idx + 1} for impostor pair: {impostor_pair[0]} and {impostor_pair[1]}")
             # impostor_1_preprocessed, impostor_2_preprocessed, shakespeare_data = self.__preprocessing_stage(impostor_pair[0], impostor_pair[1], shakespeare_data)
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage(impostor_pair[0],
                                                                                           impostor_pair[1])
             history = self.__training_stage(impostor_1_preprocessed, impostor_2_preprocessed)
-            self.logger.log(f"[INFO] Model {idx + 1} training complete.")
+            self.logger.info(f"Model {idx + 1} training complete.")

@@ -19,7 +19,7 @@ class Trainer:
             loss='binary_crossentropy',
             metrics=['accuracy']
         )
-        self.logger.log(f"[INFO] Model compiled with loss: {self.loss}, learning rate: {self.learning_rate}")
+        self.logger.info(f"Model compiled with loss: {self.loss}, learning rate: {self.learning_rate}")
 
     def train(self, x_train, y_train, x_test, y_test):
         """Train the model on the dataset."""
