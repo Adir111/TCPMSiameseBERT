@@ -46,9 +46,11 @@ class SiameseBertModel:
     def __get_cnn_bilstm_stack(self, input_shape):
         inputs = Input(shape=input_shape)
 
+        x = tf.identity(inputs)
         # CNN Layer
-        x = Conv1D(filters=self.filters, kernel_size=self.kernel_size, padding=self.padding)(inputs)
-        x = MaxPooling1D(pool_size=self.pool_size)(x)
+        for kernel_size in self.kernel_size:
+            x = Conv1D(filters=self.filters, kernel_size=kernel_size, padding=self.padding)(x)
+            x = MaxPooling1D(pool_size=self.pool_size)(x)
 
         # BiLSTM Layer
         x = Bidirectional(LSTM(self.bilstm_output_units, return_sequences=False))(x)
