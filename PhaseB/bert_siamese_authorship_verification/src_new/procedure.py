@@ -32,9 +32,9 @@ class Procedure:
         self.data_visualizer = DataVisualizer(logger)
         self.preprocessor = Preprocessor(config=config)
         self.max_length = config['bert']['maximum_sequence_length']
-        self.chunk_size = config['training']['chunk_size']
-        self.batch_factor = config['training']['batch_factor']
-        self.batch_size = self.chunk_size // self.batch_factor
+        # self.chunk_size = config['training']['chunk_size']
+        # self.batch_factor = config['training']['batch_factor']
+        self.batch_size = config['training']['batch_size']
         self.data_loader = DataLoader(config=config)
         self.trained_networks = []
         self.model_creator = SiameseBertModel(config=config)

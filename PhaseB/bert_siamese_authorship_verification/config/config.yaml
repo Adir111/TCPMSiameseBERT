@@ -13,8 +13,9 @@ training:
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
   loss: "binary_crossentropy"
-  batch_factor: 8 # Chunk to Batch ratio
-  chunk_size: 400 # 32 # or 64
+#  batch_factor: 100 # Chunk to Batch ratio
+#  chunk_size: 400 # 32 # or 64
+  batch_size: 50
   hidden_size: 768
   epochs: 5 # 10-20
   early_stopping_patience: 2
