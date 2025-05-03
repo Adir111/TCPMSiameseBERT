@@ -1,6 +1,7 @@
 import json
 from pathlib import Path
 
+
 def save_to_json(data, output_path, data_name):
     """
     Save the given data to a JSON file and print the status.
@@ -13,6 +14,7 @@ def save_to_json(data, output_path, data_name):
     with output_path.open("w", encoding="utf-8") as json_file:
         json.dump(data, json_file, indent=4)
     print(f"{data_name} saved to {output_path}.")
+
 
 def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
     impostor_dataset = []
@@ -94,4 +96,3 @@ def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_col
     save_to_json(impostor_dataset, impostor_output_path, "Impostor dataset")
     save_to_json(shakespeare_collection, shakespeare_collection_output_path, "Shakespeare collection")
     save_to_json(classify_text, classify_text_output_path, "Text to classify data")
-

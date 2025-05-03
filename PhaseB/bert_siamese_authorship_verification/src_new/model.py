@@ -1,16 +1,16 @@
 import numpy as np
 import tensorflow as tf
 from transformers import TFBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities.env_handler import is_tf_2_10
+# from PhaseB.bert_siamese_authorship_verification.utilities.env_handler import is_tf_2_10
 from siamese import SiameseNetwork
 
-if is_tf_2_10():
-    from keras import Input, Model
-    from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
-    from keras.layers.convolutional import Conv1D, MaxPooling1D
-else:
-    from tensorflow.keras import Input, Model
-    from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, Dropout, LSTM, Lambda
+# if is_tf_2_10():
+#     from keras import Input, Model
+#     from keras.layers import Dense, Bidirectional, Dropout, LSTM, Lambda
+#     from keras.layers.convolutional import Conv1D, MaxPooling1D
+# else:
+from tensorflow.keras import Input, Model
+from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, Dropout, LSTM, Lambda
 
 
 class SiameseBertModel:
@@ -28,20 +28,6 @@ class SiameseBertModel:
         self.hidden_size = config['training']['hidden_size']
         self.bert_model = TFBertModel.from_pretrained(config['bert']['model'])
         self.bert_model.trainable = config['bert']['trainable']
-
-    class CombinedInputBertLayer(tf.keras.layers.Layer):
-        def __init__(self, bert_model, max_len, **kwargs):
-            super().__init__(**kwargs)
-            self.bert_model = bert_model
-            self.max_len = max_len
-
-        def call(self, inputs):
-            # Inputs are Tensor, shape (batch_size, max_len * 2)
-            input_ids = tf.cast(inputs[:, :self.max_len], tf.int32)
-            attention_mask = tf.cast(inputs[:, self.max_len:], tf.int32)
-
-            bert_output = self.bert_model(input_ids=input_ids, attention_mask=attention_mask)
-            return bert_output.last_hidden_state  # or .pooler_output if you prefe
 
     def __get_cnn_bilstm_stack(self, input_shape):
         inputs = Input(shape=input_shape)
@@ -63,18 +49,17 @@ class SiameseBertModel:
         return model
 
     def __create_base_model(self):
-        combined_input = tf.keras.Input(shape=(self.max_len * 2,), dtype=tf.int32, name="combined_input")
-        # # input_ids = Input(shape=self.input_shape, dtype=tf.int32, name="input_ids")
-        # # attention_mask = Input(shape=self.input_shape, dtype=tf.int32, name="attention_mask")
-        # input_ids = Lambda(lambda x: tf.convert_to_tensor(x[:, :self.max_len], dtype=tf.int32))(combined_input)
-        # attention_mask = Lambda(lambda x: tf.convert_to_tensor(x[:, self.max_len:], dtype=tf.int32))(combined_input)
-        #
-        # # BERT output
-        # bert_output = self.bert_model(
-        #     input_ids=input_ids,
-        #     attention_mask=attention_mask
-        # )[0]
-        bert_output = self.CombinedInputBertLayer(self.bert_model, self.max_len)(combined_input)
+        combined_input = Input(shape=(self.max_len * 2,), dtype=np.int32, name="combined_input")
+        # input_ids = Input(shape=self.input_shape, dtype=tf.int32, name="input_ids")
+        # attention_mask = Input(shape=self.input_shape, dtype=tf.int32, name="attention_mask")
+        input_ids = Lambda(lambda x: x[:, :self.max_len])(combined_input)
+        attention_mask = Lambda(lambda x: x[:, self.max_len:])(combined_input)
+
+        # BERT output
+        bert_output = self.bert_model(
+            input_ids=input_ids,
+            attention_mask=attention_mask
+        )[0]
 
         # CNN BiLSTM output
         cnn_bilstm_stack = self.__get_cnn_bilstm_stack((self.max_len, self.hidden_size))
