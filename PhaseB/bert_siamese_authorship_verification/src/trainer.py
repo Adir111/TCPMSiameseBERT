@@ -25,7 +25,7 @@ class Trainer:
         self.__compile_model()
 
         history = self.model.fit(
-            x_train, y_train,
+            x=x_train, y=y_train,
             validation_data=(x_test, y_test),
             batch_size=self.batch_size,
             epochs=self.epochs

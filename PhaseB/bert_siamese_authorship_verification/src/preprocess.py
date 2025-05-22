@@ -93,84 +93,79 @@ class Preprocessor:
 
         return chunks_list
 
-    def create_xy(self, impostor_1_chunks, impostor_2_chunks):
+    def create_xy(self, impostor_1_chunks, impostor_2_chunks, num_pairs=None):
         if len(impostor_1_chunks) != len(impostor_2_chunks):
             raise ValueError("Chunk lists must be equal length for pairing.")
 
         # Prepare each input group
-        input_ids_1 = []
-        attention_mask_1 = []
-        token_type_ids_1 = []
-
-        input_ids_2 = []
-        attention_mask_2 = []
-        token_type_ids_2 = []
-
+        ids_1, masks_1, types_1 = [], [], []
+        ids_2, masks_2, types_2 = [], [], []
         labels = []
 
-        for c1, c2 in zip(impostor_1_chunks, impostor_2_chunks):
-            # Positive pair (same author)
-            input_ids_1.append(np.squeeze(c1["input_ids"].numpy(), axis=0))
-            attention_mask_1.append(np.squeeze(c1["attention_mask"].numpy(), axis=0))
-            token_type_ids_1.append(np.squeeze(c1["token_type_ids"].numpy(), axis=0))
+        def append_pair(c1, c2, label):
+            ids_1.append(np.squeeze(c1["input_ids"].numpy(), axis=0))
+            masks_1.append(np.squeeze(c1["attention_mask"].numpy(), axis=0))
+            types_1.append(np.squeeze(c1["token_type_ids"].numpy(), axis=0))
 
-            input_ids_2.append(np.squeeze(c2["input_ids"].numpy(), axis=0))
-            attention_mask_2.append(np.squeeze(c2["attention_mask"].numpy(), axis=0))
-            token_type_ids_2.append(np.squeeze(c2["token_type_ids"].numpy(), axis=0))
+            ids_2.append(np.squeeze(c2["input_ids"].numpy(), axis=0))
+            masks_2.append(np.squeeze(c2["attention_mask"].numpy(), axis=0))
+            types_2.append(np.squeeze(c2["token_type_ids"].numpy(), axis=0))
 
-            labels.append(1)
+            labels.append(label)
 
-            # Negative pair (different author: swap c1 with a random other c2)
-            c2_neg = random.choice(impostor_2_chunks)
-            input_ids_1.append(np.squeeze(c1["input_ids"].numpy(), axis=0))
-            attention_mask_1.append(np.squeeze(c1["attention_mask"].numpy(), axis=0))
-            token_type_ids_1.append(np.squeeze(c1["token_type_ids"].numpy(), axis=0))
+        def generate_positive_pairs(chunks):
+            n = len(chunks)
+            if n < 2:
+                return
+            indices = list(range(n))
+            random.shuffle(indices)
+            limit = min(num_pairs or n // 2, n - 1)
+            for i in range(limit):
+                c1 = chunks[indices[i]]
+                c2 = chunks[indices[i + 1]]
+                append_pair(c1, c2, label=1)
 
-            input_ids_2.append(np.squeeze(c2_neg["input_ids"].numpy(), axis=0))
-            attention_mask_2.append(np.squeeze(c2_neg["attention_mask"].numpy(), axis=0))
-            token_type_ids_2.append(np.squeeze(c2_neg["token_type_ids"].numpy(), axis=0))
+        def generate_negative_pairs(chunks_a, chunks_b, count):
+            for _ in range(count):
+                c1 = random.choice(chunks_a)
+                c2 = random.choice(chunks_b)
+                append_pair(c1, c2, label=0)
 
-            labels.append(0)
+        # Balanced generation
+        generate_positive_pairs(impostor_1_chunks)
+        generate_positive_pairs(impostor_2_chunks)
+
+        total_positives = len(labels)
+        generate_negative_pairs(impostor_1_chunks, impostor_2_chunks, total_positives)
 
         # Convert to arrays
-        x = (
-            np.stack(input_ids_1),
-            np.stack(attention_mask_1),
-            np.stack(token_type_ids_1),
-            np.stack(input_ids_2),
-            np.stack(attention_mask_2),
-            np.stack(token_type_ids_2),
-        )
+        x_dict = {
+            "input_ids_1": np.stack(ids_1),
+            "attention_mask_1": np.stack(masks_1),
+            "token_type_ids_1": np.stack(types_1),
+            "input_ids_2": np.stack(ids_2),
+            "attention_mask_2": np.stack(masks_2),
+            "token_type_ids_2": np.stack(types_2),
+        }
         y = np.array(labels, dtype=np.int32)
 
+        # Split each field in x_dict independently
+        x_train, x_test, y_train, y_test = {}, {}, None, None
+
         (
-            input_ids_1_train, input_ids_1_test,
-            attention_mask_1_train, attention_mask_1_test,
-            token_type_ids_1_train, token_type_ids_1_test,
-            input_ids_2_train, input_ids_2_test,
-            attention_mask_2_train, attention_mask_2_test,
-            token_type_ids_2_train, token_type_ids_2_test,
+            x_train["input_ids_1"], x_test["input_ids_1"],
+            x_train["attention_mask_1"], x_test["attention_mask_1"],
+            x_train["token_type_ids_1"], x_test["token_type_ids_1"],
+            x_train["input_ids_2"], x_test["input_ids_2"],
+            x_train["attention_mask_2"], x_test["attention_mask_2"],
+            x_train["token_type_ids_2"], x_test["token_type_ids_2"],
             y_train, y_test
         ) = train_test_split(
-            *x, y, test_size=self.test_split, random_state=42
+            x_dict["input_ids_1"], x_dict["attention_mask_1"], x_dict["token_type_ids_1"],
+            x_dict["input_ids_2"], x_dict["attention_mask_2"], x_dict["token_type_ids_2"],
+            y,
+            test_size=self.test_split,
+            random_state=42
         )
-
-        x_train = [
-            input_ids_1_train,
-            attention_mask_1_train,
-            token_type_ids_1_train,
-            input_ids_2_train,
-            attention_mask_2_train,
-            token_type_ids_2_train,
-        ]
-
-        x_test = [
-            input_ids_1_test,
-            attention_mask_1_test,
-            token_type_ids_1_test,
-            input_ids_2_test,
-            attention_mask_2_test,
-            token_type_ids_2_test,
-        ]
 
         return x_train, y_train, x_test, y_test

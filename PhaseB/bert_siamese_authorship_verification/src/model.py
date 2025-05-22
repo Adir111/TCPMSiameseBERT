@@ -26,6 +26,9 @@ class SiameseBertModel:
         self.bert_model = TFBertModel.from_pretrained('bert-base-uncased')
         self.bert_model.trainable = self.config['bert']['trainable']
 
+        for var in self.bert_model.trainable_variables:
+            print(var.name, var.shape)
+
         self.max_len = self.config['bert']['maximum_sequence_length']
 
         self._branch = None

@@ -44,7 +44,6 @@ class Procedure:
 
         impostor_1_chunks, impostor_1_tokens_count = __load_and_preprocess(impostor_1_name)
         impostor_2_chunks, impostor_2_tokens_count = __load_and_preprocess(impostor_2_name)
-        # shakespeare_chunks, shakespeare_tokens_count = self.preprocessor.preprocess(shakespeare_data)
 
         impostor_1_chunks, impostor_2_chunks = self.preprocessor.equalize_chunks([impostor_1_chunks, impostor_2_chunks])
 
