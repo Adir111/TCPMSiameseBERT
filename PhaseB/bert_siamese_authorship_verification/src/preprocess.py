@@ -2,6 +2,7 @@ import nltk
 from transformers import BertTokenizer
 from sklearn.model_selection import train_test_split
 import numpy as np
+import random
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
@@ -35,13 +36,10 @@ class Preprocessor:
 
     def __handle_chunk(self, chunk_text, preprocessed_collection):
         tokenized = self.__tokenize_text(chunk_text)
-        input_ids = tokenized['input_ids'].numpy().flatten()
-        attention_mask = tokenized['attention_mask'].numpy().flatten()
-        tokens_count = len(input_ids)
-        preprocessed_collection.append({
-            'input_ids': input_ids,
-            'attention_mask': attention_mask
-        })
+        # input_ids = tokenized['input_ids'].numpy().flatten()
+        # attention_mask = tokenized['attention_mask'].numpy().flatten()
+        tokens_count = len(tokenized['input_ids'])
+        preprocessed_collection.append(tokenized)
         return tokens_count
 
     def preprocess(self, collection):
@@ -85,8 +83,8 @@ class Preprocessor:
         Helper to balance two lists of chunks to the same length.
         """
         lengths = [len(chunks_list[0]), len(chunks_list[1])]
-        i1 = lengths.index(max(lengths)) # index of longer list
-        i2 = lengths.index(min(lengths)) # index of shorter list
+        i1 = lengths.index(max(lengths))  # index of longer list
+        i2 = lengths.index(min(lengths))  # index of shorter list
 
         repeated_chunks = chunks_list[i2] * (lengths[i1] // lengths[i2])
         repeated_chunks += chunks_list[i2][:lengths[i1] % len(chunks_list[i2])]
@@ -96,25 +94,83 @@ class Preprocessor:
         return chunks_list
 
     def create_xy(self, impostor_1_chunks, impostor_2_chunks):
-        def __label_chunk(chunk, label):
-            return {
-                'input_ids': chunk['input_ids'],
-                'attention_mask': chunk['attention_mask'],
-                'label': label
-            }
-
         if len(impostor_1_chunks) != len(impostor_2_chunks):
-            raise ValueError("The lengths of impostor_1_chunks and impostor_2_chunks do not match!")
+            raise ValueError("Chunk lists must be equal length for pairing.")
 
-        all_data_labeled = [__label_chunk(chunk, 0) for chunk in impostor_1_chunks] + \
-                           [__label_chunk(chunk, 1) for chunk in impostor_2_chunks]
+        # Prepare each input group
+        input_ids_1 = []
+        attention_mask_1 = []
+        token_type_ids_1 = []
 
-        x_data = [np.concatenate((d['input_ids'], d['attention_mask'])) for d in all_data_labeled]
-        y_data = [data['label'] for data in all_data_labeled]
+        input_ids_2 = []
+        attention_mask_2 = []
+        token_type_ids_2 = []
 
-        x_data = np.stack(x_data)
-        y_data = np.array(y_data, dtype=np.int32)
+        labels = []
 
-        x_train, x_test, y_train, y_test = train_test_split(x_data, y_data, test_size=self.test_split, random_state=42)
+        for c1, c2 in zip(impostor_1_chunks, impostor_2_chunks):
+            # Positive pair (same author)
+            input_ids_1.append(np.squeeze(c1["input_ids"].numpy(), axis=0))
+            attention_mask_1.append(np.squeeze(c1["attention_mask"].numpy(), axis=0))
+            token_type_ids_1.append(np.squeeze(c1["token_type_ids"].numpy(), axis=0))
+
+            input_ids_2.append(np.squeeze(c2["input_ids"].numpy(), axis=0))
+            attention_mask_2.append(np.squeeze(c2["attention_mask"].numpy(), axis=0))
+            token_type_ids_2.append(np.squeeze(c2["token_type_ids"].numpy(), axis=0))
+
+            labels.append(1)
+
+            # Negative pair (different author: swap c1 with a random other c2)
+            c2_neg = random.choice(impostor_2_chunks)
+            input_ids_1.append(np.squeeze(c1["input_ids"].numpy(), axis=0))
+            attention_mask_1.append(np.squeeze(c1["attention_mask"].numpy(), axis=0))
+            token_type_ids_1.append(np.squeeze(c1["token_type_ids"].numpy(), axis=0))
+
+            input_ids_2.append(np.squeeze(c2_neg["input_ids"].numpy(), axis=0))
+            attention_mask_2.append(np.squeeze(c2_neg["attention_mask"].numpy(), axis=0))
+            token_type_ids_2.append(np.squeeze(c2_neg["token_type_ids"].numpy(), axis=0))
+
+            labels.append(0)
+
+        # Convert to arrays
+        x = (
+            np.stack(input_ids_1),
+            np.stack(attention_mask_1),
+            np.stack(token_type_ids_1),
+            np.stack(input_ids_2),
+            np.stack(attention_mask_2),
+            np.stack(token_type_ids_2),
+        )
+        y = np.array(labels, dtype=np.int32)
+
+        (
+            input_ids_1_train, input_ids_1_test,
+            attention_mask_1_train, attention_mask_1_test,
+            token_type_ids_1_train, token_type_ids_1_test,
+            input_ids_2_train, input_ids_2_test,
+            attention_mask_2_train, attention_mask_2_test,
+            token_type_ids_2_train, token_type_ids_2_test,
+            y_train, y_test
+        ) = train_test_split(
+            *x, y, test_size=self.test_split, random_state=42
+        )
+
+        x_train = [
+            input_ids_1_train,
+            attention_mask_1_train,
+            token_type_ids_1_train,
+            input_ids_2_train,
+            attention_mask_2_train,
+            token_type_ids_2_train,
+        ]
+
+        x_test = [
+            input_ids_1_test,
+            attention_mask_1_test,
+            token_type_ids_1_test,
+            input_ids_2_test,
+            attention_mask_2_test,
+            token_type_ids_2_test,
+        ]
 
         return x_train, y_train, x_test, y_test

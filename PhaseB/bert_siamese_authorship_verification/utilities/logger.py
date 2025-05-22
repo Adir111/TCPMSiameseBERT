@@ -20,6 +20,13 @@ class NoOpWandb:
         print(f"[NoOpWandb] Initialized with project='{project}', name='{name}'")
 
     @staticmethod
+    def info(data):
+        print(f"[NoOpWandb] Info: {data}")
+
+    def warn(self, data):
+        print(f"[NoOpWandb] Warning: {data}")
+
+    @staticmethod
     def log(data):
         print(f"[NoOpWandb] Logging: {data}")
 

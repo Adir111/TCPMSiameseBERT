@@ -3,7 +3,6 @@ numpy<2
 matplotlib
 nltk~=3.9.1
 wandb==0.19.9
-git+https://github.com/aspamers/siamese
 
 # Install tensorflow-gpu on Local only.
 tensorflow-gpu==2.10.0 ; sys_platform == "win32"

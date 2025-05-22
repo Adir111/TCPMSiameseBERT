@@ -26,13 +26,13 @@ model:
   save_trained_models: True
   load_trained_models: True
   cnn:
-    filters: 128 # 128 or 256
+    filters: 16 # 128 or 256
     padding: "valid"
     kernel_size: [3, 6, 12]
     pool_size: 1
   bilstm:
     dropout: 0.25 # 0.2 - 0.5
-    number_of_layers: 500
+    number_of_layers: 200
   fc:
     in_features: 128
     out_features: 1
@@ -42,11 +42,11 @@ isolation_forest:
 
 bert:
   model: "bert-base-uncased"
-  maximum_sequence_length: 64 # padding to that value
+  maximum_sequence_length: 64
   trainable: True
 
 wandb:
-  enabled: True
+  enabled: False
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   api_key: 99cb11ef59cac847e6b99323c0d485a69157f548

@@ -25,12 +25,10 @@ class Procedure:
         self.data_visualizer = DataVisualizer(logger)
         self.preprocessor = Preprocessor(config=config)
         self.max_length = config['bert']['maximum_sequence_length']
-        # self.chunk_size = config['training']['chunk_size']
-        # self.batch_factor = config['training']['batch_factor']
         self.batch_size = config['training']['batch_size']
         self.data_loader = DataLoader(config=config)
         self.trained_networks = []
-        self.model_creator = SiameseBertModel(config=config)
+        self.model_creator = SiameseBertModel(config=config, logger=self.logger)
 
     # def __preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
     def __preprocessing_stage(self, impostor_1_name, impostor_2_name):
@@ -53,19 +51,17 @@ class Procedure:
         # Log after stabilizing
         self.logger.info(f"After equalization: {impostor_1_name} - {len(impostor_1_chunks)} chunks")
         self.logger.info(f"After equalization: {impostor_2_name} - {len(impostor_2_chunks)} chunks")
-        # self.logger.info(f"Processed shakespeare: {shakespeare_count} samples")
 
         self.logger.info("✅ Preprocessing stage has been completed!")
         print("----------------------")
         return impostor_1_chunks, impostor_2_chunks
-        # return (impostor_1_dataset, impostor_1_count), (impostor_2_dataset, impostor_2_count), shakespeare_dataset
 
-    def __training_stage(self, impostor_1_preprocessed, impostor_2_preprocessed):
+    def __training_stage(self, model_name, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.info("Starting training stage...")
 
-        model = self.model_creator.build_model()
-        trainer = Trainer(self.config, self.logger, model, self.batch_size)
+        model = self.model_creator.build_model(model_name)
+        trainer = Trainer(self.config, self.logger, self.model_creator, model, self.batch_size)
 
         x_train, y_train, x_test, y_test = self.preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
         history = trainer.train(x_train, y_train, x_test, y_test)
@@ -83,8 +79,8 @@ class Procedure:
         for idx, impostor_pair in enumerate(impostor_pairs):
             self.logger.info(
                 f"Training model number {idx + 1} for impostor pair: {impostor_pair[0]} and {impostor_pair[1]}")
-            # impostor_1_preprocessed, impostor_2_preprocessed, shakespeare_data = self.__preprocessing_stage(impostor_pair[0], impostor_pair[1], shakespeare_data)
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage(impostor_pair[0],
                                                                                           impostor_pair[1])
-            history = self.__training_stage(impostor_1_preprocessed, impostor_2_preprocessed)
+            model_name = f"{impostor_pair[0]}_{impostor_pair[1]}"
+            history = self.__training_stage(model_name, impostor_1_preprocessed, impostor_2_preprocessed)
             self.logger.info(f"Model {idx + 1} training complete.")
