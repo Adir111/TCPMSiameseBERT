@@ -57,7 +57,7 @@ class SiameseBertModel:
         attention_mask = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
 
         # BERT output
-        bert_output = self.bert_model(input_ids, attention_mask=attention_mask)[0]
+        bert_output = self.bert_model([input_ids, attention_mask])[1]
 
         # CNN + BiLSTM Stack
         cnn_lstm_stack = Sequential(name="cnn_bilstm_stack")
