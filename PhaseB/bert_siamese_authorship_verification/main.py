@@ -1,10 +1,4 @@
-import sys
-import os
-
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utilities.config_loader import get_config
-from utilities.convert_txt_to_json import convert_texts_to_json
+from utilities import get_config, get_logger, convert_texts_to_json, convert_all_impostor_texts_to_json
 from src.procedure import Procedure
 
 # Load config
@@ -15,7 +9,7 @@ TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
 
-def create_dataset():
+def __create_dataset():
     """ Converts raw text files into a structured dataset in JSON format. """
     print("Create full dataset? (y/n)")
     full_dataset = input().strip().lower() == "y"
@@ -30,17 +24,30 @@ def create_dataset():
         tested_collection_size = int(input().strip())
 
     print("🔄 Creating dataset...")
-    convert_texts_to_json(TESTED_COLLECTION_PATH, IMPOSTORS_PATH, tested_collection_size=tested_collection_size,
-                          impostor_size=impostor_size)
+    convert_texts_to_json(
+        config,
+        shakespeare_dir=TESTED_COLLECTION_PATH,
+        impostor_dir=IMPOSTORS_PATH,
+        shakespeare_collection_size=tested_collection_size,
+        impostor_size=impostor_size
+    )
     print(f"✅ Dataset created")
 
+    print("🔄 Creating all impostors dataset...")
+    convert_all_impostor_texts_to_json(config, impostor_dir=IMPOSTORS_PATH)
+    print(f"✅ All impostors dataset created")
 
-def train_model():
+
+def __train_model():
     """ Triggers the training script. """
-    print("🚀 Starting Full Procedure...")
     try:
-        Procedure().full_procedure()
-        print("✅ Procedure completed!")
+        logger = get_logger(config)
+        logger.log("🚀 Starting Full Procedure...")
+        procedure = Procedure(config, logger)
+        procedure.run()
+
+        logger.log("✅ Procedure completed!")
+        logger.log({"status": "completed"})
     except FileNotFoundError:
         print("❌ ERROR - no dataset found, please create one first!")
 
@@ -56,9 +63,9 @@ def main():
         option = input("Select an option (1/2/3): ").strip()
 
         if option == "1":
-            create_dataset()
+            __create_dataset()
         elif option == "2":
-            train_model()
+            __train_model()
         elif option == "3":
             print("👋 Exiting. Have a great day!")
             break

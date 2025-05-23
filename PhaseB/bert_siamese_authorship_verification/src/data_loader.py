@@ -1,60 +1,82 @@
 import json
-import os
+from pathlib import Path
+import re
 
-from src.preprocess import TextPreprocessor
+
+def _clean_text(text):
+    """
+    Utility function to clean text by replacing unwanted characters.
+    - Replaces newline, carriage return, and tab with spaces
+    - Removes multiple spaces and replaces them with a single space
+    """
+    text = text.replace("\n", " ")  # Replace newlines with spaces
+    text = text.replace("\r", " ")  # Replace carriage returns with spaces
+    text = text.replace("\t", " ")  # Replace tabs with spaces
+    text = re.sub(r"\s+", " ", text)  # Replace multiple spaces with a single space
+    return text.strip()  # Strip leading and trailing spaces
 
 
 class DataLoader:
-    def __init__(self, data_path, preprocessor: TextPreprocessor):
-        self.data_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', data_path))
-        self.preprocessor = preprocessor
+    def __init__(self, config):
+        self._config = config
+        self.data_path = (Path(__file__).parent.parent / self._config['data']['organised_data_folder_path']).resolve()
+        self.shakespeare_dataset_name = self._config['data']['shakespeare_data_source']
+        self.impostor_dataset_name = self._config['data']['impostors_data_source']
+        self.text_to_classify_name = self._config['data']['classify_text_data_source']
 
-    def load_impostors(self):
-        try:
-            is_dir = os.path.isdir(self.data_path)
-            if is_dir:
-                raise Exception("Cannot load pair from directory, please provide a json file path")
+    def __load_json_data(self, file_name):
+        """
+        Utility method to load data from a JSON file.
+        """
+        path = self.data_path / file_name
+        with open(path, "r", encoding="utf-8") as f:
+            return json.load(f)
 
-            with open(self.data_path, "r") as f:
-                data = json.load(f)
-                data_len = len(data)
+    def get_shakespeare_data(self):
+        """
+        Load and return the Shakespeare dataset from JSON.
+        """
+        data = self.__load_json_data(self.shakespeare_dataset_name)
+        return [_clean_text(item["text"]) for item in data]
 
-                cleaned_dataset = []
-                for impostor in data:
-                    cleaned_texts = []
-                    for text in impostor["texts"]:
-                        cleaned_texts.append(self.preprocessor.clean_text(text))
+    def get_impostor_texts_by_name(self, name):
+        """
+        Load and return the texts of a specific impostor by name.
+        """
+        impostors = self.__load_json_data(self.impostor_dataset_name)
+        for impostor in impostors:
+            if impostor["author"] == name:
+                return [_clean_text(text) for text in impostor["texts"]]
+        raise ValueError(f"Impostor with name '{name}' not found.")
 
-                    cleaned_dataset.append({
-                        "author": impostor["author"],
-                        "texts": cleaned_texts
-                    })
+    def get_impostors_name_list(self):
+        """
+        Return a list of all impostor names.
+        """
+        impostors = self.__load_json_data(self.impostor_dataset_name)
+        return [impostor['author'] for impostor in impostors]
 
-                impostor_pairs = []
-                for i in range(data_len):
-                    for j in range(i + 1, data_len):
-                        pair_name = f'{cleaned_dataset[i]["author"]}_vs_{cleaned_dataset[j]["author"]}'
-                        impostor_pairs.append((
-                            cleaned_dataset[i]["texts"],
-                            cleaned_dataset[j]["texts"],
-                            pair_name
-                        ))
+    def get_all_impostors_data(self):
+        """
+        Load and return all impostor data from JSON.
+        """
+        impostors = self.__load_json_data(self._config['data']['all_impostors_data_source'])
+        all_texts = []
+        for impostor in impostors:
+            for text in impostor["texts"]:
+                all_texts.append(_clean_text(text))
+        return all_texts
 
-                return impostor_pairs
-        except KeyError as e:
-            raise KeyError(f"Missing expected key in JSON data while loading impostors: {e}")
-        except Exception as e:
-            raise RuntimeError(f"Unexpected error while loading impostors: {e}")
+    def get_text_to_classify(self):
+        """
+        Load and return the text to classify from JSON.
+        """
+        data = self.__load_json_data(self.text_to_classify_name)
+        return _clean_text(data.get('text', ''))
 
-    def load_tested_collection_text(self):
-        is_dir = os.path.isdir(self.data_path)
-        if is_dir:
-            data = []
-            for i, file in enumerate(os.listdir(self.data_path)):
-                file_path = os.path.join(self.data_path, file)
-                with open(file_path, "r") as f:
-                    data.extend(json.load(f))
-        else:
-            with open(self.data_path, "r") as f:
-                data = json.load(f)
-        return [(entry["text_name"], self.preprocessor.clean_text(entry["text"])) for entry in data]
+    def is_bert_fine_tuned(self):
+        bert_model_path = (Path(__file__).parent.parent / self._config['data']['fine_tuned_bert_model_path']).resolve()
+
+        if bert_model_path.exists():
+            return True
+        return False

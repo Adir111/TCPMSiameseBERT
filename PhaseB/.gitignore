@@ -1,4 +1,4 @@
-bert_siamese_authorship_verification/data/processed/*
+bert_siamese_authorship_verification/data/data_sources/*
 bert_siamese_authorship_verification/logs/*
 bert_siamese_authorship_verification/models/saved_trained_models/*
 bert_siamese_authorship_verification/wandb

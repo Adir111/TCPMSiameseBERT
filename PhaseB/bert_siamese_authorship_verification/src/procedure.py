@@ -1,348 +1,149 @@
-import random
 import numpy as np
 import tensorflow as tf
+from transformers import TFBertModel, BertTokenizer
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
-import sys
+from pathlib import Path
+
+from .data_loader import DataLoader
+from .preprocess import Preprocessor
+from .trainer import Trainer
+from .model import SiameseBertModel
+from PhaseB.bert_siamese_authorship_verification.utilities import make_pairs, DataVisualizer
+from PhaseB.bert_siamese_authorship_verification.utilities.bert_fine_tuner import BertFineTuner
+
+# from src.dtw import compute_dtw_distance
+# from src.isolation_forest import AnomalyDetector
+# from src.clustering import perform_kmedoids_clustering
 
 tf.get_logger().setLevel('ERROR')
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-
-from utilities.config_loader import get_config
-from utilities.logger import get_logger
-from utilities.env_handler import is_tf_2_10
-from utilities.data_visualizer import DataVisualizer
-from src.data_loader import DataLoader
-from src.preprocess import TextPreprocessor
-from src.dtw import compute_dtw_distance
-from src.isolation_forest import AnomalyDetector
-from src.clustering import perform_kmedoids_clustering
-from src.model import SiameseBertModel
-
-if is_tf_2_10():
-    from keras.callbacks import ModelCheckpoint, EarlyStopping
-    from tensorflow_addons.optimizers import AdamW
-else:
-    from tensorflow.keras.callbacks import ModelCheckpoint, EarlyStopping
-    from tensorflow.keras.optimizers import AdamW
-
 
 class Procedure:
-    def __init__(self):
-        self.config = get_config()
-        self.logger = get_logger(self.config)
-        self.data_visualizer = DataVisualizer(self.logger)
-        self.preprocessor = TextPreprocessor(self.config)
-        self.num_chunks_in_batch = self.config['training']['chunk_factor']
-        self.max_token_length = self.config['bert']['maximum_sequence_length']
+    def __init__(self, config, logger):
+        self.config = config
+        self.logger = logger
+        self.preprocessor = None
+        self.data_visualizer = DataVisualizer(logger)
+        self.max_length = config['bert']['maximum_sequence_length']
+        self.batch_size = config['training']['batch_size']
+        self.data_loader = DataLoader(config=config)
         self.trained_networks = []
+        self.model_creator = None
 
-    def load_trained_networks(self):
-        trained_networks_path = self.config['data']['trained_models_path']
-        os.makedirs(trained_networks_path, exist_ok=True)
+    def __preprocessing_stage(self, impostor_1_name, impostor_2_name):
+        print("----------------------")
+        self.logger.info("Starting preprocessing stage...")
 
-        trained_networks = []
-        for model_file in os.listdir(trained_networks_path):
-            if model_file.endswith(".h5"):
-                model_path = os.path.join(trained_networks_path, model_file)
+        def __load_and_preprocess(impostor_name):
+            impostor_texts = self.data_loader.get_impostor_texts_by_name(impostor_name)
+            impostor_chunks, impostor_tokens_count = self.preprocessor.preprocess(impostor_texts)
+            self.logger.info(
+                f"Before equalization: {impostor_name} - {len(impostor_chunks)} chunks with {impostor_tokens_count} tokens")
+            return impostor_chunks, impostor_tokens_count
 
-                model_name = model_file.removeprefix("model_").removesuffix("_weights.h5")
-                siamese = SiameseBertModel(self.config, self.logger, model_name)
-                model = siamese.build_model()
-                model.load_weights(model_path)
+        impostor_1_chunks, impostor_1_tokens_count = __load_and_preprocess(impostor_1_name)
+        impostor_2_chunks, impostor_2_tokens_count = __load_and_preprocess(impostor_2_name)
 
-                trained_networks.append(siamese)
-        return trained_networks
+        impostor_1_chunks, impostor_2_chunks = self.preprocessor.equalize_chunks([impostor_1_chunks, impostor_2_chunks])
 
-    def preprocess_and_divide_text(self, text, text_name):
-        config = get_config()
-        batch_size = config['training']['batch_size']
-        chunk_to_batch_ratio = config['training']['chunk_factor']
-        chunk_size = batch_size // chunk_to_batch_ratio
+        # Log after stabilizing
+        self.logger.info(f"After equalization: {impostor_1_name} - {len(impostor_1_chunks)} chunks")
+        self.logger.info(f"After equalization: {impostor_2_name} - {len(impostor_2_chunks)} chunks")
 
-        tokens = self.preprocessor.tokenize_text(text)
-        chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
+        self.logger.info("✅ Preprocessing stage has been completed!")
+        print("----------------------")
+        return impostor_1_chunks, impostor_2_chunks
 
-        self.logger.log({
-            f"classification - {text_name} num of tokens": len(tokens),
-            f"classification - {text_name} num of chunks": len(chunks),
-            f"classification - {text_name} num of batches": len(tokens) // batch_size,
-            f"classification - {text_name} chunk size": chunk_size
-        })
+    def __fine_tuning_stage(self, all_impostors):
+        self.logger.info("Starting fine-tuning stage...")
+        self.logger.info("Fine-tuning BERT model...")
 
-        encoded_chunks = self.preprocessor.encode_tokenized_chunks(np.asarray(chunks), self.max_token_length)
-        return encoded_chunks
+        bert_fine_tuner = BertFineTuner(self.config, self.logger)
+        bert_fine_tuner.finetune(all_impostors)
+        self.logger.info("✅ Fine-tuning stage has been completed!")
 
-    def make_siamese_pairs(self, chunks_1, chunks_2):
-        max_len = self.config['bert']['maximum_sequence_length']
-        input_ids1, attention_mask1 = [], []
-        input_ids2, attention_mask2 = [], []
-        labels = []
+    def __load_tokenizer_and_model(self):
+        local_path = self.config['data']['fine_tuned_bert_model_path']
+        hf_model_id = self.config['bert']['repository']
 
-        # -------------------------------
-        # Positive pairs (same impostor)
-        # -------------------------------
-        pos_pairs = []
-
-        for i in range(0, len(chunks_1) - 1, 2):
-            pos_pairs.append((chunks_1[i], chunks_1[i + 1]))
-        for i in range(0, len(chunks_2) - 1, 2):
-            pos_pairs.append((chunks_2[i], chunks_2[i + 1]))
-
-        # -------------------------------
-        # Negative pairs (different impostors)
-        # -------------------------------
-        neg_pairs = list(zip(chunks_1, chunks_2))  # already balanced in length
-
-        # To avoid label imbalance, downsample the larger group
-        num_pairs = min(len(pos_pairs), len(neg_pairs))
-        pos_pairs = random.sample(pos_pairs, num_pairs)
-        neg_pairs = random.sample(neg_pairs, num_pairs)
-
-        # -------------------------------
-        # Encode positive pairs
-        # -------------------------------
-        for a, b in pos_pairs:
-            enc1 = self.preprocessor.encode_single_chunk(a, max_len)
-            enc2 = self.preprocessor.encode_single_chunk(b, max_len)
-            input_ids1.append(enc1["input_ids"])
-            attention_mask1.append(enc1["attention_mask"])
-            input_ids2.append(enc2["input_ids"])
-            attention_mask2.append(enc2["attention_mask"])
-            labels.append(1)
-
-        # -------------------------------
-        # Encode negative pairs
-        # -------------------------------
-        for a, b in neg_pairs:
-            enc1 = self.preprocessor.encode_single_chunk(a, max_len)
-            enc2 = self.preprocessor.encode_single_chunk(b, max_len)
-            input_ids1.append(enc1["input_ids"])
-            attention_mask1.append(enc1["attention_mask"])
-            input_ids2.append(enc2["input_ids"])
-            attention_mask2.append(enc2["attention_mask"])
-            labels.append(0)
-
-        # Final tensors
-        x = [
-            tf.convert_to_tensor(input_ids1),
-            tf.convert_to_tensor(attention_mask1),
-            tf.convert_to_tensor(input_ids2),
-            tf.convert_to_tensor(attention_mask2)
-        ]
-        y = np.array(labels)
-
-        return x, y
-
-    def preprocess_and_divide_impostor_pair(self, impostor_1_texts, impostor_2_texts, pair_name):
-        chunk_size = self.config['training']['batch_size'] // self.config['training']['chunk_factor']
-
-        # Tokenize and chunk
-        chunks_1, chunks_2 = [], []
-        for text in impostor_1_texts:
-            tokens = self.preprocessor.tokenize_text(text)
-            chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-            chunks_1.extend(chunks)
-
-        for text in impostor_2_texts:
-            tokens = self.preprocessor.tokenize_text(text)
-            chunks = self.preprocessor.divide_tokens_into_chunks(tokens, chunk_size)
-            chunks_2.extend(chunks)
-
-        x1_chunks, x2_chunks = self.preprocessor.balance_impostor_dataset(chunks_1, chunks_2)
-
-        self.logger.log({
-            f"Pair {pair_name} - impostor 1 number of chunks": len(chunks_1),
-            f"Pair {pair_name} - impostor 2 number of chunks": len(chunks_2),
-            f"Pair {pair_name} - x1_labels (chunks after balancing)": len(x1_chunks),
-            f"Pair {pair_name} - x2_labels (chunks after balancing)": len(x2_chunks)
-        })
-
-        # Create pairs
-        x, y = self.make_siamese_pairs(x1_chunks, x2_chunks)
-
-        labels, counts = np.unique(y, return_counts=True)
-        label_distribution = {str(k): int(v) for k, v in zip(labels, counts)}
-
-        self.logger.log({
-            f"Pair {pair_name} - Total pairs": len(y),
-            f"Y label distribution": label_distribution
-        })
-
-        return x, y
-
-    def train_network(self, x, y, pair_name):
-        save_trained_model = self.config['model']['save_trained_models']
-
-        trained_models_path = self.config['data']['trained_models_path']
-        os.makedirs(trained_models_path, exist_ok=True)
-        model_path = os.path.join(trained_models_path, f"model_{pair_name}_weights.h5")
-        model_checkpoint_path = os.path.join(trained_models_path, f"best_weights/model_{pair_name}_best_weights.h5")
-
-        lr = float(self.config['training']['optimizer']['initial_learning_rate'])
-        decay = float(self.config['training']['optimizer']['learning_rate_decay_factor'])
-        clip_norm = float(self.config['training']['optimizer']['gradient_clipping_threshold'])
-
-        self.logger.log(f"-------------------------\nStarted training model: {pair_name}")
-        model_object = SiameseBertModel(self.config, self.logger, pair_name)
-        model = model_object.build_model()
-        self.logger.log({
-            f"Model {pair_name} - Trainable Variables": len(model.trainable_variables),
-            f"Model {pair_name} - Total Parameters": model.count_params()
-        })
-
-        # Todo: Re-enable early stopping
-        # early_stopping = EarlyStopping(monitor='val_loss', mode='min', baseline=0.4,
-        #                                patience=config['training']['early_stopping_patience'])
-        checkpoint = ModelCheckpoint(model_checkpoint_path, monitor='val_loss', save_best_only=True, mode='min')
-
-        optimizer = AdamW(learning_rate=lr, weight_decay=decay, clipnorm=clip_norm)
-        model.compile(optimizer=optimizer, loss='binary_crossentropy', metrics=['accuracy'])
-
-        summary_str = model_object.get_model_summary_string(model)
-        self.logger.log(summary_str)
-
-        history = model.fit(x, y, epochs=self.config['training']['epochs'],
-                            validation_split=self.config['training']['validation_split'],
-                            # callbacks=[early_stopping, checkpoint],
-                            callbacks=[checkpoint],
-                            verbose=1)
-        if save_trained_model:
-            self.logger.log(f"[INFO] Saving model weights to {model_path}")
-            self.logger.save(model_path)
-            model.save_weights(model_path)
-            self.logger.log_summary("trained_model_saved_as", model_object.get_model_name())
-
-        for epoch in range(len(history.history['loss'])):
-            self.logger.log({
-                f"Model {pair_name} - Epoch": epoch + 1,
-                f"Model {pair_name} - Training Loss": history.history['loss'][epoch],
-                f"Model {pair_name} - Validation Loss": history.history['val_loss'][epoch],
-                f"Model {pair_name} - Training Accuracy": history.history['accuracy'][epoch],
-                f"Model {pair_name} - Validation Accuracy": history.history['val_accuracy'][epoch]
-            })
-
-        self.logger.log(f"Accuracy: {history.history['accuracy'][-1]}")
-        self.logger.log(f"Loss: {history.history['loss'][-1]}")
-        self.logger.log(f"Validation Accuracy: {history.history['val_accuracy'][-1]}")
-        self.logger.log(f"Finished training model: {model_object.get_model_name()}\n-------------------------")
-
-        return model_object, history
-
-    def classify_text(self, text_to_classify, text_name):
-        text_chunks = self.preprocess_and_divide_text(text_to_classify, text_name)
-
-        all_signal_representations = []
-        for network in self.trained_networks:
-            model_name = network.get_model_name()
-            self.logger.log(f"[INFO] Classifying text {text_name} with model {model_name}...")
-
-            # Extract only the encoder branch (shared branch from Siamese model)
-            encoder_model = network.build_encoder_with_classifier()
-
-            # Predict embeddings or scores
-            predictions = np.asarray(encoder_model.predict([text_chunks['input_ids'], text_chunks['attention_mask']]))[:, 0]
-            binary_outputs = (predictions > 0.5).astype(int)
-            binary_outputs = binary_outputs.flatten().tolist()
-            self.logger.log(f"[INFO] Predictions for {model_name}: {predictions}")
-            self.logger.log(f"[INFO] Rounded up predictions for {model_name}: {binary_outputs}")
-
-            # Aggregate scores into signal chunks
-            signal = [np.mean(binary_outputs[i:i + self.num_chunks_in_batch]) for i in
-                      range(0, len(binary_outputs), self.num_chunks_in_batch)]
-            self.logger.log(f"[INFO] Signal representation for {model_name}: {signal}")
-            all_signal_representations.append(signal)
-
-            self.data_visualizer.display_signal_plot(signal, text_name, model_name)
-
-        # DTW distance matrix
-        dtw_matrix = np.zeros((len(all_signal_representations), len(all_signal_representations)))
-        for i in range(len(all_signal_representations)):
-            for j in range(i + 1, len(all_signal_representations)):
-                s1 = all_signal_representations[i]
-                s2 = all_signal_representations[j]
-                dtw_distance = compute_dtw_distance(s1, s2)
-                self.logger.log(
-                    f"[INFO] DTW distance between {self.trained_networks[i].get_model_name()} and {self.trained_networks[j].get_model_name()}: {dtw_distance}")
-                dtw_matrix[i, j] = dtw_distance
-
-        # Anomaly detection
-        anomaly_detector = AnomalyDetector(self.config['isolation_forest']['number_of_trees'])
-        anomaly_vector = anomaly_detector.fit_score(dtw_matrix)
-        self.logger.log(f"[INFO] Anomaly vector: {anomaly_vector} for text {text_name}")
-
-        return anomaly_vector
-
-    def full_procedure(self):
-        load_trained = self.config['model'].get('load_trained_models', False)
-        self.trained_networks = self.load_trained_networks() if load_trained else []
-
-        data_loader = DataLoader(self.config['data']['processed_impostors_path'], self.preprocessor)
-        cleaned_impostor_pairs = data_loader.load_impostors()
-
-        if len(self.trained_networks) == 0 or len(cleaned_impostor_pairs) != len(self.trained_networks):
-            for idx, (impostor_1_texts, impostor_2_texts, pair_name) in enumerate(cleaned_impostor_pairs):
-                self.logger.log(f"[INFO] Training model {idx + 1}/{len(cleaned_impostor_pairs)} - for impostor pair {pair_name}")
-
-                x, y = self.preprocess_and_divide_impostor_pair(impostor_1_texts, impostor_2_texts, pair_name)
-                model, history = self.train_network(x, y, pair_name)
-
-                self.trained_networks.append(model)
-
-                self.data_visualizer.display_loss_plot(history, model.get_model_name())
-                self.data_visualizer.display_accuracy_plot(history, model.get_model_name())
+        # Case 1: Load from local if directory exists
+        if os.path.isdir(local_path):
+            self.logger.log(f"Loading model from local path: {local_path}")
+            tokenizer = BertTokenizer.from_pretrained(local_path)
+            model = TFBertModel.from_pretrained(local_path)
+            return tokenizer, model
         else:
-            self.logger.log("[INFO] Loaded trained networks:")
-            for network in self.trained_networks:
-                model_name = network.get_model_name()
-                self.logger.log(f"Model name: {model_name}")
-                self.logger.log_summary("loaded_model", model_name)
+            self.logger.log(f"Local model not found at {local_path}. Attempting to load from Hugging Face Hub...")
 
-        self.logger.log("[INFO] Loading Shakespeare data for testing...")
-        tested_collection_texts = DataLoader(self.config['data']['processed_tested_path'], self.preprocessor)
-        tested_collection_data = tested_collection_texts.load_tested_collection_text()
+        # Case 2: Try loading from Hugging Face Hub
+        try:
+            self.logger.log(f"Loading model from Hugging Face Hub: {hf_model_id}")
+            tokenizer = BertTokenizer.from_pretrained(hf_model_id)
+            model = TFBertModel.from_pretrained(hf_model_id)
+            return tokenizer, model
+        except Exception as e:
+            self.logger.log(f"Model not found on Hugging Face Hub: {hf_model_id}")
+            self.logger.log("Proceeding to fine-tune a new model from scratch...")
+            return None, None
 
-        self.logger.log({"Number of texts in tested collection": len(tested_collection_data)})
+    def __training_stage(self, model_name, impostor_1_preprocessed, impostor_2_preprocessed):
+        print("----------------------")
+        self.logger.info("Starting training stage...")
 
-        anomaly_scores = []
-        for text_idx, entry in enumerate(tested_collection_data):
-            text_name, text = entry
-            anomaly_vector = self.classify_text(text, text_name)
-            anomaly_scores.append(anomaly_vector)
-            self.logger.log({
-                f"Anomaly vector of text - {text_name}": self.logger.Histogram(anomaly_vector)
-            })
+        model = self.model_creator.build_model(model_name)
+        trainer = Trainer(self.config, self.logger, self.model_creator, model, self.batch_size)
 
-        self.logger.log("[INFO] Finished processing all texts.")
-        self.logger.log({"All Anomaly Scores": anomaly_scores})
+        x_train, y_train, x_test, y_test = self.preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
+        history = trainer.train(x_train, y_train, x_test, y_test)
 
-        # Perform clustering on the anomaly scores
-        kmedoids = perform_kmedoids_clustering(anomaly_scores, num_clusters=2)
-        if kmedoids is None:
-            self.logger.log("[ERROR] Clustering failed. Not enough data points.")
-            return
+        self.logger.info("✅ Training stage has been completed!")
+        branch = self.model_creator.get_branch()  # shared encoder
+        emb_test = branch.predict({
+            "input_ids": x_test["input_ids_1"],
+            "attention_mask": x_test["attention_mask_1"],
+            "token_type_ids": x_test["token_type_ids_1"],
+        }, verbose=0)
 
-        self.logger.log({"Clustering Labels": kmedoids})
+        # labels: 1 = same author, 0 = different author
+        labels_test = y_test.flatten()
 
-        # Visualize the results with t-SNE
-        self.logger.log("[INFO] Visualizing results with t-SNE...")
-        anomaly_array = np.array(anomaly_scores)
-        if anomaly_array.shape[0] < 2 or anomaly_array.shape[1] < 2:
-            self.logger.log("[WARN] Not enough data points for PCA/t-SNE visualization.")
-            tsne_results = np.zeros((anomaly_array.shape[0], 2))  # dummy 2D points
-        else:
-            try:
-                tsne_results = TSNE(n_components=2).fit_transform(anomaly_array)
-            except Exception as e:
-                self.logger.log(f"[WARN] Not enough variance for t-SNE — using PCA: {e}")
-                tsne_results = PCA(n_components=2).fit_transform(anomaly_array)
+        # ▸ t-SNE plot
+        self.data_visualizer.plot_embedding(
+            emb_test,  # 2-D or 3-D embedding matrix (n_samples × 128)
+            labels_test,  # 0 / 1 labels to colour the dots
+            method="tsne",  # "tsne"  or  "umap"
+            perplexity=40,  # extra kwargs forwarded to TSNE(...)
+            title=f"{model_name} – t-SNE"
+        )
 
-        self.data_visualizer.display_tsne_plot(tsne_results, kmedoids)
+        print("----------------------")
+        return history
 
-        self.logger.finish()
+    def run(self):
+        # shakespeare_data = self.data_loader.get_shakespeare_data()
+        impostors_names = self.data_loader.get_impostors_name_list()
+        impostor_pairs = make_pairs(impostors_names)
+        self.logger.info(f"Batch size is {self.batch_size}")
 
+        tokenizer, bert_model = self.__load_tokenizer_and_model()
 
-if __name__ == "__main__":
-    Procedure().full_procedure()
+        if tokenizer is None or bert_model is None:
+            all_impostors = self.data_loader.get_all_impostors_data()
+            self.__fine_tuning_stage(all_impostors)
+
+        self.preprocessor = Preprocessor(config=self.config, tokenizer=tokenizer)
+        self.model_creator = SiameseBertModel(config=self.config, logger=self.logger, bert_model=bert_model)
+
+        for idx, impostor_pair in enumerate(impostor_pairs):
+            self.logger.info(
+                f"Training model number {idx + 1} for impostor pair: {impostor_pair[0]} and {impostor_pair[1]}")
+            impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage(impostor_pair[0],
+                                                                                          impostor_pair[1])
+            model_name = f"{impostor_pair[0]}_{impostor_pair[1]}"
+            history = self.__training_stage(model_name, impostor_1_preprocessed, impostor_2_preprocessed)
+            self.logger.info(f"Model {idx + 1} training complete.")
+            self.data_visualizer.display_accuracy_plot(history, model_name)
+            self.data_visualizer.display_loss_plot(history, model_name)
+

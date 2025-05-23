@@ -1,130 +1,178 @@
-import random
-import copy
-import re
 import nltk
+from sklearn.model_selection import train_test_split
 import numpy as np
-import tensorflow as tf
-import string
-from transformers import BertTokenizer
+import random
 
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 nltk.download('stopwords')
 
 
-class TextPreprocessor:
-    def __init__(self, config):
-        self._config = config
-
-        # Todo: Replace with from tokenizers import BertWordPieceTokenizer - faster because written in Rust.
-        self.tokenizer = BertTokenizer.from_pretrained("bert-base-uncased")
+class Preprocessor:
+    def __init__(self, config, tokenizer):
+        self.config = config
         self.max_length = config['bert']['maximum_sequence_length']
+        self.test_split = config['training']['test_split']
+        self.tokenizer = tokenizer
 
-    @staticmethod
-    def clean_text(text):
-        # Split text into words, convert to lowercase, remove punctuation from each word,
-        # remove non-alphabetic words and filter out stop words
-        text = text.lower()
-        text = text.replace("\n", " ")  # Replace newlines with spaces
-        text = text.replace("\r", " ")  # Replace carriage returns with spaces
-        text = text.replace("\t", " ")  # Replace tabs with spaces
-        text = re.sub(r"\s+", " ", text)  # Replace multiple spaces with a single space
-        text = text.translate(str.maketrans("", "", string.punctuation))  # Remove Punctuation
-
-        words = text.split()
-        # Remove non-alphabetic characters
-        words = [word for word in words if word.isalpha()]
-
-        # Remove Stopwords
-        stop_words = set(nltk.corpus.stopwords.words("english"))
-        words = [word for word in words if word not in stop_words]
-
-        # Re-concatenate words into a text
-        return " ".join(words)
-
-    def balance_impostor_dataset(self, chunks_imp_1, chunks_imp_2):
-        chunk_ratio = self._config['training']['impostor_chunk_ratio']
-        chunks = [copy.deepcopy(chunks_imp_1), copy.deepcopy(chunks_imp_2)]
-
-        lens = [len(chunks[0]), len(chunks[1])]
-        max_idx = lens.index(max(lens))
-        min_idx = lens.index(min(lens))
-
-        # Repeat min side to match max
-        repeats = lens[max_idx] // lens[min_idx]
-        even_sized_chunks = chunks[min_idx] * repeats
-
-        # Add remaining samples if needed (random sample)
-        remainder = lens[max_idx] - len(even_sized_chunks)
-        even_sized_chunks += random.sample(chunks[min_idx], remainder)
-
-        # Overwrite balanced chunks
-        chunks[min_idx] = even_sized_chunks
-
-        chunks[0] *= chunk_ratio
-        chunks[1] *= chunk_ratio
-
-        return chunks[0], chunks[1]
-
-    def encode_tokenized_chunks(self, tokenized_chunks, max_length):
+    def __tokenize_text(self, text):
         """
-        Converts pre-tokenized WordPiece chunks into padded input_ids and attention_masks as tensors.
-        Each chunk is a list/array of WordPiece strings.
+        Tokenize text into BERT's format (input_ids, attention_mask).
+
+        Parameters:
+        - text (str): Input text
+
+        Returns:
+        - dict: Tokenized input with input_ids, attention_mask
         """
-        input_ids_list = []
-        attention_mask_list = []
+        encoded_input = self.tokenizer(
+            text,
+            padding='max_length',
+            truncation=True,
+            max_length=self.max_length,
+            return_tensors='tf'
+        )
+        return encoded_input
 
-        for chunk in tokenized_chunks:
-            # Truncate and convert to token IDs
-            ids = self.tokenizer.convert_tokens_to_ids(chunk[:max_length])
-            attention_mask = [1] * len(ids)
+    def __handle_chunk(self, chunk_text, preprocessed_collection):
+        tokenized = self.__tokenize_text(chunk_text)
+        # input_ids = tokenized['input_ids'].numpy().flatten()
+        # attention_mask = tokenized['attention_mask'].numpy().flatten()
+        tokens_count = len(tokenized['input_ids'])
+        preprocessed_collection.append(tokenized)
+        return tokens_count
 
-            # Pad to max_length if needed
-            padding_length = max_length - len(ids)
-            if padding_length > 0:
-                pad_id = self.tokenizer.pad_token_id
-                ids += [pad_id] * padding_length
-                attention_mask += [0] * padding_length
+    def preprocess(self, collection):
+        """
+        Preprocess the collection of text data:
+        - Tokenize the text
+        - Handle chunking if text is too long
+        - Prepare BERT input format
 
-            input_ids_list.append(ids)
-            attention_mask_list.append(attention_mask)
+        Parameters:
+        - collection (list): List of text data (each is a long text in your case)
 
-        return {
-            "input_ids": tf.convert_to_tensor(input_ids_list, dtype=tf.int32),
-            "attention_mask": tf.convert_to_tensor(attention_mask_list, dtype=tf.int32)
+        Returns:
+        - preprocessed_collection (list): List of dictionaries containing tokenized text data
+        """
+        preprocessed_collection = []
+        tokens_count = 0
+
+        for text in collection:
+            # Tokenize the text first
+            tokens = self.tokenizer.tokenize(text)
+
+            if len(tokens) > self.max_length:
+                # Split text into chunks of chunk_size words
+                num_chunks = len(tokens) // self.max_length
+                if len(tokens) % self.max_length != 0:
+                    num_chunks += 1
+
+                chunks = [tokens[i * self.max_length: (i + 1) * self.max_length] for i in range(num_chunks)]
+                for chunk in chunks:
+                    chunk_text = self.tokenizer.convert_tokens_to_string(chunk)
+                    tokens_count += self.__handle_chunk(chunk_text, preprocessed_collection)
+            else:
+                # If no chunking is needed, directly tokenize the text
+                tokens_count += self.__handle_chunk(text, preprocessed_collection)
+        return preprocessed_collection, tokens_count
+
+    def equalize_chunks(self, chunks_list):
+        """
+        Helper to balance two lists of chunks to the same length.
+        """
+        chunk_ratio = self.config['training']['impostor_chunk_ratio']
+
+        lengths = [len(chunks_list[0]), len(chunks_list[1])]
+        i1 = lengths.index(max(lengths))  # index of longer list
+        i2 = lengths.index(min(lengths))  # index of shorter list
+
+        repeated_chunks = chunks_list[i2] * (lengths[i1] // lengths[i2])
+        repeated_chunks += chunks_list[i2][:lengths[i1] % len(chunks_list[i2])]
+
+        chunks_list[i2] = repeated_chunks
+
+        chunks_list[0] *= chunk_ratio
+        chunks_list[1] *= chunk_ratio
+
+        return chunks_list
+
+    def create_xy(self, impostor_1_chunks, impostor_2_chunks, num_pairs=None):
+        if len(impostor_1_chunks) != len(impostor_2_chunks):
+            raise ValueError("Chunk lists must be equal length for pairing.")
+
+        # Prepare each input group
+        ids_1, masks_1, types_1 = [], [], []
+        ids_2, masks_2, types_2 = [], [], []
+        labels = []
+
+        def append_pair(c1, c2, label):
+            ids_1.append(np.squeeze(c1["input_ids"].numpy(), axis=0))
+            masks_1.append(np.squeeze(c1["attention_mask"].numpy(), axis=0))
+            types_1.append(np.squeeze(c1["token_type_ids"].numpy(), axis=0))
+
+            ids_2.append(np.squeeze(c2["input_ids"].numpy(), axis=0))
+            masks_2.append(np.squeeze(c2["attention_mask"].numpy(), axis=0))
+            types_2.append(np.squeeze(c2["token_type_ids"].numpy(), axis=0))
+
+            labels.append(label)
+
+        def generate_positive_pairs(chunks):
+            n = len(chunks)
+            if n < 2:
+                return
+            indices = list(range(n))
+            random.shuffle(indices)
+            limit = min(num_pairs or n // 2, n - 1)
+            for i in range(limit):
+                c1 = chunks[indices[i]]
+                c2 = chunks[indices[i + 1]]
+                append_pair(c1, c2, label=1)
+
+        def generate_negative_pairs(chunks_a, chunks_b, count):
+            for _ in range(count):
+                c1 = random.choice(chunks_a)
+                c2 = random.choice(chunks_b)
+                append_pair(c1, c2, label=0)
+
+        # Balanced generation
+        generate_positive_pairs(impostor_1_chunks)
+        generate_positive_pairs(impostor_2_chunks)
+
+        total_positives = len(labels)
+        generate_negative_pairs(impostor_1_chunks, impostor_2_chunks, total_positives)
+
+        # Convert to arrays
+        x_dict = {
+            "input_ids_1": np.stack(ids_1),
+            "attention_mask_1": np.stack(masks_1),
+            "token_type_ids_1": np.stack(types_1),
+            "input_ids_2": np.stack(ids_2),
+            "attention_mask_2": np.stack(masks_2),
+            "token_type_ids_2": np.stack(types_2),
         }
+        y = np.array(labels, dtype=np.int32)
 
-    def encode_single_chunk(self, token_chunk, max_len):
-        ids = self.tokenizer.convert_tokens_to_ids(token_chunk[:max_len])
-        attention_mask = [1] * len(ids)
-        padding_length = max_len - len(ids)
-        if padding_length > 0:
-            ids += [self.tokenizer.pad_token_id] * padding_length
-            attention_mask += [0] * padding_length
+        # Split each field in x_dict independently
+        x_train, x_test, y_train, y_test = {}, {}, None, None
 
-        return {
-            "input_ids": ids,
-            "attention_mask": attention_mask
-        }
+        (
+            x_train["input_ids_1"], x_test["input_ids_1"],
+            x_train["attention_mask_1"], x_test["attention_mask_1"],
+            x_train["token_type_ids_1"], x_test["token_type_ids_1"],
+            x_train["input_ids_2"], x_test["input_ids_2"],
+            x_train["attention_mask_2"], x_test["attention_mask_2"],
+            x_train["token_type_ids_2"], x_test["token_type_ids_2"],
+            y_train, y_test
+        ) = train_test_split(
+            x_dict["input_ids_1"], x_dict["attention_mask_1"], x_dict["token_type_ids_1"],
+            x_dict["input_ids_2"], x_dict["attention_mask_2"], x_dict["token_type_ids_2"],
+            y,
+            test_size=self.test_split,
+            random_state=42
+        )
 
-    def divide_tokens_into_chunks(self, tokens, chunk_size):
-        tokens = np.asarray(tokens)
-        blocks = len(tokens) // chunk_size
-        chunks = []
-        for i in range(blocks):
-            chunks.append(tokens[i * chunk_size:(i + 1) * chunk_size])
+        y_train = y_train.astype(np.float32).reshape(-1, 1)
+        y_test = y_test.astype(np.float32).reshape(-1, 1)
 
-        # Handle remaining tokens
-        remainder = len(tokens) % chunk_size
-        if remainder > 0:
-            last_chunk = tokens[-remainder:]
-            # Pad with tokenizer pad token if needed
-            pad_length = chunk_size - remainder
-            pad_token = self.tokenizer.pad_token
-            padded_chunk = np.concatenate([last_chunk, [pad_token] * pad_length])
-            chunks.append(padded_chunk)
-        return chunks
-
-    def tokenize_text(self, text):
-        tokens = self.tokenizer.tokenize(text)
-        return tokens
+        return x_train, y_train, x_test, y_test
