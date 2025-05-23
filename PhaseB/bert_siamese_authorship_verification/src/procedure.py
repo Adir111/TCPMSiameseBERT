@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+from transformers import TFBertModel, BertTokenizer
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
 import os
@@ -10,6 +11,7 @@ from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
 from PhaseB.bert_siamese_authorship_verification.utilities import make_pairs, DataVisualizer
+from PhaseB.bert_siamese_authorship_verification.utilities.bert_fine_tuner import BertFineTuner
 
 # from src.dtw import compute_dtw_distance
 # from src.isolation_forest import AnomalyDetector
@@ -22,15 +24,14 @@ class Procedure:
     def __init__(self, config, logger):
         self.config = config
         self.logger = logger
+        self.preprocessor = None
         self.data_visualizer = DataVisualizer(logger)
-        self.preprocessor = Preprocessor(config=config)
         self.max_length = config['bert']['maximum_sequence_length']
         self.batch_size = config['training']['batch_size']
         self.data_loader = DataLoader(config=config)
         self.trained_networks = []
-        self.model_creator = SiameseBertModel(config=config, logger=self.logger)
+        self.model_creator = None
 
-    # def __preprocessing_stage(self, impostor_1_name, impostor_2_name, shakespeare_data):
     def __preprocessing_stage(self, impostor_1_name, impostor_2_name):
         print("----------------------")
         self.logger.info("Starting preprocessing stage...")
@@ -55,6 +56,38 @@ class Procedure:
         print("----------------------")
         return impostor_1_chunks, impostor_2_chunks
 
+    def __fine_tuning_stage(self, all_impostors):
+        self.logger.info("Starting fine-tuning stage...")
+        self.logger.info("Fine-tuning BERT model...")
+
+        bert_fine_tuner = BertFineTuner(self.config, self.logger)
+        bert_fine_tuner.finetune(all_impostors)
+        self.logger.info("✅ Fine-tuning stage has been completed!")
+
+    def __load_tokenizer_and_model(self):
+        local_path = self.config['data']['fine_tuned_bert_model_path']
+        hf_model_id = self.config['bert']['repository']
+
+        # Case 1: Load from local if directory exists
+        if os.path.isdir(local_path):
+            self.logger.log(f"Loading model from local path: {local_path}")
+            tokenizer = BertTokenizer.from_pretrained(local_path)
+            model = TFBertModel.from_pretrained(local_path)
+            return tokenizer, model
+        else:
+            self.logger.log(f"Local model not found at {local_path}. Attempting to load from Hugging Face Hub...")
+
+        # Case 2: Try loading from Hugging Face Hub
+        try:
+            self.logger.log(f"Loading model from Hugging Face Hub: {hf_model_id}")
+            tokenizer = BertTokenizer.from_pretrained(hf_model_id)
+            model = TFBertModel.from_pretrained(hf_model_id)
+            return tokenizer, model
+        except Exception as e:
+            self.logger.log(f"Model not found on Hugging Face Hub: {hf_model_id}")
+            self.logger.log("Proceeding to fine-tune a new model from scratch...")
+            return None, None
+
     def __training_stage(self, model_name, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.info("Starting training stage...")
@@ -74,6 +107,15 @@ class Procedure:
         impostors_names = self.data_loader.get_impostors_name_list()
         impostor_pairs = make_pairs(impostors_names)
         self.logger.info(f"Batch size is {self.batch_size}")
+
+        tokenizer, bert_model = self.__load_tokenizer_and_model()
+
+        if tokenizer is None or bert_model is None:
+            all_impostors = self.data_loader.get_all_impostors_data()
+            self.__fine_tuning_stage(all_impostors)
+
+        self.preprocessor = Preprocessor(config=self.config, tokenizer=tokenizer)
+        self.model_creator = SiameseBertModel(config=self.config, logger=self.logger, bert_model=bert_model)
 
         for idx, impostor_pair in enumerate(impostor_pairs):
             self.logger.info(

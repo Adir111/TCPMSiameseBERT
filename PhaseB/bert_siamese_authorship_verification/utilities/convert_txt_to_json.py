@@ -16,51 +16,8 @@ def save_to_json(data, output_path, data_name):
     print(f"{data_name} saved to {output_path}.")
 
 
-def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
+def handle_impostor_texts(impostor_dir, impostor_size=None):
     impostor_dataset = []
-    shakespeare_collection = []
-    classify_text = {}
-
-    data_sources_folder = Path(config['data']['organised_data_folder_path'])
-    shakespeare_collection_output_path = data_sources_folder / config['data']['shakespeare_data_source']
-    impostors_output_path = data_sources_folder / config['data']['impostors_data_source']
-    classify_text_output_path = data_sources_folder / config['data']['classify_text_data_source']
-
-    shakespeare_dir = Path(shakespeare_dir)
-    impostor_dir = Path(impostor_dir)
-    impostor_output_path = Path(impostors_output_path)
-    shakespeare_collection_output_path = Path(shakespeare_collection_output_path)
-    classify_text_output_path = Path(classify_text_output_path)
-
-    # Ensure directory exists
-    impostor_output_path.parent.mkdir(parents=True, exist_ok=True)
-    shakespeare_collection_output_path.parent.mkdir(parents=True, exist_ok=True)
-    classify_text_output_path.parent.mkdir(parents=True, exist_ok=True)
-
-    # Process the 'text to classify.txt'
-    classify_file_path = shakespeare_dir / 'text to classify.txt'
-    if not classify_file_path.exists():
-        raise FileNotFoundError(f"Error: 'text to classify.txt' is missing in the directory {shakespeare_dir}")
-
-    with classify_file_path.open("r", encoding="utf-8", errors="ignore") as f:
-        classify_text["text_name"] = 'text to classify.txt'
-        classify_text["text"] = f.read()
-
-    # Process Shakespeare texts
-    for filename in shakespeare_dir.iterdir():
-        if shakespeare_collection_size is not None and len(shakespeare_collection) == shakespeare_collection_size:
-            break
-        if filename.name == 'text to classify.txt':
-            continue
-
-        with filename.open("r", encoding="utf-8", errors="ignore") as f:
-            text = f.read()
-            shakespeare_collection.append({
-                "text_name": filename.name,
-                "text": text
-            })
-
-    print(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
 
     # Process impostors
     impostor_folders = [f for f in impostor_dir.iterdir() if f.is_dir()]
@@ -91,8 +48,73 @@ def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_col
         count_impostors_texts += len(impostor_texts)
 
     print(f"Handled {len(impostor_dataset)} impostor authors, with a total of {count_impostors_texts} texts.")
+    return impostor_dataset
+
+
+def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
+    classify_text = {}
+    shakespeare_collection = []
+
+    # Process the 'text to classify.txt'
+    classify_file_path = shakespeare_dir / 'text to classify.txt'
+    if not classify_file_path.exists():
+        raise FileNotFoundError(f"Error: 'text to classify.txt' is missing in the directory {shakespeare_dir}")
+
+    with classify_file_path.open("r", encoding="utf-8", errors="ignore") as f:
+        classify_text["text_name"] = 'text to classify.txt'
+        classify_text["text"] = f.read()
+
+    # Process Shakespeare texts
+    for filename in shakespeare_dir.iterdir():
+        if shakespeare_collection_size is not None and len(shakespeare_collection) == shakespeare_collection_size:
+            break
+        if filename.name == 'text to classify.txt':
+            continue
+
+        with filename.open("r", encoding="utf-8", errors="ignore") as f:
+            text = f.read()
+            shakespeare_collection.append({
+                "text_name": filename.name,
+                "text": text
+            })
+
+    print(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
+    return shakespeare_collection, classify_text
+
+
+def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
+    data_sources_folder = Path(config['data']['organised_data_folder_path'])
+    shakespeare_collection_output_path = data_sources_folder / config['data']['shakespeare_data_source']
+    impostors_output_path = data_sources_folder / config['data']['impostors_data_source']
+    classify_text_output_path = data_sources_folder / config['data']['classify_text_data_source']
+
+    shakespeare_dir = Path(shakespeare_dir)
+    impostor_dir = Path(impostor_dir)
+    impostor_output_path = Path(impostors_output_path)
+    shakespeare_collection_output_path = Path(shakespeare_collection_output_path)
+    classify_text_output_path = Path(classify_text_output_path)
+
+    # Ensure directory exists
+    impostor_output_path.parent.mkdir(parents=True, exist_ok=True)
+    shakespeare_collection_output_path.parent.mkdir(parents=True, exist_ok=True)
+    classify_text_output_path.parent.mkdir(parents=True, exist_ok=True)
+
+    shakespeare_collection, classify_text = handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size)
+    impostor_dataset = handle_impostor_texts(impostor_dir, impostor_size)
 
     # Save to JSON
     save_to_json(impostor_dataset, impostor_output_path, "Impostor dataset")
     save_to_json(shakespeare_collection, shakespeare_collection_output_path, "Shakespeare collection")
     save_to_json(classify_text, classify_text_output_path, "Text to classify data")
+
+
+def convert_all_impostor_texts_to_json(config, impostor_dir):
+    data_sources_folder = Path(config['data']['organised_data_folder_path'])
+    impostors_output_path = data_sources_folder / config['data']['all_impostors_data_source']
+
+    impostor_dir = Path(impostor_dir)
+    impostor_output_path = Path(impostors_output_path)
+    impostor_output_path.parent.mkdir(parents=True, exist_ok=True)
+    impostor_dataset = handle_impostor_texts(impostor_dir)
+
+    save_to_json(impostor_dataset, impostor_output_path, "All Impostors Dataset")

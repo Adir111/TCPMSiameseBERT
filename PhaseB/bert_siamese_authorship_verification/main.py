@@ -1,4 +1,4 @@
-from utilities import get_config, get_logger, convert_texts_to_json
+from utilities import get_config, get_logger, convert_texts_to_json, convert_all_impostor_texts_to_json
 from src.procedure import Procedure
 
 # Load config
@@ -32,6 +32,10 @@ def __create_dataset():
         impostor_size=impostor_size
     )
     print(f"✅ Dataset created")
+
+    print("🔄 Creating all impostors dataset...")
+    convert_all_impostor_texts_to_json(config, impostor_dir=IMPOSTORS_PATH)
+    print(f"✅ All impostors dataset created")
 
 
 def __train_model():

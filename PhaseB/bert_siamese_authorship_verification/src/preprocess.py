@@ -1,5 +1,4 @@
 import nltk
-from transformers import BertTokenizer
 from sklearn.model_selection import train_test_split
 import numpy as np
 import random
@@ -10,9 +9,9 @@ nltk.download('stopwords')
 
 
 class Preprocessor:
-    def __init__(self, config):
+    def __init__(self, config, tokenizer):
         self.max_length = config['bert']['maximum_sequence_length']
-        self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
+        self.tokenizer = tokenizer
         self.test_split = config['training']['test_split']
 
     def __tokenize_text(self, text):
@@ -167,5 +166,8 @@ class Preprocessor:
             test_size=self.test_split,
             random_state=42
         )
+
+        y_train = y_train.astype(np.float32).reshape(-1, 1)
+        y_test = y_test.astype(np.float32).reshape(-1, 1)
 
         return x_train, y_train, x_test, y_test

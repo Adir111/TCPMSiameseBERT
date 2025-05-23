@@ -7,12 +7,12 @@ from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, 
 
 
 class SiameseBertModel:
-    def __init__(self, config, logger):
+    def __init__(self, config, logger, bert_model):
         self.config = config
         self.logger = logger
 
         self.bilstm_layers = self.config['model']['bilstm']['number_of_layers']
-        self.bilstm_output_units = int(self.bilstm_layers * 2)
+        self.bilstm_units = self.config['model']['bilstm']['units']
         self.bilstm_dropout = self.config['model']['bilstm']['dropout']
 
         self.filters = self.config['model']['cnn']['filters']
@@ -23,11 +23,8 @@ class SiameseBertModel:
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
 
-        self.bert_model = TFBertModel.from_pretrained('bert-base-uncased')
+        self.bert_model = bert_model
         self.bert_model.trainable = self.config['bert']['trainable']
-
-        for var in self.bert_model.trainable_variables:
-            print(var.name, var.shape)
 
         self.max_len = self.config['bert']['maximum_sequence_length']
 
@@ -58,11 +55,12 @@ class SiameseBertModel:
                                       input_shape=(self.max_len, 768)))
             cnn_lstm_stack.add(MaxPooling1D(pool_size=self.pool_size))
 
-        cnn_lstm_stack.add(Bidirectional(
-            LSTM(units=self.bilstm_output_units, return_sequences=True), merge_mode='concat'))
-        cnn_lstm_stack.add(Bidirectional(
-            LSTM(units=self.bilstm_output_units, go_backwards=True)
-        ))
+        for i in range(self.bilstm_layers):
+            is_last = (i == self.bilstm_layers - 1)
+            return_seq = not is_last  # Only last layer returns 2D
+            cnn_lstm_stack.add(Bidirectional(
+                LSTM(units=self.bilstm_units, return_sequences=return_seq), merge_mode='concat'
+            ))
 
         cnn_lstm_stack.add(Dropout(self.bilstm_dropout))
         cnn_lstm_stack.add(Dense(self.in_features, activation='relu'))
@@ -91,13 +89,10 @@ class SiameseBertModel:
         out1 = self._branch([input_ids_1, attention_mask_1, token_type_ids_1])
         out2 = self._branch([input_ids_2, attention_mask_2, token_type_ids_2])
 
-        # Distance computation
-        distance = Lambda(
-            lambda tensors: tf.sqrt(tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6)
-        )([out1, out2])
-
-        # Output will be in [0, 1], suitable for BCE
-        output = Dense(1, activation="sigmoid")(distance)
+        distance = Lambda(lambda tensors: tf.sqrt(
+            tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6
+        ))([out1, out2])
+        output = Dense(1, activation="sigmoid", name="similarity")(distance)
 
         model = Model(
             inputs=[

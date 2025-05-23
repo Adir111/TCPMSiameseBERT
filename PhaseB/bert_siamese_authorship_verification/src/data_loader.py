@@ -18,10 +18,11 @@ def _clean_text(text):
 
 class DataLoader:
     def __init__(self, config):
-        self.data_path = (Path(__file__).parent.parent / config['data']['organised_data_folder_path']).resolve()
-        self.shakespeare_dataset_name = config['data']['shakespeare_data_source']
-        self.impostor_dataset_name = config['data']['impostors_data_source']
-        self.text_to_classify_name = config['data']['classify_text_data_source']
+        self._config = config
+        self.data_path = (Path(__file__).parent.parent / self._config['data']['organised_data_folder_path']).resolve()
+        self.shakespeare_dataset_name = self._config['data']['shakespeare_data_source']
+        self.impostor_dataset_name = self._config['data']['impostors_data_source']
+        self.text_to_classify_name = self._config['data']['classify_text_data_source']
 
     def __load_json_data(self, file_name):
         """
@@ -55,9 +56,27 @@ class DataLoader:
         impostors = self.__load_json_data(self.impostor_dataset_name)
         return [impostor['author'] for impostor in impostors]
 
+    def get_all_impostors_data(self):
+        """
+        Load and return all impostor data from JSON.
+        """
+        impostors = self.__load_json_data(self._config['data']['all_impostors_data_source'])
+        all_texts = []
+        for impostor in impostors:
+            for text in impostor["texts"]:
+                all_texts.append(_clean_text(text))
+        return all_texts
+
     def get_text_to_classify(self):
         """
         Load and return the text to classify from JSON.
         """
         data = self.__load_json_data(self.text_to_classify_name)
         return _clean_text(data.get('text', ''))
+
+    def is_bert_fine_tuned(self):
+        bert_model_path = (Path(__file__).parent.parent / self._config['data']['fine_tuned_bert_model_path']).resolve()
+
+        if bert_model_path.exists():
+            return True
+        return False
