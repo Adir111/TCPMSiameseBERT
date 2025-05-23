@@ -1,8 +1,10 @@
 import tensorflow as tf
+from tensorflow.python.keras.callbacks import EarlyStopping
 
 
 class Trainer:
     def __init__(self, config, logger, model_creator, model, batch_size):
+        self.config = config
         self.logger = logger
         self.model_creator = model_creator
         self.model = model
@@ -23,10 +25,13 @@ class Trainer:
         """Train the model on the dataset."""
         self.__compile_model()
 
+        EarlyStopping(patience=self.config['training']['early_stopping_patience'], restore_best_weights=True, mode='min', baseline=0.5, monitor='val_loss')
+
         history = self.model.fit(
             x=x_train, y=y_train,
             validation_data=(x_test, y_test),
             batch_size=self.batch_size,
             epochs=self.epochs
         )
+
         return history

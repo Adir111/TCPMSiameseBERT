@@ -1,7 +1,6 @@
-import os
 import tensorflow as tf
 from transformers import TFAutoModelForMaskedLM, BertTokenizer, DataCollatorForLanguageModeling
-from huggingface_hub import HfApi
+from huggingface_hub import HfApi, login
 from datasets import Dataset
 
 
@@ -57,7 +56,9 @@ class BertFineTuner:
 
         self._logger.info(f"Fine-tuned model saved to {save_path}.")
 
-        api = HfApi(token=os.getenv("HF_TOKEN"))
+        hf_token = self._config['bert']['token']
+        login(token=hf_token)
+        api = HfApi(token=hf_token)
         api.upload_folder(
             folder_path=save_path,
             repo_id=self._config['bert']['repository'],

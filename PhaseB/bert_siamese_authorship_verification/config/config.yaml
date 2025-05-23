@@ -11,33 +11,28 @@ data:
 
 training:
   optimizer:
-    initial_learning_rate: 1e-4
+    initial_learning_rate: 1e-5
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
-#  batch_factor: 100 # Chunk to Batch ratio
-#  chunk_size: 400 # 32 # or 64
   batch_size: 8
-  hidden_size: 768
-  epochs: 10 # 10-20
-  early_stopping_patience: 3
+  epochs: 10 # 5-10
+  early_stopping_patience: 2
   impostor_chunk_ratio: 2
   test_split: 0.25
 
 model:
-  save_trained_models: True
-  load_trained_models: True
   cnn:
     filters: 128 # 128 or 256
-    padding: "same"
-    kernel_size: [3, 5, 7]
+    padding: "valid"
+    kernel_size: [3, 6, 12]
     pool_size: 2
   bilstm:
-    dropout: 0.1 # 0.2 - 0.5
-    number_of_layers: 50
-    units: 128
+    dropout: 0.25 # 0.2 - 0.5
+    number_of_layers: 2
+    units: 64
   fc:
-    in_features: 128
-    out_features: 1
+    in_features: 256
+    out_features: 256
 
 isolation_forest:
   number_of_trees: 100
@@ -58,7 +53,7 @@ bert:
 
 
 wandb:
-  enabled: False
+  enabled: True
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   api_key: 99cb11ef59cac847e6b99323c0d485a69157f548

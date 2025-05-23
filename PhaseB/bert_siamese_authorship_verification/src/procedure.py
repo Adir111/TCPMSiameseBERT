@@ -99,6 +99,25 @@ class Procedure:
         history = trainer.train(x_train, y_train, x_test, y_test)
 
         self.logger.info("✅ Training stage has been completed!")
+        branch = self.model_creator.get_branch()  # shared encoder
+        emb_test = branch.predict({
+            "input_ids": x_test["input_ids_1"],
+            "attention_mask": x_test["attention_mask_1"],
+            "token_type_ids": x_test["token_type_ids_1"],
+        }, verbose=0)
+
+        # labels: 1 = same author, 0 = different author
+        labels_test = y_test.flatten()
+
+        # ▸ t-SNE plot
+        self.data_visualizer.plot_embedding(
+            emb_test,  # 2-D or 3-D embedding matrix (n_samples × 128)
+            labels_test,  # 0 / 1 labels to colour the dots
+            method="tsne",  # "tsne"  or  "umap"
+            perplexity=40,  # extra kwargs forwarded to TSNE(...)
+            title=f"{model_name} – t-SNE"
+        )
+
         print("----------------------")
         return history
 
@@ -125,3 +144,6 @@ class Procedure:
             model_name = f"{impostor_pair[0]}_{impostor_pair[1]}"
             history = self.__training_stage(model_name, impostor_1_preprocessed, impostor_2_preprocessed)
             self.logger.info(f"Model {idx + 1} training complete.")
+            self.data_visualizer.display_accuracy_plot(history, model_name)
+            self.data_visualizer.display_loss_plot(history, model_name)
+

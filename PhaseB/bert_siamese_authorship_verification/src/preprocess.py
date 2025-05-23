@@ -10,9 +10,10 @@ nltk.download('stopwords')
 
 class Preprocessor:
     def __init__(self, config, tokenizer):
+        self.config = config
         self.max_length = config['bert']['maximum_sequence_length']
-        self.tokenizer = tokenizer
         self.test_split = config['training']['test_split']
+        self.tokenizer = tokenizer
 
     def __tokenize_text(self, text):
         """
@@ -76,11 +77,12 @@ class Preprocessor:
                 tokens_count += self.__handle_chunk(text, preprocessed_collection)
         return preprocessed_collection, tokens_count
 
-    @staticmethod
-    def equalize_chunks(chunks_list):
+    def equalize_chunks(self, chunks_list):
         """
         Helper to balance two lists of chunks to the same length.
         """
+        chunk_ratio = self.config['training']['impostor_chunk_ratio']
+
         lengths = [len(chunks_list[0]), len(chunks_list[1])]
         i1 = lengths.index(max(lengths))  # index of longer list
         i2 = lengths.index(min(lengths))  # index of shorter list
@@ -89,6 +91,9 @@ class Preprocessor:
         repeated_chunks += chunks_list[i2][:lengths[i1] % len(chunks_list[i2])]
 
         chunks_list[i2] = repeated_chunks
+
+        chunks_list[0] *= chunk_ratio
+        chunks_list[1] *= chunk_ratio
 
         return chunks_list
 
