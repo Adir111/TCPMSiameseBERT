@@ -23,7 +23,7 @@ class BertFineTuner:
                 truncation=True,
                 padding="max_length",
                 return_tensors="tf",
-                max_length=self._config['bert']['maximum_sequence_length']
+                max_length=self._config['bert']['chunk_size']
             )
 
         tokenized_dataset = dataset.map(tokenize_function, batched=True)

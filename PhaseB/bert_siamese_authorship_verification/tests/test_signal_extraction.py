@@ -24,7 +24,7 @@ def test_signal_extraction_visual():
 
     # Preprocess
     preprocessor = TextPreprocessor()
-    batch_size = config['training']['batch_size']
+    batch_size = config['training']['training_batch_size']
     chunk_size = config['training']['chunk_size']
     chunks = preprocessor.divide_into_chunk(random_text, chunk_size=chunk_size)
     num_batches = len(chunks) // batch_size

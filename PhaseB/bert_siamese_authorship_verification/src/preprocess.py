@@ -11,7 +11,7 @@ nltk.download('stopwords')
 class Preprocessor:
     def __init__(self, config, tokenizer):
         self.config = config
-        self.max_length = config['bert']['maximum_sequence_length']
+        self.max_length = config['bert']['chunk_size']
         self.test_split = config['training']['test_split']
         self.tokenizer = tokenizer
 
@@ -36,8 +36,6 @@ class Preprocessor:
 
     def __handle_chunk(self, chunk_text, preprocessed_collection):
         tokenized = self.__tokenize_text(chunk_text)
-        # input_ids = tokenized['input_ids'].numpy().flatten()
-        # attention_mask = tokenized['attention_mask'].numpy().flatten()
         tokens_count = len(tokenized['input_ids'])
         preprocessed_collection.append(tokenized)
         return tokens_count

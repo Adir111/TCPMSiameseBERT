@@ -26,8 +26,9 @@ class Procedure:
         self.logger = logger
         self.preprocessor = None
         self.data_visualizer = DataVisualizer(logger)
-        self.max_length = config['bert']['maximum_sequence_length']
-        self.batch_size = config['training']['batch_size']
+        self.chunk_size = config['bert']['chunk_size']
+        self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
+        self.training_batch_size = config['training']['training_batch_size']
         self.data_loader = DataLoader(config=config)
         self.trained_networks = []
         self.model_creator = None
@@ -88,44 +89,64 @@ class Procedure:
             self.logger.log("Proceeding to fine-tune a new model from scratch...")
             return None, None
 
-    def __training_stage(self, model_name, impostor_1_preprocessed, impostor_2_preprocessed):
+    def __training_stage(self, model_creator, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.info("Starting training stage...")
 
-        model = self.model_creator.build_model(model_name)
-        trainer = Trainer(self.config, self.logger, self.model_creator, model, self.batch_size)
+        trainer = Trainer(self.config, self.logger, model_creator, self.training_batch_size)
 
         x_train, y_train, x_test, y_test = self.preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
         history = trainer.train(x_train, y_train, x_test, y_test)
 
         self.logger.info("✅ Training stage has been completed!")
-        branch = self.model_creator.get_branch()  # shared encoder
-        emb_test = branch.predict({
-            "input_ids": x_test["input_ids_1"],
-            "attention_mask": x_test["attention_mask_1"],
-            "token_type_ids": x_test["token_type_ids_1"],
-        }, verbose=0)
-
-        # labels: 1 = same author, 0 = different author
-        labels_test = y_test.flatten()
-
-        # ▸ t-SNE plot
-        self.data_visualizer.plot_embedding(
-            emb_test,  # 2-D or 3-D embedding matrix (n_samples × 128)
-            labels_test,  # 0 / 1 labels to colour the dots
-            method="tsne",  # "tsne"  or  "umap"
-            perplexity=40,  # extra kwargs forwarded to TSNE(...)
-            title=f"{model_name} – t-SNE"
-        )
 
         print("----------------------")
         return history
 
-    def run(self):
-        # shakespeare_data = self.data_loader.get_shakespeare_data()
+    def __generate_signals_for_text(self, shakespearian_text):
+        text_name = shakespearian_text['text_name']
+        chunks_list, chunks_tokens_count = self.preprocessor.preprocess([shakespearian_text['text']])
+        text_chunks = {
+            "input_ids": np.stack([c["input_ids"].numpy().squeeze(0) for c in chunks_list]),
+            "attention_mask": np.stack([c["attention_mask"].numpy().squeeze(0) for c in chunks_list]),
+            "token_type_ids": np.stack([c["token_type_ids"].numpy().squeeze(0) for c in chunks_list]),
+        }
+
+        self.logger.info(
+            f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
+
+        all_signals = []
+        for model_creator in self.trained_networks:
+            model_name = model_creator.model_name
+            classifier = model_creator.build_encoder_with_classifier()
+            self.logger.info(f"Generating signal from model: {model_name}...")
+
+            predictions = np.asarray(classifier.predict({
+                "input_ids": text_chunks['input_ids'],
+                "attention_mask": text_chunks['attention_mask'],
+                "token_type_ids": text_chunks['token_type_ids']
+            }))
+
+            # binary_outputs = (predictions >= 0.5).astype(int)
+            # binary_outputs = binary_outputs.flatten().tolist()
+            self.logger.log(f"[INFO] Predictions: {predictions}")
+            # self.logger.log(f"[INFO] Rounded up predictions: {binary_outputs}")
+
+            # Aggregate scores into signal chunks
+            # signal = [np.mean(binary_outputs[i:i + self.chunks_per_batch]) for i in
+            #           range(0, len(binary_outputs), self.chunks_per_batch)]
+            # self.logger.log(f"[INFO] Signal representation: {signal}")
+            #
+            # all_signals.append(signal)
+            self.logger.info(
+                f"Signal generated for text: {text_name} by model: {model_name}")
+
+            # self.data_visualizer.display_signal_plot(signal, text_name, model_name)
+
+    def run(self, starting_iteration=0):
         impostors_names = self.data_loader.get_impostors_name_list()
         impostor_pairs = make_pairs(impostors_names)
-        self.logger.info(f"Batch size is {self.batch_size}")
+        self.logger.info(f"Batch size is {self.training_batch_size}")
 
         tokenizer, bert_model = self.__load_tokenizer_and_model()
 
@@ -134,16 +155,45 @@ class Procedure:
             self.__fine_tuning_stage(all_impostors)
 
         self.preprocessor = Preprocessor(config=self.config, tokenizer=tokenizer)
-        self.model_creator = SiameseBertModel(config=self.config, logger=self.logger, bert_model=bert_model)
 
-        for idx, impostor_pair in enumerate(impostor_pairs):
+        # ========= Training Phase =========
+        for idx in range(starting_iteration, len(impostor_pairs)):
+            impostor_pair = impostor_pairs[idx]
+            model_name = f"{impostor_pair[0]}_{impostor_pair[1]}"
+            weights_path = f"./weights-{model_name}.h5"
+
+            model_creator = SiameseBertModel(config=self.config, logger=self.logger, model_name=model_name, bert_model=bert_model)
+            if os.path.exists(weights_path):
+                try:
+                    model_creator.build_head_model().load_weights(weights_path)
+                    self.logger.info(
+                        f"[✓] Loaded existing weights for '{model_name}' from {weights_path}. "
+                        f"Skipping training."
+                    )
+                    self.trained_networks.append(model_creator)
+                    continue
+                except (IOError, tf.errors.OpError) as e:
+                    self.logger.warning(
+                        f"[!] Found weights file for '{model_name}' but could not load it "
+                        f"(error: {e}). Falling back to training from scratch."
+                    )
+
             self.logger.info(
                 f"Training model number {idx + 1} for impostor pair: {impostor_pair[0]} and {impostor_pair[1]}")
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage(impostor_pair[0],
                                                                                           impostor_pair[1])
-            model_name = f"{impostor_pair[0]}_{impostor_pair[1]}"
-            history = self.__training_stage(model_name, impostor_1_preprocessed, impostor_2_preprocessed)
+            history = self.__training_stage(model_creator, impostor_1_preprocessed, impostor_2_preprocessed)
+            self.trained_networks.append(model_creator)
+
             self.logger.info(f"Model {idx + 1} training complete.")
             self.data_visualizer.display_accuracy_plot(history, model_name)
             self.data_visualizer.display_loss_plot(history, model_name)
 
+        self.logger.info("Finished training models successfully!")
+
+        # ========= Signal Generation Phase =========
+        self.logger.info("Proceeding to signal generation for Shakespeare Apocrypha texts...")
+        shakespeare_texts = self.data_loader.get_shakespeare_data()
+        for shakespearian_text in shakespeare_texts:
+            self.logger.info(f"Processing text: {shakespearian_text['text_name']}")
+            self.__generate_signals_for_text(shakespearian_text)

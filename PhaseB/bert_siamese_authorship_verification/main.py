@@ -1,8 +1,11 @@
+from pathlib import Path
+
 from utilities import get_config, get_logger, convert_texts_to_json, convert_all_impostor_texts_to_json
 from src.procedure import Procedure
 
 # Load config
 config = get_config()
+logger = get_logger(config)
 
 # Paths
 TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
@@ -11,19 +14,19 @@ IMPOSTORS_PATH = config['data']['impostors_path']
 
 def __create_dataset():
     """ Converts raw text files into a structured dataset in JSON format. """
-    print("Create full dataset? (y/n)")
+    logger.log("Create full dataset? (y/n)")
     full_dataset = input().strip().lower() == "y"
     impostor_size = None
     tested_collection_size = None
 
     if not full_dataset:
         while impostor_size is None or impostor_size < 2:
-            print("Enter the number of impostors to include (at least 2):")
+            logger.log("Enter the number of impostors to include (at least 2):")
             impostor_size = int(input().strip())
-        print("Enter the number of Shakespeare texts to include:")
+        logger.log("Enter the number of Shakespeare texts to include:")
         tested_collection_size = int(input().strip())
 
-    print("🔄 Creating dataset...")
+    logger.log("🔄 Creating dataset...")
     convert_texts_to_json(
         config,
         shakespeare_dir=TESTED_COLLECTION_PATH,
@@ -31,34 +34,39 @@ def __create_dataset():
         shakespeare_collection_size=tested_collection_size,
         impostor_size=impostor_size
     )
-    print(f"✅ Dataset created")
+    logger.log(f"✅ Dataset created")
 
-    print("🔄 Creating all impostors dataset...")
+    logger.log("🔄 Creating all impostors dataset...")
     convert_all_impostor_texts_to_json(config, impostor_dir=IMPOSTORS_PATH)
-    print(f"✅ All impostors dataset created")
+    logger.log(f"✅ All impostors dataset created")
 
 
 def __train_model():
     """ Triggers the training script. """
     try:
-        logger = get_logger(config)
+        starting_iteration = None
+        while starting_iteration is None or starting_iteration < 0:
+            try:
+                starting_iteration = int(input("Enter the starting iteration (0 for new model): ").strip())
+            except ValueError:
+                logger.log("❌ Invalid input. Please enter a valid integer.")
         logger.log("🚀 Starting Full Procedure...")
         procedure = Procedure(config, logger)
-        procedure.run()
+        procedure.run(starting_iteration)
 
         logger.log("✅ Procedure completed!")
         logger.log({"status": "completed"})
     except FileNotFoundError:
-        print("❌ ERROR - no dataset found, please create one first!")
+        logger.log("❌ ERROR - no dataset found, please create one first!")
 
 
 def main():
     """ Displays the menu and executes the selected action. """
     while True:
-        print("\n📜 Menu:")
-        print("1 - Create Dataset")
-        print("2 - Run Model Procedure")
-        print("3 - Exit")
+        logger.log("\n📜 Menu:")
+        logger.log("1 - Create Dataset")
+        logger.log("2 - Run Model Procedure")
+        logger.log("3 - Exit")
 
         option = input("Select an option (1/2/3): ").strip()
 
@@ -67,10 +75,10 @@ def main():
         elif option == "2":
             __train_model()
         elif option == "3":
-            print("👋 Exiting. Have a great day!")
+            logger.log("👋 Exiting. Have a great day!")
             break
         else:
-            print("❌ Invalid option. Please try again.")
+            logger.log("❌ Invalid option. Please try again.")
 
 
 if __name__ == "__main__":

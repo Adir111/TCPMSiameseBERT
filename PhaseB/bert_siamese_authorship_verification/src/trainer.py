@@ -1,13 +1,14 @@
 import tensorflow as tf
 from tensorflow.python.keras.callbacks import EarlyStopping
+from wandb.integration.keras import WandbModelCheckpoint
 
 
 class Trainer:
-    def __init__(self, config, logger, model_creator, model, batch_size):
+    def __init__(self, config, logger, model_creator, batch_size):
         self.config = config
         self.logger = logger
         self.model_creator = model_creator
-        self.model = model
+        self.model = model_creator.build_head_model()
         self.batch_size = batch_size
         self.epochs = config['training']['epochs']
         self.learning_rate = float(config['training']['optimizer']['initial_learning_rate'])
@@ -25,13 +26,25 @@ class Trainer:
         """Train the model on the dataset."""
         self.__compile_model()
 
-        EarlyStopping(patience=self.config['training']['early_stopping_patience'], restore_best_weights=True, mode='min', baseline=0.5, monitor='val_loss')
+        early_stopping = EarlyStopping(patience=self.config['training']['early_stopping_patience'], restore_best_weights=True, mode='min', baseline=0.5, monitor='val_loss')
+        wandb_model_checkpoint = WandbModelCheckpoint(
+            filepath=f"weights-{self.model_creator.model_name}.h5",
+            monitor="val_loss",
+            mode="min",
+            save_best_only=True,
+            save_weights_only=True,
+            save_freq="epoch"
+        )
 
         history = self.model.fit(
             x=x_train, y=y_train,
             validation_data=(x_test, y_test),
             batch_size=self.batch_size,
-            epochs=self.epochs
+            epochs=self.epochs,
+            callbacks=[
+                early_stopping,
+                wandb_model_checkpoint
+            ]
         )
 
         return history

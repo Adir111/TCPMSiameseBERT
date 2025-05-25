@@ -37,7 +37,10 @@ class DataLoader:
         Load and return the Shakespeare dataset from JSON.
         """
         data = self.__load_json_data(self.shakespeare_dataset_name)
-        return [_clean_text(item["text"]) for item in data]
+        return [{
+            "text_name": item["text_name"],
+            "text": _clean_text(item["text"])
+        } for item in data]
 
     def get_impostor_texts_by_name(self, name):
         """
