@@ -85,8 +85,13 @@ class Preprocessor:
         i1 = lengths.index(max(lengths))  # index of longer list
         i2 = lengths.index(min(lengths))  # index of shorter list
 
+        # Repeat the smaller list enough times
         repeated_chunks = chunks_list[i2] * (lengths[i1] // lengths[i2])
-        repeated_chunks += chunks_list[i2][:lengths[i1] % len(chunks_list[i2])]
+
+        # Randomly sample the remaining elements needed
+        remainder = lengths[i1] - len(repeated_chunks)
+        if remainder > 0:
+            repeated_chunks += random.sample(chunks_list[i2], remainder)
 
         chunks_list[i2] = repeated_chunks
 
