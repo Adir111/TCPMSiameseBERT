@@ -4,11 +4,11 @@ from wandb.integration.keras import WandbModelCheckpoint
 
 
 class Trainer:
-    def __init__(self, config, logger, model_creator, batch_size):
+    def __init__(self, config, logger, model_creator, bert_model1, bert_model2, batch_size):
         self.config = config
         self.logger = logger
         self.model_creator = model_creator
-        self.model = model_creator.build_siamese_model()
+        self.model = model_creator.build_siamese_model(bert_model1, bert_model2)
         self.batch_size = batch_size
         self.epochs = config['training']['epochs']
         self.learning_rate = float(config['training']['optimizer']['initial_learning_rate'])

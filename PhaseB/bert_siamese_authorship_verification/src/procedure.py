@@ -74,7 +74,7 @@ class Procedure:
                 f"Model {hf_model_id} not found on Hugging Face Hub. "
             )
 
-    def __training_stage(self, model_creator, impostor_1_preprocessed, impostor_2_preprocessed):
+    def __training_stage(self, model_creator, bert_model1, bert_model2, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.info("Starting training stage...")
 
@@ -166,7 +166,7 @@ class Procedure:
                 f"Training model number {idx + 1} for impostor pair: {impostor_1} and {impostor_2}")
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage((impostor_1, preprocessor1),
                                                                                           (impostor_2, preprocessor2))
-            history = self.__training_stage(model_creator, impostor_1_preprocessed, impostor_2_preprocessed)
+            history = self.__training_stage(model_creator, bert_model1, bert_model2, impostor_1_preprocessed, impostor_2_preprocessed)
             self.trained_networks.append(model_creator)
 
             self.logger.info(f"Model {idx + 1} training complete.")
