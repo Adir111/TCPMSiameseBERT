@@ -149,7 +149,7 @@ class Procedure:
             model_creator = SiameseBertModel(config=self.config, logger=self.logger, model_name=model_name)
             if os.path.exists(weights_path):
                 try:
-                    model_creator.build_head_model(bert_model1, bert_model2).load_weights(weights_path)
+                    model_creator.build_siamese_model(bert_model1, bert_model2).load_weights(weights_path)
                     self.logger.info(
                         f"[✓] Loaded existing weights for '{model_name}' from {weights_path}. "
                         f"Skipping training."

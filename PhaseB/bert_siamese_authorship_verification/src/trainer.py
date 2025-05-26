@@ -8,7 +8,7 @@ class Trainer:
         self.config = config
         self.logger = logger
         self.model_creator = model_creator
-        self.model = model_creator.build_head_model()
+        self.model = model_creator.build_siamese_model()
         self.batch_size = batch_size
         self.epochs = config['training']['epochs']
         self.learning_rate = float(config['training']['optimizer']['initial_learning_rate'])

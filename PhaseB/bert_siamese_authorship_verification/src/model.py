@@ -114,7 +114,7 @@ class SiameseBertModel:
                              token_type_ids],
                      outputs=outputs)
 
-    def build_head_model(self, bert_model_1, bert_model_2):
+    def build_siamese_model(self, bert_model_1, bert_model_2):
         self.logger.log(f"Started building model {self.model_name}...")
 
         input_ids_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids_1")
