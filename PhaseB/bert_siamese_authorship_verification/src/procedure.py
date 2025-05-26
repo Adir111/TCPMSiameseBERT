@@ -1,5 +1,6 @@
 import numpy as np
 import tensorflow as tf
+import gc
 from transformers import TFBertModel, BertTokenizer
 from sklearn.decomposition import PCA
 from sklearn.manifold import TSNE
@@ -166,7 +167,14 @@ class Procedure:
                 f"Training model number {idx + 1} for impostor pair: {impostor_1} and {impostor_2}")
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage((impostor_1, preprocessor1),
                                                                                           (impostor_2, preprocessor2))
+            del preprocessor1, preprocessor2
+            gc.collect()
+
             history = self.__training_stage(model_creator, bert_model1, bert_model2, impostor_1_preprocessed, impostor_2_preprocessed)
+
+            del impostor_1_preprocessed, impostor_2_preprocessed
+            gc.collect()
+
             self.trained_networks.append(model_creator)
 
             self.logger.info(f"Model {idx + 1} training complete.")

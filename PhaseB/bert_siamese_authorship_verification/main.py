@@ -1,3 +1,4 @@
+import gc
 from pathlib import Path
 
 from PhaseB.bert_siamese_authorship_verification.utilities import BertFineTuner
@@ -48,10 +49,13 @@ def __fine_tune_berts():
     try:
         data_loader = DataLoader(config)
         all_impostors = data_loader.get_all_impostors_data()
-        bert_fine_tuner = BertFineTuner(config, logger)
         logger.log("🔄 Fine-tuning BERT models...")
         for impostor in all_impostors:
+            bert_fine_tuner = BertFineTuner(config, logger)
             bert_fine_tuner.finetune(impostor)
+
+            del bert_fine_tuner  # Free memory after each fine-tuning
+            gc.collect()
         logger.log("✅ BERT models fine-tuned successfully!")
     except FileNotFoundError:
         logger.log("❌ ERROR - no dataset found, please create one first!")
