@@ -2,6 +2,7 @@ import tensorflow as tf
 from transformers import TFAutoModelForMaskedLM, BertTokenizer, DataCollatorForLanguageModeling
 from huggingface_hub import HfApi, login
 from datasets import Dataset
+from pathlib import Path
 
 
 class BertFineTuner:
@@ -11,15 +12,17 @@ class BertFineTuner:
         self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
         self.model = TFAutoModelForMaskedLM.from_pretrained(config['bert']['model'])
 
-    def finetune(self, texts):
-        save_path = self._config['data']['fine_tuned_bert_model_path']
+    def finetune(self, impostor):
+        impostor_name = impostor['author']
+        impostor_texts = impostor['texts']
+        save_path = Path(self._config['data']['fine_tuned_bert_model_path']) / f"{impostor_name}/"
 
-        dataset = Dataset.from_dict({"text": texts})
-        self._logger.info(f"Loaded {len(dataset)} text segments for fine-tuning.")
+        dataset = Dataset.from_dict({"text": impostor_texts})
+        self._logger.info(f"Loaded {len(dataset)} text segments for fine-tuning for author: {impostor_name}.")
 
-        def tokenize_function(examples):
+        def tokenize_function(data):
             return self.tokenizer(
-                examples["text"],
+                data["text"],
                 truncation=True,
                 padding="max_length",
                 return_tensors="tf",
@@ -63,6 +66,7 @@ class BertFineTuner:
             folder_path=save_path,
             repo_id=self._config['bert']['repository'],
             repo_type="model",
+            path_in_repo=impostor_name
         )
 
         self._logger.info(f"Fine-tuned model uploaded to Hugging Face Hub: {self._config['bert']['repository']}.")

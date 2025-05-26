@@ -64,11 +64,17 @@ class DataLoader:
         Load and return all impostor data from JSON.
         """
         impostors = self.__load_json_data(self._config['data']['all_impostors_data_source'])
-        all_texts = []
+        all_impostors = []
+
         for impostor in impostors:
+            texts = []
             for text in impostor["texts"]:
-                all_texts.append(_clean_text(text))
-        return all_texts
+                texts.append(_clean_text(text))
+            all_impostors.append({
+                "author": impostor["author"],
+                "texts": texts
+            })
+        return all_impostors
 
     def get_text_to_classify(self):
         """
@@ -76,10 +82,3 @@ class DataLoader:
         """
         data = self.__load_json_data(self.text_to_classify_name)
         return _clean_text(data.get('text', ''))
-
-    def is_bert_fine_tuned(self):
-        bert_model_path = (Path(__file__).parent.parent / self._config['data']['fine_tuned_bert_model_path']).resolve()
-
-        if bert_model_path.exists():
-            return True
-        return False

@@ -1,6 +1,8 @@
 from pathlib import Path
 
+from PhaseB.bert_siamese_authorship_verification.utilities import BertFineTuner
 from utilities import get_config, get_logger, convert_texts_to_json, convert_all_impostor_texts_to_json
+from src.data_loader import DataLoader
 from src.procedure import Procedure
 
 # Load config
@@ -41,7 +43,23 @@ def __create_dataset():
     logger.log(f"✅ All impostors dataset created")
 
 
-def __train_model():
+def __fine_tune_berts():
+    """ Fine-tunes BERT models for the Siamese architecture. """
+    try:
+        data_loader = DataLoader(config)
+        all_impostors = data_loader.get_all_impostors_data()
+        bert_fine_tuner = BertFineTuner(config, logger)
+        logger.log("🔄 Fine-tuning BERT models...")
+        for impostor in all_impostors:
+            bert_fine_tuner.finetune(impostor)
+        logger.log("✅ BERT models fine-tuned successfully!")
+    except FileNotFoundError:
+        logger.log("❌ ERROR - no dataset found, please create one first!")
+    except Exception as e:
+        logger.log(f"❌ An error occurred during fine-tuning: {e}")
+
+
+def __run_procedure():
     """ Triggers the training script. """
     try:
         starting_iteration = None
@@ -65,16 +83,20 @@ def main():
     while True:
         logger.log("\n📜 Menu:")
         logger.log("1 - Create Dataset")
-        logger.log("2 - Run Model Procedure")
-        logger.log("3 - Exit")
+        logger.log("2 - Fine Tune All BERTs")
+        logger.log("3 - Run Model Procedure")
+        logger.log("4 - Exit")
 
-        option = input("Select an option (1/2/3): ").strip()
+        option = input("Select an option (1/2/3/4): ").strip()
 
         if option == "1":
             __create_dataset()
         elif option == "2":
-            __train_model()
+            __fine_tune_berts()
         elif option == "3":
+            __run_procedure()
+            break
+        elif option == "4":
             logger.log("👋 Exiting. Have a great day!")
             break
         else:

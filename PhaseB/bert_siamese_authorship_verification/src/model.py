@@ -7,7 +7,7 @@ from tensorflow.keras.layers import Conv1D, MaxPooling1D, Dense, Bidirectional, 
 
 
 class SiameseBertModel:
-    def __init__(self, config, logger, model_name, bert_model):
+    def __init__(self, config, logger, model_name):
         self.config = config
         self.logger = logger
         self.model_name = model_name
@@ -24,13 +24,11 @@ class SiameseBertModel:
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
 
-        self.bert_model = bert_model
-        self.bert_model.trainable = self.config['bert']['trainable']
-
         self.max_len = self.config['bert']['chunk_size']
 
         self.model = None  # Will be set in build_model()
-        self._branch = None
+        self._branch_1 = None
+        self._branch_2 = None
 
     @staticmethod
     def get_model_summary_string(model):
@@ -38,7 +36,13 @@ class SiameseBertModel:
             model.summary()
             return buf.getvalue()
 
-    def _build_siamese_branch(self):
+    @staticmethod
+    def euclidean_distance(vec_1, vec_2):
+        return Lambda(lambda tensors: tf.sqrt(
+            tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6
+        ))([vec_1, vec_2])
+
+    def _build_siamese_branch(self, bert_model):
         """
         Siamese encoder ≈ rcnna():
         [BERT] → [several Conv1D-MaxPool] → 2×BiLSTM → Dense → Dropout → Dense
@@ -56,7 +60,7 @@ class SiameseBertModel:
         # 2.  Contextual token embeddings from fine-tuned BERT -------------- #
         # ------------------------------------------------------------------ #
         # outputs[0] = (batch, seq_len, 768)
-        bert_output = self.bert_model(
+        bert_output = bert_model(
             {"input_ids": input_ids,
              "attention_mask": attention_mask,
              "token_type_ids": token_type_ids})[0]
@@ -110,7 +114,7 @@ class SiameseBertModel:
                              token_type_ids],
                      outputs=outputs)
 
-    def build_head_model(self):
+    def build_head_model(self, bert_model_1, bert_model_2):
         self.logger.log(f"Started building model {self.model_name}...")
 
         input_ids_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids_1")
@@ -121,17 +125,13 @@ class SiameseBertModel:
         attention_mask_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask_2")
         token_type_ids_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="token_type_ids_2")
 
-        self._branch = self._build_siamese_branch()
+        self._branch_1 = self._build_siamese_branch(bert_model_1)
+        self._branch_2 = self._build_siamese_branch(bert_model_2)
 
-        branch_summary = self.get_model_summary_string(self._branch)
-        self.logger.log(branch_summary)
+        out1 = self._branch_1([input_ids_1, attention_mask_1, token_type_ids_1])
+        out2 = self._branch_2([input_ids_2, attention_mask_2, token_type_ids_2])
 
-        out1 = self._branch([input_ids_1, attention_mask_1, token_type_ids_1])
-        out2 = self._branch([input_ids_2, attention_mask_2, token_type_ids_2])
-
-        distance = Lambda(lambda tensors: tf.sqrt(
-            tf.reduce_sum(tf.square(tensors[0] - tensors[1]), axis=1, keepdims=True) + 1e-6
-        ))([out1, out2])
+        distance = self.euclidean_distance(out1, out2)
         output = Dense(1, activation="sigmoid", name="similarity")(distance)
 
         self.model = Model(
@@ -141,21 +141,27 @@ class SiameseBertModel:
             ],
             outputs=output
         )
-
+        model_summary = self.get_model_summary_string(self.model)
+        self.logger.log(model_summary)
         self.logger.log(f"Finished building model {self.model_name}...")
         return self.model
 
-    def build_encoder_with_classifier(self):
-        """ Creates a classifier model using the stored encoder branch """
-        if self._branch is None:
-            raise RuntimeError("You must call build_model() first to initialize the branch.")
+    def get_encoder_classifier(self):
+        """ Creates a classifier model using the stored encoder branches """
+        if self._branch_1 is None or self._branch_2 is None:
+            raise RuntimeError("You must call build_head_model() first to initialize the branches.")
 
         input_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
         attention_mask = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
         token_type_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="token_type_ids")
 
-        x = self._branch([input_ids, attention_mask, token_type_ids])
+        out1 = self._branch_1([input_ids, attention_mask, token_type_ids])
+        out2 = self._branch_2([input_ids, attention_mask, token_type_ids])
 
-        # out = Dense(1, activation="sigmoid", name="chunk_classifier")(x)
+        distance = self.euclidean_distance(out1, out2)
+        output = Dense(1, activation="sigmoid", name="similarity")(distance)
 
-        return Model(inputs=[input_ids, attention_mask, token_type_ids], outputs=x)
+        return Model(
+            inputs=[input_ids, attention_mask, token_type_ids],
+            outputs=output
+        )

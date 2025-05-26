@@ -4,10 +4,9 @@ data:
   impostors_data_source: "dataset_impostors.json"
   all_impostors_data_source: "dataset_all_impostors.json"
   classify_text_data_source: "text_to_classify.json"
-  trained_models_path: "saved_trained_models/"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
-  fine_tuned_bert_model_path: "saved_trained_models/bert/bert-shakespeare-mlm"
+  fine_tuned_bert_model_path: "saved_trained_models/berts/"
 
 training:
   optimizer:
@@ -17,11 +16,12 @@ training:
   training_batch_size: 8
   epochs: 10
   early_stopping_patience: 2
-  impostor_chunk_ratio: 2
+  impostor_chunk_ratio: 4
   test_split: 0.25
 
 model:
-  chunk_to_batch_ratio: 4
+  chunk_to_batch_ratio: 8
+  chunk_size: 50
   cnn:
     filters: 128 # 128 or 256
     padding: "valid"
@@ -41,8 +41,7 @@ isolation_forest:
 bert:
   model: "bert-base-uncased"
   repository: "ElyMK1/bert-shakespeare-english-mlm"
-  chunk_size: 128
-  trainable: True
+  chunk_size: 512
   mlm_probability: 0.15
   train_batch_size: 16
   num_epochs: 5
