@@ -79,7 +79,7 @@ class Procedure:
         print("----------------------")
         self.logger.info("Starting training stage...")
 
-        trainer = Trainer(self.config, self.logger, model_creator, self.training_batch_size)
+        trainer = Trainer(self.config, self.logger, model_creator, bert_model1, bert_model2, self.training_batch_size)
 
         x_train, y_train, x_test, y_test = self.general_preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
         history = trainer.train(x_train, y_train, x_test, y_test)
