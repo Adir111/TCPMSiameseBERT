@@ -7,6 +7,7 @@ data:
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
   fine_tuned_bert_model_path: "saved_trained_models/berts/"
+  pairs: "pairs.json"
 
 training:
   optimizer:

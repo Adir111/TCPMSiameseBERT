@@ -11,7 +11,7 @@ from .data_loader import DataLoader
 from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities import make_pairs, DataVisualizer
+from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration
 from PhaseB.bert_siamese_authorship_verification.utilities.bert_fine_tuner import BertFineTuner
 
 # from src.dtw import compute_dtw_distance
@@ -33,6 +33,13 @@ class Procedure:
         self.data_loader = DataLoader(config=config)
         self.trained_networks = []
         self.model_creator = None
+
+    def __get_pairs_info(self, impostors_names):
+        impostor_pairs_data = self.data_loader.get_pairs(impostors_names)
+        impostor_pairs = impostor_pairs_data["pairs"]
+        last_iteration = impostor_pairs_data["last_iteration"]
+
+        return impostor_pairs, last_iteration
 
     def __preprocessing_stage(self, impostor_1: tuple, impostor_2: tuple):
         print("----------------------")
@@ -129,13 +136,16 @@ class Procedure:
 
             self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
-    def run(self, starting_iteration=0):
+    def run(self):
         impostors_names = self.data_loader.get_impostors_name_list()
-        impostor_pairs = make_pairs(impostors_names)
+        impostor_pairs, starting_iteration = self.__get_pairs_info(impostors_names)
+
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
         # ========= Training Phase =========
         for idx in range(starting_iteration, len(impostor_pairs)):
+            increment_last_iteration(self.config)
+
             impostor_pair = impostor_pairs[idx]
             impostor_1 = impostor_pair[0]
             impostor_2 = impostor_pair[1]
@@ -180,6 +190,8 @@ class Procedure:
             self.logger.info(f"Model {idx + 1} training complete.")
             self.data_visualizer.display_accuracy_plot(history, model_name)
             self.data_visualizer.display_loss_plot(history, model_name)
+
+            increment_last_iteration(self.config)
 
         self.logger.info("Finished training models successfully!")
 

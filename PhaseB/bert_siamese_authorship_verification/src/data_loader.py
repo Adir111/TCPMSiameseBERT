@@ -1,6 +1,7 @@
-import json
 from pathlib import Path
 import re
+
+from PhaseB.bert_siamese_authorship_verification.utilities import load_json_data
 
 
 def _clean_text(text):
@@ -19,24 +20,18 @@ def _clean_text(text):
 class DataLoader:
     def __init__(self, config):
         self._config = config
-        self.data_path = (Path(__file__).parent.parent / self._config['data']['organised_data_folder_path']).resolve()
-        self.shakespeare_dataset_name = self._config['data']['shakespeare_data_source']
-        self.impostor_dataset_name = self._config['data']['impostors_data_source']
-        self.text_to_classify_name = self._config['data']['classify_text_data_source']
-
-    def __load_json_data(self, file_name):
-        """
-        Utility method to load data from a JSON file.
-        """
-        path = self.data_path / file_name
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
+        self.data_path = (Path(__file__).parent.parent / config['data']['organised_data_folder_path']).resolve()
+        self.shakespeare_dataset_name = config['data']['shakespeare_data_source']
+        self.impostor_dataset_name = config['data']['impostors_data_source']
+        self.text_to_classify_name = config['data']['classify_text_data_source']
+        self.all_impostors_dataset_name = config['data']['all_impostors_data_source']
+        self.pairs = config['data']['pairs']
 
     def get_shakespeare_data(self):
         """
         Load and return the Shakespeare dataset from JSON.
         """
-        data = self.__load_json_data(self.shakespeare_dataset_name)
+        data = load_json_data(self.data_path, self.shakespeare_dataset_name)
         return [{
             "text_name": item["text_name"],
             "text": _clean_text(item["text"])
@@ -46,7 +41,7 @@ class DataLoader:
         """
         Load and return the texts of a specific impostor by name.
         """
-        impostors = self.__load_json_data(self.impostor_dataset_name)
+        impostors = load_json_data(self.data_path, self.impostor_dataset_name)
         for impostor in impostors:
             if impostor["author"] == name:
                 return [_clean_text(text) for text in impostor["texts"]]
@@ -56,14 +51,14 @@ class DataLoader:
         """
         Return a list of all impostor names.
         """
-        impostors = self.__load_json_data(self.impostor_dataset_name)
+        impostors = load_json_data(self.data_path, self.impostor_dataset_name)
         return [impostor['author'] for impostor in impostors]
 
     def get_all_impostors_data(self):
         """
         Load and return all impostor data from JSON.
         """
-        impostors = self.__load_json_data(self._config['data']['all_impostors_data_source'])
+        impostors = load_json_data(self.data_path, self.all_impostors_dataset_name)
         all_impostors = []
 
         for impostor in impostors:
@@ -80,5 +75,14 @@ class DataLoader:
         """
         Load and return the text to classify from JSON.
         """
-        data = self.__load_json_data(self.text_to_classify_name)
+        data = load_json_data(self.data_path, self.text_to_classify_name)
         return _clean_text(data.get('text', ''))
+
+    def get_pairs(self, impostor_names):
+        """
+        Load and return pairs of impostor names.
+        - If the pairs file exists, load and return it.
+        - Otherwise, generate the pairs, save with last_iteration=0, and return the object.
+        """
+        data = load_json_data(self.data_path, self.pairs)
+        return data
