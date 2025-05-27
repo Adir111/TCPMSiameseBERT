@@ -14,6 +14,18 @@ logger = get_logger(config)
 TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
+def __handle_selection(func):
+    """
+    Confirm selection before running the provided function.
+    If the user types 'yes', the function is executed.
+    """
+    confirm = input(f"Are you sure you want to run '{func.__name__}'? (yes/no): ").strip().lower()
+    if confirm == "yes" or confirm == "y":
+        return func()
+    else:
+        print(f"Cancelled '{func.__name__}'.")
+        return None
+
 
 def __create_dataset():
     """ Converts raw text files into a structured dataset in JSON format. """
@@ -88,11 +100,11 @@ def main():
         option = input("Select an option (1/2/3/4): ").strip()
 
         if option == "1":
-            __create_dataset()
+            __handle_selection(__create_dataset)
         elif option == "2":
-            __fine_tune_berts()
+            __handle_selection(__fine_tune_berts)
         elif option == "3":
-            __run_procedure()
+            __handle_selection(__run_procedure)
             break
         elif option == "4":
             logger.log("👋 Exiting. Have a great day!")
