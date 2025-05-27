@@ -12,7 +12,6 @@ class SiameseBertModel:
         self.logger = logger
         self.model_name = model_name
 
-        self.bilstm_layers = self.config['model']['bilstm']['number_of_layers']
         self.bilstm_units = self.config['model']['bilstm']['units']
         self.bilstm_dropout = self.config['model']['bilstm']['dropout']
 
