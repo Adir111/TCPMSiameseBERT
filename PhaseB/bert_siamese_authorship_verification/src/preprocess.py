@@ -12,7 +12,7 @@ nltk.download('stopwords')
 class Preprocessor:
     def __init__(self, config, tokenizer=None):
         self.config = config
-        self.max_length = config['bert']['chunk_size']
+        self.max_length = config['bert']['max_sequence_length']
         self.test_split = config['training']['test_split']
         if tokenizer is None:
             self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
