@@ -84,6 +84,8 @@ class Procedure:
 
             tokenizer = BertTokenizer.from_pretrained(download_path)
             model = TFBertModel.from_pretrained(download_path)
+            model.trainable = False  # Freeze the BERT's weights!!! Super important.
+
             return tokenizer, model
         except Exception as e:
             self.logger.log(f"Failed to load model: {hf_model_id}. Error: {e}")

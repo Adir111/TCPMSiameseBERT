@@ -43,7 +43,7 @@ isolation_forest:
 bert:
   model: "bert-base-uncased"
   repository: "ElyMK1/bert-shakespeare-english-mlm"
-  chunk_size: 512
+  chunk_size: 128
   mlm_probability: 0.15
   train_batch_size: 16
   num_epochs: 5
