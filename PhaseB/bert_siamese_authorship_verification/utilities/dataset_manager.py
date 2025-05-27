@@ -56,21 +56,24 @@ def handle_impostor_texts(impostor_dir, impostor_size=None):
 def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
     classify_text = {}
     shakespeare_collection = []
+    classify_text_file_name = "text to classify.txt"
 
     # Process the 'text to classify.txt'
-    classify_file_path = shakespeare_dir / 'text to classify.txt'
+    classify_file_path = shakespeare_dir / classify_text_file_name
+    print(classify_file_path)
     if not classify_file_path.exists():
-        raise FileNotFoundError(f"Error: 'text to classify.txt' is missing in the directory {shakespeare_dir}")
+        error_msg = f"Error: {classify_text_file_name} is missing in the directory {shakespeare_dir}"
+        raise FileNotFoundError(error_msg)
 
     with classify_file_path.open("r", encoding="utf-8", errors="ignore") as f:
-        classify_text["text_name"] = 'text to classify.txt'
+        classify_text["text_name"] = classify_text_file_name
         classify_text["text"] = f.read()
 
     # Process Shakespeare texts
     for filename in shakespeare_dir.iterdir():
         if shakespeare_collection_size is not None and len(shakespeare_collection) == shakespeare_collection_size:
             break
-        if filename.name == 'text to classify.txt':
+        if filename.name == classify_text_file_name:
             continue
 
         with filename.open("r", encoding="utf-8", errors="ignore") as f:
