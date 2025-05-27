@@ -1,4 +1,5 @@
 import matplotlib
+import wandb
 matplotlib.use("Agg")  # Use non-interactive backend for matplotlib - so it works on Colab
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -20,7 +21,7 @@ class DataVisualizer:
 
     def _finalize_plot(self, label):
         if self._is_wandb:
-            self.logger.log({label: self.logger.wandb.Image(plt.gcf())})
+            self.logger.log({label: wandb.Image(plt.gcf())})
         plt.show()
 
     def plot_metric(

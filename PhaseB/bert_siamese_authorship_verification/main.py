@@ -84,8 +84,8 @@ def __run_procedure():
 
         logger.log("✅ Procedure completed!")
         logger.log({"status": "completed"})
-    except FileNotFoundError:
-        logger.log("❌ ERROR - no dataset found, please create one first!")
+    except Exception as e:
+        logger.log(f"❌ ERROR - {e}")
 
 
 def main():
@@ -93,20 +93,21 @@ def main():
     while True:
         logger.log("\n📜 Menu:")
         logger.log("1 - Create Dataset")
-        logger.log("2 - Fine Tune All BERTs")
-        logger.log("3 - Run Model Procedure")
-        logger.log("4 - Exit")
+        logger.log("2 - Run Model Procedure")
+        logger.log("999 - Fine Tune All BERTs")
+        logger.log("3 - Exit")
 
-        option = input("Select an option (1/2/3/4): ").strip()
+        option = input("Select an option (1/2/3/999): ").strip()
 
         if option == "1":
             __handle_selection(__create_dataset)
         elif option == "2":
-            __handle_selection(__fine_tune_berts)
-        elif option == "3":
             __handle_selection(__run_procedure)
             break
-        elif option == "4":
+        elif option == "999":
+            __handle_selection(__fine_tune_berts)
+            break
+        elif option == "3":
             logger.log("👋 Exiting. Have a great day!")
             break
         else:

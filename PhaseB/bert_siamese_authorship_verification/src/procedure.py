@@ -2,17 +2,14 @@ import numpy as np
 import tensorflow as tf
 import gc
 from transformers import TFBertModel, BertTokenizer
-from sklearn.decomposition import PCA
-from sklearn.manifold import TSNE
-import os
+from huggingface_hub import snapshot_download
 from pathlib import Path
 
 from .data_loader import DataLoader
 from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration
-from PhaseB.bert_siamese_authorship_verification.utilities.bert_fine_tuner import BertFineTuner
+from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, artifact_file_exists
 
 # from src.dtw import compute_dtw_distance
 # from src.isolation_forest import AnomalyDetector
@@ -67,26 +64,38 @@ class Procedure:
         return impostor_1_chunks, impostor_2_chunks
 
     def __load_tokenizer_and_model(self, impostor_name):
-        hf_model_id = f"{self.config['bert']['repository']}/{impostor_name}"
+        model_path = Path(self.config['data']['fine_tuned_bert_model_path'])
+        repo_id = self.config['bert']['repository']
+        hf_model_id = f"{repo_id}/{impostor_name}"
 
-        # Try loading from Hugging Face Hub
+        # Try Downloading from Hugging Face Hub
         try:
-            self.logger.log(f"Loading model from Hugging Face Hub: {hf_model_id}")
-            tokenizer = BertTokenizer.from_pretrained(hf_model_id)
-            model = TFBertModel.from_pretrained(hf_model_id)
+            self.logger.log(f"Downloading model from Hugging Face Hub: {hf_model_id}")
+            # Download only the subfolder
+            snapshot_path = snapshot_download(
+                repo_id,
+                allow_patterns=[f"{impostor_name}/*"],
+                local_dir=model_path,
+                local_dir_use_symlinks=False
+            )
+            self.logger.log(f"Model downloaded successfully: {hf_model_id}")
+
+            download_path = Path(snapshot_path) / impostor_name
+
+            tokenizer = BertTokenizer.from_pretrained(download_path)
+            model = TFBertModel.from_pretrained(download_path)
             return tokenizer, model
         except Exception as e:
-            self.logger.log(f"Model not found on Hugging Face Hub: {hf_model_id}")
-            self.logger.log("Proceeding to fine-tune a new model from scratch...")
-            raise FileNotFoundError(
-                f"Model {hf_model_id} not found on Hugging Face Hub. "
+            self.logger.log(f"Failed to load model: {hf_model_id}. Error: {e}")
+            raise RuntimeError(
+                f"Failed to load BERT model: {hf_model_id}. Error: {e}"
             )
 
-    def __training_stage(self, model_creator, bert_model1, bert_model2, impostor_1_preprocessed, impostor_2_preprocessed):
+    def __training_stage(self, model_creator, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
         self.logger.info("Starting training stage...")
 
-        trainer = Trainer(self.config, self.logger, model_creator, bert_model1, bert_model2, self.training_batch_size)
+        trainer = Trainer(self.config, self.logger, model_creator, self.training_batch_size)
 
         x_train, y_train, x_test, y_test = self.general_preprocessor.create_xy(impostor_1_preprocessed, impostor_2_preprocessed)
         history = trainer.train(x_train, y_train, x_test, y_test)
@@ -144,50 +153,57 @@ class Procedure:
 
         # ========= Training Phase =========
         for idx in range(starting_iteration, len(impostor_pairs)):
-            increment_last_iteration(self.config)
-
+            skip_training = False
             impostor_pair = impostor_pairs[idx]
             impostor_1 = impostor_pair[0]
             impostor_2 = impostor_pair[1]
             model_name = f"{impostor_1}_{impostor_2}"
-            weights_path = f"./weights-{model_name}.h5"
 
             tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
             tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
             preprocessor1 = Preprocessor(config=self.config, tokenizer=tokenizer1)
             preprocessor2 = Preprocessor(config=self.config, tokenizer=tokenizer2)
 
-            model_creator = SiameseBertModel(config=self.config, logger=self.logger, model_name=model_name)
-            if os.path.exists(weights_path):
-                try:
-                    model_creator.build_siamese_model(bert_model1, bert_model2).load_weights(weights_path)
-                    self.logger.info(
-                        f"[✓] Loaded existing weights for '{model_name}' from {weights_path}. "
-                        f"Skipping training."
-                    )
-                    self.trained_networks.append(model_creator)
-                    continue
-                except (IOError, tf.errors.OpError) as e:
-                    self.logger.warning(
-                        f"[!] Found weights file for '{model_name}' but could not load it "
-                        f"(error: {e}). Falling back to training from scratch."
-                    )
+            branch_1_weights_exist = artifact_file_exists(
+                project_name=self.config['wandb']['project'],
+                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
+                file_path="branch_weights.h5"
+            )
+            branch_2_weights_exist = artifact_file_exists(
+                project_name=self.config['wandb']['project'],
+                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_2.replace(' ', '_').replace('/', '_')}:latest",
+                file_path="branch_weights.h5"
+            )
+
+            if branch_1_weights_exist and branch_2_weights_exist:
+                skip_training = True
+
+            model_creator = SiameseBertModel(config=self.config, logger=self.logger, impostor_1_name=impostor_1, impostor_2_name=impostor_2, use_pretrained_weights=skip_training)
+            model_creator.build_siamese_model(bert_model1, bert_model2)
+
+            if skip_training:
+                self.logger.info(
+                    f"[✓] Loaded existing weights for '{model_name}'. "
+                    f"Skipping training."
+                )
+                self.trained_networks.append(model_creator)
+                continue
 
             self.logger.info(
-                f"Training model number {idx + 1} for impostor pair: {impostor_1} and {impostor_2}")
+                f"Training model index {idx} for impostor pair: {impostor_1} and {impostor_2}")
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage((impostor_1, preprocessor1),
                                                                                           (impostor_2, preprocessor2))
             del preprocessor1, preprocessor2
             gc.collect()
 
-            history = self.__training_stage(model_creator, bert_model1, bert_model2, impostor_1_preprocessed, impostor_2_preprocessed)
+            history = self.__training_stage(model_creator, impostor_1_preprocessed, impostor_2_preprocessed)
 
             del impostor_1_preprocessed, impostor_2_preprocessed
             gc.collect()
 
             self.trained_networks.append(model_creator)
 
-            self.logger.info(f"Model {idx + 1} training complete.")
+            self.logger.info(f"Model index {idx} training complete.")
             self.data_visualizer.display_accuracy_plot(history, model_name)
             self.data_visualizer.display_loss_plot(history, model_name)
 
