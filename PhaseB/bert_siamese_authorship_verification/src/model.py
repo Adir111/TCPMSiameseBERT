@@ -201,8 +201,6 @@ class SiameseBertModel:
         )
 
     def __load_weights(self):
-        # Todo: check if we even need to save branch weights separately
-        # self.__load_branch_weights_from_artifact()
         base_artifact_name = self.config["wandb"]["artifact_name"]
         artifact_path = f"{base_artifact_name}-{self.sanitize_artifact_name(self.model_name)}:latest"
 
@@ -213,7 +211,6 @@ class SiameseBertModel:
         self.logger.log(f"Loaded weights from artifact: {artifact_path}")
 
     def save_weights(self):
-        # self.__save_branch_weights_as_artifact()
         base_output_dir = self.config['data']['trained_siamese_path']
         base_artifact_name = self.config['wandb']['artifact_name']
 
@@ -229,45 +226,3 @@ class SiameseBertModel:
         self.__upload_weights_to_artifact(model_path, artifact_path)
 
         self.logger.log(f"Saved and logged artifacts: {artifact_path}")
-
-    def __load_branch_weights_from_artifact(self):
-        if self._branch_1 is None or self._branch_2 is None:
-            raise RuntimeError("Must call build_siamese_model() first before loading weights.")
-
-        base_artifact_name = self.config["wandb"]["artifact_name"]
-        artifact_path_1 = f"{base_artifact_name}-{self.sanitize_artifact_name(self._impostor_1_name)}:latest"
-        artifact_path_2 = f"{base_artifact_name}-{self.sanitize_artifact_name(self._impostor_2_name)}:latest"
-
-        branch_1_path = self.__get_weight_path(artifact_path_1)
-        branch_2_path = self.__get_weight_path(artifact_path_2)
-
-        self._branch_1.load_weights(branch_1_path)
-        self._branch_2.load_weights(branch_2_path)
-
-        self.logger.log(f"Loaded weights from artifact: {artifact_path_1} and {artifact_path_2}")
-
-    def __save_branch_weights_as_artifact(self):
-        if self._branch_1 is None or self._branch_2 is None:
-            raise RuntimeError("Must call build_siamese_model() first before loading weights.")
-
-        base_output_dir = self.config['data']['trained_siamese_path']
-        base_artifact_name = self.config['wandb']['artifact_name']
-
-        output_dir_1 = f"{base_output_dir}/{self._impostor_1_name}"
-        output_dir_2 = f"{base_output_dir}/{self._impostor_2_name}"
-        os.makedirs(output_dir_1, exist_ok=True)
-        os.makedirs(output_dir_2, exist_ok=True)
-
-        branch_1_path = os.path.join(output_dir_1, "branch_weights.h5")
-        branch_2_path = os.path.join(output_dir_2, "branch_weights.h5")
-
-        self._branch_1.save_weights(branch_1_path)
-        self._branch_2.save_weights(branch_2_path)
-
-        artifact_1_path = f"{base_artifact_name}-{self.sanitize_artifact_name(self._impostor_1_name)}"
-        artifact_2_path = f"{base_artifact_name}-{self.sanitize_artifact_name(self._impostor_2_name)}"
-
-        self.__upload_weights_to_artifact(branch_1_path, artifact_1_path)
-        self.__upload_weights_to_artifact(branch_1_path, artifact_2_path)
-
-        self.logger.log(f"Saved and logged artifacts: {artifact_1_path} and {artifact_2_path} ")
