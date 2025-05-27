@@ -36,6 +36,6 @@ class Trainer:
             ]
         )
 
-        self.model_creator.save_branch_weights_as_artifact()
+        self.model_creator.save_weights()
 
         return history

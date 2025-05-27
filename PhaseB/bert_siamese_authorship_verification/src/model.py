@@ -27,11 +27,12 @@ class SiameseBertModel:
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
 
-        self.max_len = self.config['bert']['max_sequence_length']
+        self.chunk_size = self.config['model']['chunk_size']
 
         self.model = None  # Will be set in build_model()
         self._branch_1 = None
         self._branch_2 = None
+        self._similarity_head = None
 
     @staticmethod
     def get_model_summary_string(model):
@@ -74,9 +75,9 @@ class SiameseBertModel:
         # ------------------------------------------------------------------ #
         # 1.  Inputs (int32) ------------------------------------------------ #
         # ------------------------------------------------------------------ #
-        input_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
-        attention_mask = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
-        token_type_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="token_type_ids")
+        input_ids = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids")
+        attention_mask = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask")
+        token_type_ids = Input(shape=(self.chunk_size,), dtype=tf.int32, name="token_type_ids")
 
         # ------------------------------------------------------------------ #
         # 2.  Contextual token embeddings from fine-tuned BERT -------------- #
@@ -145,22 +146,23 @@ class SiameseBertModel:
         """
         self.logger.log(f"Started building model {self.model_name}...")
 
-        input_ids_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids_1")
-        attention_mask_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask_1")
-        token_type_ids_1 = Input(shape=(self.max_len,), dtype=tf.int32, name="token_type_ids_1")
+        input_ids_1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids_1")
+        attention_mask_1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask_1")
+        token_type_ids_1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="token_type_ids_1")
 
-        input_ids_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids_2")
-        attention_mask_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask_2")
-        token_type_ids_2 = Input(shape=(self.max_len,), dtype=tf.int32, name="token_type_ids_2")
+        input_ids_2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids_2")
+        attention_mask_2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask_2")
+        token_type_ids_2 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="token_type_ids_2")
 
         self._branch_1 = self._build_siamese_branch(bert_model_1)
         self._branch_2 = self._build_siamese_branch(bert_model_2)
+        self._similarity_head = Dense(1, activation="sigmoid", name="similarity")
 
         out1 = self._branch_1([input_ids_1, attention_mask_1, token_type_ids_1])
         out2 = self._branch_2([input_ids_2, attention_mask_2, token_type_ids_2])
 
         distance = self.euclidean_distance(out1, out2)
-        output = Dense(1, activation="sigmoid", name="similarity")(distance)
+        output = self._similarity_head(distance)
 
         self.model = Model(
             inputs=[
@@ -181,22 +183,52 @@ class SiameseBertModel:
 
         if self.use_pretrained_weights:
             self.logger.log("Loading pre-trained branch weights from artifacts...")
-            self.__load_branch_weights_from_artifact()
+            self.__load_weights()
 
-        input_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="input_ids")
-        attention_mask = Input(shape=(self.max_len,), dtype=tf.int32, name="attention_mask")
-        token_type_ids = Input(shape=(self.max_len,), dtype=tf.int32, name="token_type_ids")
+        input_ids = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids")
+        attention_mask = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask")
+        token_type_ids = Input(shape=(self.chunk_size,), dtype=tf.int32, name="token_type_ids")
 
         out1 = self._branch_1([input_ids, attention_mask, token_type_ids])
         out2 = self._branch_2([input_ids, attention_mask, token_type_ids])
 
         distance = self.euclidean_distance(out1, out2)
-        output = Dense(1, activation="sigmoid", name="similarity")(distance)
+        output = self._similarity_head(distance)
 
         return Model(
             inputs=[input_ids, attention_mask, token_type_ids],
             outputs=output
         )
+
+    def __load_weights(self):
+        # Todo: check if we even need to save branch weights separately
+        # self.__load_branch_weights_from_artifact()
+        base_artifact_name = self.config["wandb"]["artifact_name"]
+        artifact_path = f"{base_artifact_name}-{self.sanitize_artifact_name(self.model_name)}:latest"
+
+        model_path = self.__get_weight_path(artifact_path)
+
+        self.model.load_weights(model_path)
+
+        self.logger.log(f"Loaded weights from artifact: {artifact_path}")
+
+    def save_weights(self):
+        # self.__save_branch_weights_as_artifact()
+        base_output_dir = self.config['data']['trained_siamese_path']
+        base_artifact_name = self.config['wandb']['artifact_name']
+
+        output_dir = f"{base_output_dir}/{self.model_name}"
+        os.makedirs(output_dir, exist_ok=True)
+
+        model_path = os.path.join(output_dir, "model_weights.h5")
+
+        self.model.save_weights(model_path)
+
+        artifact_path = f"{base_artifact_name}-{self.sanitize_artifact_name(self.model_name)}"
+
+        self.__upload_weights_to_artifact(model_path, artifact_path)
+
+        self.logger.log(f"Saved and logged artifacts: {artifact_path}")
 
     def __load_branch_weights_from_artifact(self):
         if self._branch_1 is None or self._branch_2 is None:
@@ -214,11 +246,11 @@ class SiameseBertModel:
 
         self.logger.log(f"Loaded weights from artifact: {artifact_path_1} and {artifact_path_2}")
 
-    def save_branch_weights_as_artifact(self):
+    def __save_branch_weights_as_artifact(self):
         if self._branch_1 is None or self._branch_2 is None:
             raise RuntimeError("Must call build_siamese_model() first before loading weights.")
 
-        base_output_dir = self.config['data']['trained_branches_path']
+        base_output_dir = self.config['data']['trained_siamese_path']
         base_artifact_name = self.config['wandb']['artifact_name']
 
         output_dir_1 = f"{base_output_dir}/{self._impostor_1_name}"
