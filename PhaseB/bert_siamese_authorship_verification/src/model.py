@@ -24,7 +24,7 @@ class SiameseBertModel:
         self.in_features = self.config['model']['fc']['in_features']
         self.out_features = self.config['model']['fc']['out_features']
 
-        self.max_len = self.config['bert']['chunk_size']
+        self.max_len = self.config['bert']['max_sequence_length']
 
         self.model = None  # Will be set in build_model()
         self._branch_1 = None

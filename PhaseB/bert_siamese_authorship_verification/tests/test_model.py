@@ -11,7 +11,7 @@ def test_model_forward_shapes():
     config = get_config()
     model = BertSiameseNetwork()
     batch_size = 2
-    seq_len = config['bert']['chunk_size']
+    seq_len = config['bert']['max_sequence_length']
 
     input_ids = torch.randint(0, 30522, (batch_size, seq_len))
     attention_mask = torch.ones((batch_size, seq_len))
@@ -24,7 +24,7 @@ def test_model_forward_shapes():
 def test_forward_single_embedding_shape():
     config = get_config()
     model = BertSiameseNetwork()
-    seq_len = config['bert']['chunk_size']
+    seq_len = config['bert']['max_sequence_length']
     input_ids = torch.randint(0, 30522, (1, seq_len))
     attention_mask = torch.ones((1, seq_len))
 
@@ -51,8 +51,8 @@ def test_model_parameter_count():
 def test_consistency_between_calls():
     config = get_config()
     model = BertSiameseNetwork()
-    input_ids = torch.randint(0, 30522, (1, config['bert']['chunk_size']))
-    attention_mask = torch.ones((1, config['bert']['chunk_size']))
+    input_ids = torch.randint(0, 30522, (1, config['bert']['max_sequence_length']))
+    attention_mask = torch.ones((1, config['bert']['max_sequence_length']))
 
     output1 = model.forward_single(input_ids, attention_mask)
     output2 = model.forward_single(input_ids, attention_mask)

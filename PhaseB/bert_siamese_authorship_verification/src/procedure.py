@@ -27,7 +27,7 @@ class Procedure:
         self.logger = logger
         self.general_preprocessor = Preprocessor(config=config)  # Uses non-fine-tuned BERT tokenizer, just for utilities...
         self.data_visualizer = DataVisualizer(logger)
-        self.chunk_size = config['bert']['chunk_size']
+        self.chunk_size = config['bert']['max_sequence_length']
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.training_batch_size = config['training']['training_batch_size']
         self.data_loader = DataLoader(config=config)
