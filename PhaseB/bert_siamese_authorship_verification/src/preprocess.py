@@ -12,7 +12,7 @@ nltk.download('stopwords')
 class Preprocessor:
     def __init__(self, config, tokenizer=None):
         self.config = config
-        self.max_length = config['bert']['max_sequence_length']
+        self.chunk_size = config['model']['chunk_size']
         self.test_split = config['training']['test_split']
         if tokenizer is None:
             self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
@@ -33,7 +33,7 @@ class Preprocessor:
             text,
             padding='max_length',
             truncation=True,
-            max_length=self.max_length,
+            max_length=self.chunk_size,
             return_tensors='tf'
         )
         return encoded_input
@@ -64,13 +64,13 @@ class Preprocessor:
             # Tokenize the text first
             tokens = self.tokenizer.tokenize(text)
 
-            if len(tokens) > self.max_length:
+            if len(tokens) > self.chunk_size:
                 # Split text into chunks of chunk_size words
-                num_chunks = len(tokens) // self.max_length
-                if len(tokens) % self.max_length != 0:
+                num_chunks = len(tokens) // self.chunk_size
+                if len(tokens) % self.chunk_size != 0:
                     num_chunks += 1
 
-                chunks = [tokens[i * self.max_length: (i + 1) * self.max_length] for i in range(num_chunks)]
+                chunks = [tokens[i * self.chunk_size: (i + 1) * self.chunk_size] for i in range(num_chunks)]
                 for chunk in chunks:
                     chunk_text = self.tokenizer.convert_tokens_to_string(chunk)
                     tokens_count += self.__handle_chunk(chunk_text, preprocessed_collection)
