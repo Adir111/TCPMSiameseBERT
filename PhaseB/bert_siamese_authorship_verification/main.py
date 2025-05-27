@@ -66,15 +66,9 @@ def __fine_tune_berts():
 def __run_procedure():
     """ Triggers the training script. """
     try:
-        starting_iteration = None
-        while starting_iteration is None or starting_iteration < 0:
-            try:
-                starting_iteration = int(input("Enter the starting iteration (0 for new model): ").strip())
-            except ValueError:
-                logger.log("❌ Invalid input. Please enter a valid integer.")
         logger.log("🚀 Starting Full Procedure...")
         procedure = Procedure(config, logger)
-        procedure.run(starting_iteration)
+        procedure.run()
 
         logger.log("✅ Procedure completed!")
         logger.log({"status": "completed"})

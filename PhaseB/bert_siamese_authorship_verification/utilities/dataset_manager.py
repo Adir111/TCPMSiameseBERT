@@ -1,6 +1,8 @@
 import json
 from pathlib import Path
 
+from .make_pairs import make_pairs
+
 
 def save_to_json(data, output_path, data_name):
     """
@@ -81,6 +83,16 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
     print(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
     return shakespeare_collection, classify_text
 
+def __generate_and_save_pairs(config, impostor_dataset):
+    data_sources_folder = Path(config['data']['organised_data_folder_path'])
+    pairs_output_path = data_sources_folder / config['data']['pairs']
+    impostor_names = [author["author"] for author in impostor_dataset]
+    pairs_data = {
+        "last_iteration": 0,
+        "pairs": make_pairs(impostor_names)
+    }
+    save_to_json(pairs_data, pairs_output_path, "Impostor pairs")
+
 
 def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
@@ -106,6 +118,7 @@ def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_col
     save_to_json(impostor_dataset, impostor_output_path, "Impostor dataset")
     save_to_json(shakespeare_collection, shakespeare_collection_output_path, "Shakespeare collection")
     save_to_json(classify_text, classify_text_output_path, "Text to classify data")
+    __generate_and_save_pairs(config, impostor_dataset)
 
 
 def convert_all_impostor_texts_to_json(config, impostor_dir):
