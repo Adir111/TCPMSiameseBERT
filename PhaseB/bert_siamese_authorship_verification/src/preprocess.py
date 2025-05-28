@@ -106,7 +106,7 @@ class Preprocessor:
 
         return chunks_list
 
-    def create_xy(self, impostor_1_chunks, impostor_2_chunks, num_pairs=None):
+    def create_xy(self, impostor_1_chunks, impostor_2_chunks, pair_fraction=0.5):
         if len(impostor_1_chunks) != len(impostor_2_chunks):
             raise ValueError("Chunk lists must be equal length for pairing.")
 
@@ -133,6 +133,10 @@ class Preprocessor:
             indices = list(range(n))
             random.shuffle(indices)
             pairs = make_pairs(indices)
+
+            num_pairs_to_take = int(len(pairs) * pair_fraction)
+            pairs = pairs[:num_pairs_to_take]
+
             for pair in pairs:
                 c1, c2 = chunks[pair[0]], chunks[pair[1]]
                 append_pair(c1, c2, label=1)
@@ -151,6 +155,10 @@ class Preprocessor:
             indices = list(range(n))
             random.shuffle(indices)
             pairs = make_pairs(indices)
+
+            num_pairs_to_take = int(len(pairs) * pair_fraction)
+            pairs = pairs[:num_pairs_to_take]
+
             for pair in pairs:
                 c1, c2 = chunks_a[pair[0]], chunks_b[pair[1]]
                 append_pair(c1, c2, label=0)
