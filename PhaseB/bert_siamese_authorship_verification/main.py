@@ -90,28 +90,29 @@ def __run_procedure():
 
 def main():
     """ Displays the menu and executes the selected action. """
-    while True:
-        logger.log("\n📜 Menu:")
-        logger.log("1 - Create Dataset")
-        logger.log("2 - Run Model Procedure")
-        logger.log("999 - Fine Tune All BERTs")
-        logger.log("3 - Exit")
-
-        option = input("Select an option (1/2/3/999): ").strip()
-
-        if option == "1":
-            __handle_selection(__create_dataset)
-        elif option == "2":
-            __handle_selection(__run_procedure)
-            break
-        elif option == "999":
-            __handle_selection(__fine_tune_berts)
-            break
-        elif option == "3":
-            logger.log("👋 Exiting. Have a great day!")
-            break
-        else:
-            logger.log("❌ Invalid option. Please try again.")
+    __run_procedure()
+    # while True:
+    #     logger.log("\n📜 Menu:")
+    #     logger.log("1 - Create Dataset")
+    #     logger.log("2 - Run Model Procedure")
+    #     logger.log("999 - Fine Tune All BERTs")
+    #     logger.log("3 - Exit")
+    #
+    #     option = input("Select an option (1/2/3/999): ").strip()
+    #
+    #     if option == "1":
+    #         __handle_selection(__create_dataset)
+    #     elif option == "2":
+    #         __handle_selection(__run_procedure)
+    #         break
+    #     elif option == "999":
+    #         __handle_selection(__fine_tune_berts)
+    #         break
+    #     elif option == "3":
+    #         logger.log("👋 Exiting. Have a great day!")
+    #         break
+    #     else:
+    #         logger.log("❌ Invalid option. Please try again.")
 
 
 if __name__ == "__main__":
