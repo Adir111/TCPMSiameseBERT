@@ -106,7 +106,7 @@ class Preprocessor:
 
         return chunks_list
 
-    def create_xy(self, impostor_1_chunks, impostor_2_chunks, pair_fraction=0.5):
+    def create_xy(self, impostor_1_chunks, impostor_2_chunks, pair_fraction=0.1):
         if len(impostor_1_chunks) != len(impostor_2_chunks):
             raise ValueError("Chunk lists must be equal length for pairing.")
 
