@@ -8,6 +8,8 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 nltk.download('stopwords')
 
+from PhaseB.bert_siamese_authorship_verification.utilities import make_pairs
+
 
 class Preprocessor:
     def __init__(self, config, tokenizer=None):
@@ -130,24 +132,40 @@ class Preprocessor:
                 return
             indices = list(range(n))
             random.shuffle(indices)
-            limit = min(num_pairs or n // 2, n - 1)
-            for i in range(limit):
-                c1 = chunks[indices[i]]
-                c2 = chunks[indices[i + 1]]
+            pairs = make_pairs(indices)
+            for pair in pairs:
+                c1, c2 = chunks[pair[0]], chunks[pair[1]]
                 append_pair(c1, c2, label=1)
 
-        def generate_negative_pairs(chunks_a, chunks_b, count):
-            for _ in range(count):
-                c1 = random.choice(chunks_a)
-                c2 = random.choice(chunks_b)
+            # limit = min(num_pairs or n // 2, n - 1)
+            # for i in range(limit):
+            #     c1 = chunks[indices[i]]
+            #     c2 = chunks[indices[i + 1]]
+            #     append_pair(c1, c2, label=1)
+
+        # def generate_negative_pairs(chunks_a, chunks_b, count):
+        def generate_negative_pairs(chunks_a, chunks_b):
+            n = len(chunks_a)
+            if n < 2:
+                return
+            indices = list(range(n))
+            random.shuffle(indices)
+            pairs = make_pairs(indices)
+            for pair in pairs:
+                c1, c2 = chunks_a[pair[0]], chunks_b[pair[1]]
                 append_pair(c1, c2, label=0)
+            # for _ in range(count):
+            #     c1 = random.choice(chunks_a)
+            #     c2 = random.choice(chunks_b)
+            #     append_pair(c1, c2, label=0)
 
         # Balanced generation
         generate_positive_pairs(impostor_1_chunks)
         generate_positive_pairs(impostor_2_chunks)
 
-        total_positives = len(labels)
-        generate_negative_pairs(impostor_1_chunks, impostor_2_chunks, total_positives)
+        # total_positives = len(labels)
+        # generate_negative_pairs(impostor_1_chunks, impostor_2_chunks, total_positives)
+        generate_negative_pairs(impostor_1_chunks, impostor_2_chunks)
 
         # Convert to arrays
         x_dict = {
