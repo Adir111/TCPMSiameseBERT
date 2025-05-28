@@ -35,9 +35,6 @@ model:
   fc:
     in_features: 512
     out_features: 512
-  head:
-    similarity_units: 1
-    activation: "sigmoid"
 
 isolation_forest:
   number_of_trees: 100

@@ -29,9 +29,6 @@ class SiameseBertModel:
 
         self.chunk_size = config['model']['chunk_size']
 
-        self.similarity_units = config['model']['head']['similarity_units']
-        self.activation = config['model']['head']['activation']
-
         self.model = None  # Will be set in build_model()
         self._branch_1 = None
         self._branch_2 = None
@@ -159,7 +156,7 @@ class SiameseBertModel:
 
         self._branch_1 = self._build_siamese_branch(bert_model_1)
         self._branch_2 = self._build_siamese_branch(bert_model_2)
-        self._similarity_head = Dense(self.similarity_units, activation=self.activation, name="similarity")
+        self._similarity_head = Dense(1, "sigmoid", name="similarity")
 
         out1 = self._branch_1([input_ids_1, attention_mask_1, token_type_ids_1])
         out2 = self._branch_2([input_ids_2, attention_mask_2, token_type_ids_2])
