@@ -126,13 +126,11 @@ class SiameseBertModel:
         # 4.  Produce the *embedding* that the Siamese distance will use ---- #
         # ------------------------------------------------------------------ #
         embedding = Dense(self.out_features,
-                          activation='sigmoid',
+                          activation=None,  # linear
                           name="embedding")
 
         x = cnn_lstm(bert_output)  # (batch, in_features)
-        x = embedding(x)  # (batch, out_features)
-        x = Dropout(0.5)(x)
-        outputs = Dense(2, activation="sigmoid")
+        outputs = embedding(x)  # (batch, out_features)
 
         return Model(inputs=[input_ids,
                              attention_mask,
