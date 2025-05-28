@@ -25,18 +25,18 @@ model:
   chunk_to_batch_ratio: 8
   chunk_size: 50
   cnn:
-    filters: 500 # 128 or 256
+    filters: 1000 # 128 or 256
     padding: "valid"
     kernel_size: [3, 6, 12]
     pool_size: 1
   bilstm:
     dropout: 0.25 # 0.2 - 0.5
-    units: 500
+    units: 1000
   fc:
     in_features: 512
     out_features: 512
   head:
-    similarity_units: 2
+    similarity_units: 1
     activation: "sigmoid"
 
 isolation_forest:
