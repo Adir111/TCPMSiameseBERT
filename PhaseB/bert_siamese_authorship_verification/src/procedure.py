@@ -188,7 +188,7 @@ class Procedure:
                     f"[✓] Loaded existing weights for '{model_name}'. "
                     f"Skipping training."
                 )
-                self.trained_networks.append(model_creator)
+                self.trained_networks[model_name] = model_creator
                 continue
 
             self.logger.info(
