@@ -1,5 +1,4 @@
 import gc
-from pathlib import Path
 
 from PhaseB.bert_siamese_authorship_verification.utilities import BertFineTuner
 from utilities import get_config, get_logger, convert_texts_to_json, convert_all_impostor_texts_to_json
