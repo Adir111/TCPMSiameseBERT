@@ -23,7 +23,7 @@ class Procedure:
         self.config = config
         self.logger = logger
         self.general_preprocessor = Preprocessor(config=config)  # Uses non-fine-tuned BERT tokenizer, just for utilities...
-        self.data_visualizer = DataVisualizer(logger)
+        self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.training_batch_size = config['training']['training_batch_size']
         self.load_pretrained_model = config['training']['load_pretrained_model']

@@ -17,21 +17,21 @@ from .logger import WrappedWandbLogger
 
 
 class DataVisualizer:
-    def __init__(self, logger):
+    def __init__(self, is_wandb_logger, logger):
         self.logger = logger
-        self._is_wandb = isinstance(logger, WrappedWandbLogger)
+        self._is_wandb = is_wandb_logger
 
     def _finalize_plot(self, label, model_name):
         fig = plt.gcf()
-        key = f"{model_name}-{label}"
-        filename = f"{key.replace('/', '_')}.png"
+        filename = f"{label}.png"
         fig.savefig(filename)
+        self.logger.save(filename)
 
         if self._is_wandb:
             try:
                 image = self.logger.Image(filename)
-                self.logger.log({key: image})
-                print(f"✅ Logged {key} to W&B")
+                self.logger.log({label: image})
+                self.logger.log(f"✅ Logged {label} to W&B")
             except Exception as e:
                 self.logger.error(f"[W&B] Failed to log figure: {e}")
 
