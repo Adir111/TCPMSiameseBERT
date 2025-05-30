@@ -147,7 +147,7 @@ class Procedure:
 
             self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
-    def run(self):
+    def run_training_procedure(self):
         impostors_names = self.data_loader.get_impostors_name_list()
         impostor_pairs, starting_iteration = self.__get_pairs_info(impostors_names)
 
@@ -211,10 +211,11 @@ class Procedure:
 
             increment_last_iteration(self.config)
 
-        self.logger.info("Finished training models successfully!")
+        self.logger.info(f"Finished training {len(self.trained_networks)} models successfully!")
 
+
+    def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
-        self.logger.info("Proceeding to signal generation for Shakespeare Apocrypha texts...")
         tested_collection_texts = self.data_loader.get_shakespeare_data()
         for text in tested_collection_texts:
             self.logger.info(f"Processing text: {text['text_name']}")
