@@ -27,7 +27,7 @@ class Procedure:
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.training_batch_size = config['training']['training_batch_size']
         self.data_loader = DataLoader(config=config)
-        self.trained_networks = []
+        self.trained_networks = {}
         self.model_creator = None
 
     def __get_pairs_info(self):
@@ -203,7 +203,8 @@ class Procedure:
             del impostor_1_preprocessed, impostor_2_preprocessed
             gc.collect()
 
-            self.trained_networks.append(model_creator)
+            key = f"{impostor_1}_{impostor_2}"
+            self.trained_networks[key] = model_creator
 
             self.logger.info(f"Model index {idx} training complete.")
             self.data_visualizer.display_accuracy_plot(history, model_name)
@@ -216,6 +217,49 @@ class Procedure:
 
     def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
+        impostor_pairs, _ = self.__get_pairs_info()
+        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
+
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
+            model_name = f"{impostor_1}_{impostor_2}"
+            self.logger.info(f"Loading model for impostor pair: {model_name}")
+
+            # Load tokenizers and models
+            tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
+            tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
+
+            # Check that both weights exist
+            branch_1_weights_exist = artifact_file_exists(
+                project_name=self.config['wandb']['project'],
+                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
+                file_path="branch_weights.h5"
+            )
+            branch_2_weights_exist = artifact_file_exists(
+                project_name=self.config['wandb']['project'],
+                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_2.replace(' ', '_').replace('/', '_')}:latest",
+                file_path="branch_weights.h5"
+            )
+
+            if not (branch_1_weights_exist and branch_2_weights_exist):
+                self.logger.warning(f"Skipping model {model_name} due to missing weights.")
+                continue
+
+            # Build Siamese model with pretrained weights
+            model_creator = SiameseBertModel(
+                config=self.config,
+                logger=self.logger,
+                impostor_1_name=impostor_1,
+                impostor_2_name=impostor_2,
+                use_pretrained_weights=True
+            )
+            model_creator.build_siamese_model(bert_model1, bert_model2)
+
+            # Add to trained networks
+            key = f"{impostor_1}_{impostor_2}"
+            self.trained_networks[key] = model_creator
+            self.logger.info(f"✓ Loaded and added model for {model_name}.")
+
+        # Signal Generation Phase
         tested_collection_texts = self.data_loader.get_shakespeare_data()
         for text in tested_collection_texts:
             self.logger.info(f"Processing text: {text['text_name']}")
