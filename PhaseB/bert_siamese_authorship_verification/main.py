@@ -109,7 +109,7 @@ def main():
         logger.log("999 - Fine Tune All BERTs")
         logger.log("0 - Exit")
 
-        option = input("Select an option \from above: ").strip()
+        option = input("Select an option above: ").strip()
 
         if option == "1":
             __handle_selection(__create_dataset)
