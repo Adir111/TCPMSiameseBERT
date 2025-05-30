@@ -134,8 +134,6 @@ class Procedure:
 
             binary_outputs = (predictions >= 0.5).astype(int)
             binary_outputs = binary_outputs.flatten().tolist()
-            self.logger.log(f"[INFO] Predictions: {predictions}")
-            self.logger.log(f"[INFO] Rounded up predictions: {binary_outputs}")
 
             # Aggregate scores into signal chunks
             signal = [np.mean(binary_outputs[i:i + self.chunks_per_batch]) for i in

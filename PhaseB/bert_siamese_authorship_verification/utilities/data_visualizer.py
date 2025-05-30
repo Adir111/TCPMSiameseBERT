@@ -68,9 +68,6 @@ class DataVisualizer:
         self._finalize_plot(title)
 
     def display_loss_plot(self, history, model_name):
-        loss = history.history.get("loss")
-        val_loss = history.history.get("val_loss")
-        self.logger.info(f"Loss: {loss}, Validation Loss: {val_loss}")
         self.plot_metric(
             y_series=[history.history["loss"], history.history["val_loss"]],
             title=f"Loss per Epoch for {model_name}",
@@ -80,9 +77,6 @@ class DataVisualizer:
         )
 
     def display_accuracy_plot(self, history, model_name):
-        acc = history.history.get("accuracy")
-        val_acc = history.history.get("val_accuracy")
-        self.logger.info(f"Accuracy: {acc}, Validation Accuracy: {val_acc}")
         self.plot_metric(
             y_series=[history.history["accuracy"], history.history["val_accuracy"]],
             title=f"Accuracy per Epoch for {model_name}",
