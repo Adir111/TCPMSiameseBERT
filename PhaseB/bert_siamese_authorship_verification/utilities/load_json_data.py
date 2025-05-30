@@ -1,5 +1,6 @@
 import json
 
+
 def load_json_data(data_path, file_name):
     """
     Utility method to load data from a JSON file.

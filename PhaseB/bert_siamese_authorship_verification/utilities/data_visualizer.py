@@ -1,6 +1,14 @@
+import sys
 import matplotlib
 import wandb
-matplotlib.use("Agg")  # Use non-interactive backend for matplotlib - so it works on Colab
+
+# ♦ Use an interactive backend if we are inside IPython / Colab; otherwise fall
+#   back to a non-GUI backend so the code still works on headless nodes.
+if "ipykernel" in sys.modules:                       # Jupyter / Colab / VSCode-NB
+    matplotlib.use("module://matplotlib_inline.backend_inline", force=True)
+else:                                                # headless script / CI
+    matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 
@@ -19,10 +27,16 @@ class DataVisualizer:
         self.logger = logger
         self._is_wandb = isinstance(logger, WrappedWandbLogger)
 
-    def _finalize_plot(self, label):
+    def _finalize_plot(self, label, model_name):
+        fig = plt.gcf()
+
         if self._is_wandb:
-            self.logger.log({label: wandb.Image(plt.gcf())})
-        plt.show()
+            key = f"{model_name}/{label}" if model_name else label
+            self.logger.log({key: wandb.Image(fig)})
+
+        # interactive backends actually render the figure; Agg just ignores it
+        plt.show(block=False)
+        plt.close(fig)
 
     def plot_metric(
         self,
@@ -32,6 +46,8 @@ class DataVisualizer:
         x_label="",
         y_label="",
         legend_labels=None,
+        *,
+        model_name=None
     ):
         plt.figure()
 
@@ -47,7 +63,7 @@ class DataVisualizer:
             plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        self._finalize_plot(title)
+        self._finalize_plot(title, model_name)
 
     def display_loss_plot(self, history, model_name):
         self.plot_metric(
@@ -55,7 +71,8 @@ class DataVisualizer:
             title=f"Loss per Epoch for {model_name}",
             x_label="Epoch",
             y_label="Loss",
-            legend_labels=["Training Loss", "Validation Loss"]
+            legend_labels=["Training Loss", "Validation Loss"],
+            model_name=model_name
         )
 
     def display_accuracy_plot(self, history, model_name):
@@ -64,7 +81,8 @@ class DataVisualizer:
             title=f"Accuracy per Epoch for {model_name}",
             x_label="Epoch",
             y_label="Accuracy",
-            legend_labels=["Training Accuracy", "Validation Accuracy"]
+            legend_labels=["Training Accuracy", "Validation Accuracy"],
+            model_name=model_name
         )
 
     def display_signal_plot(self, signal, text_name, model_name):
@@ -73,7 +91,8 @@ class DataVisualizer:
             title=f"Signal Representation for {text_name} using {model_name}",
             x_label="Batch Index",
             y_label="Mean Prediction Value",
-            legend_labels=[model_name]
+            legend_labels=[model_name],
+            model_name=model_name
         )
 
     def display_tsne_plot(self, tsne_results, cluster_labels):
@@ -91,7 +110,7 @@ class DataVisualizer:
         plt.colorbar(label="Cluster")
         plt.grid(True)
         plt.tight_layout()
-        self._finalize_plot("T-SNE Visualization")
+        self._finalize_plot("T-SNE Visualization", model_name="Classifier Encoder Model")
 
     # ------------------------------------------------------------------ #
     # Embedding projections -------------------------------------------- #
@@ -113,7 +132,7 @@ class DataVisualizer:
         plt.colorbar(scatter, label="Label / Cluster")
         plt.grid(True)
         plt.tight_layout()
-        self._finalize_plot(title)
+        self._finalize_plot(title, model_name="Classifier Encoder Model")
 
     def tsne(self, embeddings, labels, *, perplexity: int = 30, n_iter: int = 1000,
              random_state: int = 42, title: str | None = None):
@@ -150,4 +169,3 @@ class DataVisualizer:
             self.umap(embeddings, labels, title=title, **kwargs)
         else:
             raise ValueError(f"Unknown embedding method '{method}'. Use 'tsne' or 'umap'.")
-

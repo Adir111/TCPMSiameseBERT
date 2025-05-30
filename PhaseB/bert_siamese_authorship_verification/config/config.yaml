@@ -11,33 +11,34 @@ data:
   pairs: "pairs.json"
 
 training:
+  load_pretrained_model: False
   optimizer:
     initial_learning_rate: 1e-5
     learning_rate_decay_factor: 0.1
     gradient_clipping_threshold: 1.0 # or 5.0
   training_batch_size: 8
-  epochs: 10
+  epochs: 1
   early_stopping:
     monitor: "val_accuracy"
     patience: 0
     baseline: 0.97
-  impostor_chunk_ratio: 4
+  impostor_chunk_ratio: 1
   test_split: 0.25
 
 model:
   chunk_to_batch_ratio: 8
   chunk_size: 50
   cnn:
-    filters: 500
+    filters: 4
     padding: "valid"
     kernel_size: [3, 6, 12]
     pool_size: 1
   bilstm:
     dropout: 0.25 # 0.2 - 0.5
-    units: 500
+    units: 4
   fc:
-    in_features: 512
-    out_features: 512
+    in_features: 16
+    out_features: 16
 
 isolation_forest:
   number_of_trees: 100

@@ -86,6 +86,7 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
     print(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
     return shakespeare_collection, classify_text
 
+
 def __generate_and_save_pairs(config, impostor_dataset):
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     pairs_output_path = data_sources_folder / config['data']['pairs']
