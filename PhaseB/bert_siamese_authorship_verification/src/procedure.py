@@ -30,7 +30,7 @@ class Procedure:
         self.trained_networks = []
         self.model_creator = None
 
-    def __get_pairs_info(self, impostors_names):
+    def __get_pairs_info(self):
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
         last_iteration = impostor_pairs_data["last_iteration"]
