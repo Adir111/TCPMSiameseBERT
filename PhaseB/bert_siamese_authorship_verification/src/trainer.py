@@ -22,6 +22,15 @@ class Trainer:
         )
         self.logger.info(f"Model compiled, learning rate: {self.learning_rate}")
 
+    class EarlyStoppingLogger(tf.keras.callbacks.Callback):
+        def __init__(self, logger):
+            super().__init__()
+            self.logger = logger
+
+        def on_train_end(self, logs=None):
+            if self.model.stop_training:
+                self.logger.info("Early stopping was triggered.")
+
     def train(self, x_train, y_train, x_test, y_test):
         """Train the model on the dataset."""
         self.__compile_model()
@@ -34,13 +43,16 @@ class Trainer:
             restore_best_weights=True
         )
 
+        early_stopping_logger = self.EarlyStoppingLogger(self.logger)
+
         history = self.model_creator.model.fit(
             x=x_train, y=y_train,
             validation_data=(x_test, y_test),
             batch_size=self.batch_size,
             epochs=self.epochs,
             callbacks=[
-                early_stopping
+                early_stopping,
+                early_stopping_logger
             ]
         )
 

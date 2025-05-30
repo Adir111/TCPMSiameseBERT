@@ -27,11 +27,11 @@ class Procedure:
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.training_batch_size = config['training']['training_batch_size']
         self.data_loader = DataLoader(config=config)
-        self.trained_networks = []
+        self.trained_networks = {}
         self.model_creator = None
 
-    def __get_pairs_info(self, impostors_names):
-        impostor_pairs_data = self.data_loader.get_pairs(impostors_names)
+    def __get_pairs_info(self):
+        impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
         last_iteration = impostor_pairs_data["last_iteration"]
 
@@ -147,9 +147,8 @@ class Procedure:
 
             self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
-    def run(self):
-        impostors_names = self.data_loader.get_impostors_name_list()
-        impostor_pairs, starting_iteration = self.__get_pairs_info(impostors_names)
+    def run_training_procedure(self):
+        impostor_pairs, starting_iteration = self.__get_pairs_info()
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
@@ -188,7 +187,7 @@ class Procedure:
                     f"[✓] Loaded existing weights for '{model_name}'. "
                     f"Skipping training."
                 )
-                self.trained_networks.append(model_creator)
+                self.trained_networks[model_name] = model_creator
                 continue
 
             self.logger.info(
@@ -203,7 +202,8 @@ class Procedure:
             del impostor_1_preprocessed, impostor_2_preprocessed
             gc.collect()
 
-            self.trained_networks.append(model_creator)
+            key = f"{impostor_1}_{impostor_2}"
+            self.trained_networks[key] = model_creator
 
             self.logger.info(f"Model index {idx} training complete.")
             self.data_visualizer.display_accuracy_plot(history, model_name)
@@ -211,10 +211,59 @@ class Procedure:
 
             increment_last_iteration(self.config)
 
-        self.logger.info("Finished training models successfully!")
+        self.logger.info(f"Finished training {len(self.trained_networks)} models successfully!")
 
+
+    def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
-        self.logger.info("Proceeding to signal generation for Shakespeare Apocrypha texts...")
+        impostor_pairs, _ = self.__get_pairs_info()
+        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
+
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
+            model_name = f"{impostor_1}_{impostor_2}"
+
+            # Skip if model already loaded
+            if model_name in self.trained_networks:
+                self.logger.info(f"Model for {model_name} already loaded. Skipping.")
+                continue
+
+            self.logger.info(f"Loading model for impostor pair: {model_name}")
+
+            # Load tokenizers and models
+            tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
+            tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
+
+            # Check that both weights exist
+            branch_1_weights_exist = artifact_file_exists(
+                project_name=self.config['wandb']['project'],
+                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
+                file_path="branch_weights.h5"
+            )
+            branch_2_weights_exist = artifact_file_exists(
+                project_name=self.config['wandb']['project'],
+                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_2.replace(' ', '_').replace('/', '_')}:latest",
+                file_path="branch_weights.h5"
+            )
+
+            if not (branch_1_weights_exist and branch_2_weights_exist):
+                self.logger.warning(f"Skipping model {model_name} due to missing weights.")
+                continue
+
+            # Build Siamese model with pretrained weights
+            model_creator = SiameseBertModel(
+                config=self.config,
+                logger=self.logger,
+                impostor_1_name=impostor_1,
+                impostor_2_name=impostor_2,
+                use_pretrained_weights=True
+            )
+            model_creator.build_siamese_model(bert_model1, bert_model2)
+
+            # Add to trained networks
+            self.trained_networks[model_name] = model_creator
+            self.logger.info(f"✓ Loaded and added model for {model_name}.")
+
+        # Signal Generation Phase
         tested_collection_texts = self.data_loader.get_shakespeare_data()
         for text in tested_collection_texts:
             self.logger.info(f"Processing text: {text['text_name']}")

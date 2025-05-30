@@ -91,6 +91,9 @@ class WrappedWandbLogger:
     def warn(self, data):
         self.log(data, '[WARNING] ')
 
+    def error(self, data):
+        self.log(data, '[ERROR] ')
+
     def log(self, data, prefix=''):
         if isinstance(data, str):
             if hasattr(self.wandb, "termlog"):
