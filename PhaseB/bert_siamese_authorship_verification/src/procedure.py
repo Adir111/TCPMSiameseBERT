@@ -222,6 +222,12 @@ class Procedure:
 
         for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
+
+            # Skip if model already loaded
+            if model_name in self.trained_networks:
+                self.logger.info(f"Model for {model_name} already loaded. Skipping.")
+                continue
+
             self.logger.info(f"Loading model for impostor pair: {model_name}")
 
             # Load tokenizers and models
@@ -255,8 +261,7 @@ class Procedure:
             model_creator.build_siamese_model(bert_model1, bert_model2)
 
             # Add to trained networks
-            key = f"{impostor_1}_{impostor_2}"
-            self.trained_networks[key] = model_creator
+            self.trained_networks[model_name] = model_creator
             self.logger.info(f"✓ Loaded and added model for {model_name}.")
 
         # Signal Generation Phase
