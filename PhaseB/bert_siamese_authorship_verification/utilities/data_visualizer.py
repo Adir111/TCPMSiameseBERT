@@ -1,13 +1,6 @@
-import sys
 import matplotlib
-import wandb
 
-# ♦ Use an interactive backend if we are inside IPython / Colab; otherwise fall
-#   back to a non-GUI backend so the code still works on headless nodes.
-if "ipykernel" in sys.modules:                       # Jupyter / Colab / VSCode-NB
-    matplotlib.use("module://matplotlib_inline.backend_inline", force=True)
-else:                                                # headless script / CI
-    matplotlib.use("Agg")
+matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
@@ -15,6 +8,7 @@ from sklearn.manifold import TSNE
 # UMAP is optional; only import if available so the rest of the library still works if it isn't
 try:
     import umap  # noqa: F401
+
     _HAS_UMAP = True
 except ImportError:  # pragma: no cover
     _HAS_UMAP = False
@@ -29,32 +23,42 @@ class DataVisualizer:
 
     def _finalize_plot(self, label, model_name):
         fig = plt.gcf()
+        key = f"{model_name}-{label}"
+        filename = f"{key.replace('/', '_')}.png"
+        fig.savefig(filename)
 
         if self._is_wandb:
-            key = f"{model_name}/{label}" if model_name else label
-            self.logger.log({key: wandb.Image(fig)})
+            try:
+                image = self.logger.Image(filename)
+                self.logger.log({key: image})
+                print(f"✅ Logged {key} to W&B")
+            except Exception as e:
+                self.logger.error(f"[W&B] Failed to log figure: {e}")
 
-        # interactive backends actually render the figure; Agg just ignores it
-        plt.show(block=False)
         plt.close(fig)
 
     def plot_metric(
-        self,
-        x=None,
-        y_series=None,
-        title="",
-        x_label="",
-        y_label="",
-        legend_labels=None,
-        *,
-        model_name=None
+            self,
+            y_series=None,
+            title="",
+            model_name="",
+            x_label="",
+            y_label="",
+            legend_labels=None,
     ):
-        plt.figure()
+
+        width = max(6, int(len(title) * 0.1))
+        height = 0.75 * width
+
+        plt.figure(figsize=(width, height))
 
         if y_series is not None:
             for idx, y in enumerate(y_series):
                 label = legend_labels[idx] if legend_labels else None
-                plt.plot(x if x else range(len(y)), y, label=label)
+                x = range(len(y))
+                plt.plot(x, y, label=label)
+                plt.ylim(-0.1, max(y) + 0.5)
+                plt.xticks(x)
 
         plt.title(title)
         plt.xlabel(x_label)
