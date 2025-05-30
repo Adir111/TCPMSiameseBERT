@@ -148,7 +148,6 @@ class Procedure:
             self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
     def run_training_procedure(self):
-        impostors_names = self.data_loader.get_impostors_name_list()
         impostor_pairs, starting_iteration = self.__get_pairs_info()
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
