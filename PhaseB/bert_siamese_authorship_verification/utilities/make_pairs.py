@@ -1,9 +1,9 @@
-def make_pairs(impostor_names):
+def make_pairs(list):
     """
-    Generate all possible pairs of impostor names from the given list.
+    Generate all possible pairs of a given list.
     """
     pairs = []
-    for i in range(len(impostor_names)):
-        for j in range(i + 1, len(impostor_names)):
-            pairs.append((impostor_names[i], impostor_names[j]))
+    for i in range(len(list)):
+        for j in range(i + 1, len(list)):
+            pairs.append((list[i], list[j]))
     return pairs

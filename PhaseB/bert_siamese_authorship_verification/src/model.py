@@ -16,18 +16,18 @@ class SiameseBertModel:
         self._impostor_1_name = impostor_1_name
         self._impostor_2_name = impostor_2_name
 
-        self.bilstm_units = self.config['model']['bilstm']['units']
-        self.bilstm_dropout = self.config['model']['bilstm']['dropout']
+        self.bilstm_units = config['model']['bilstm']['units']
+        self.bilstm_dropout = config['model']['bilstm']['dropout']
 
-        self.filters = self.config['model']['cnn']['filters']
-        self.pool_size = self.config['model']['cnn']['pool_size']
-        self.padding = self.config['model']['cnn']['padding']
-        self.kernel_size = self.config['model']['cnn']['kernel_size']
+        self.filters = config['model']['cnn']['filters']
+        self.pool_size = config['model']['cnn']['pool_size']
+        self.padding = config['model']['cnn']['padding']
+        self.kernel_size = config['model']['cnn']['kernel_size']
 
-        self.in_features = self.config['model']['fc']['in_features']
-        self.out_features = self.config['model']['fc']['out_features']
+        self.in_features = config['model']['fc']['in_features']
+        self.out_features = config['model']['fc']['out_features']
 
-        self.chunk_size = self.config['model']['chunk_size']
+        self.chunk_size = config['model']['chunk_size']
 
         self.model = None  # Will be set in build_model()
         self._branch_1 = None
@@ -156,7 +156,7 @@ class SiameseBertModel:
 
         self._branch_1 = self._build_siamese_branch(bert_model_1)
         self._branch_2 = self._build_siamese_branch(bert_model_2)
-        self._similarity_head = Dense(1, activation="sigmoid", name="similarity")
+        self._similarity_head = Dense(1, "sigmoid", name="similarity")
 
         out1 = self._branch_1([input_ids_1, attention_mask_1, token_type_ids_1])
         out2 = self._branch_2([input_ids_2, attention_mask_2, token_type_ids_2])

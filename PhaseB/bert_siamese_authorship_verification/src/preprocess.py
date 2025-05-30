@@ -8,6 +8,8 @@ nltk.download('wordnet')
 nltk.download('omw-1.4')
 nltk.download('stopwords')
 
+from PhaseB.bert_siamese_authorship_verification.utilities import make_pairs
+
 
 class Preprocessor:
     def __init__(self, config, tokenizer=None):
