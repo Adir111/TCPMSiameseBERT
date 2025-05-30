@@ -1,5 +1,5 @@
 import tensorflow as tf
-from tensorflow.python.keras.callbacks import EarlyStopping
+from tensorflow.python.keras.callbacks import EarlyStopping, Callback
 
 
 class Trainer:
@@ -31,29 +31,45 @@ class Trainer:
             if self.model.stop_training:
                 self.logger.info("Early stopping was triggered.")
 
+    class EarlyStoppingAtThreshold(Callback):
+        def __init__(self, monitor='val_accuracy', threshold=0.97):
+            super().__init__()
+            self.monitor = monitor
+            self.threshold = threshold
+
+        def on_epoch_end(self, epoch, logs=None):
+            logs = logs or {}
+            val_acc = logs.get(self.monitor)
+            if val_acc is not None and val_acc >= self.threshold:
+                print(f"\nEpoch {epoch + 1}: Reached {self.monitor} >= {self.threshold:.2f}, stopping training.")
+                self.model.stop_training = True
+
     def train(self, x_train, y_train, x_test, y_test):
         """Train the model on the dataset."""
         self.__compile_model()
 
-        early_stopping = EarlyStopping(
-            monitor=self.monitor,
-            mode='max',
-            patience=self.patience,
-            baseline=self.baseline,
-            restore_best_weights=True
-        )
+        # early_stopping = EarlyStopping(
+        #     monitor=self.monitor,
+        #     mode='max',
+        #     patience=self.patience,
+        #     baseline=self.baseline,
+        #     restore_best_weights=True
+        # )
 
+        early_stopping = self.EarlyStoppingAtThreshold(monitor=self.monitor, threshold=self.baseline)
         early_stopping_logger = self.EarlyStoppingLogger(self.logger)
+
+        callbacks = [
+            early_stopping,
+            early_stopping_logger
+        ]
 
         history = self.model_creator.model.fit(
             x=x_train, y=y_train,
             validation_data=(x_test, y_test),
             batch_size=self.batch_size,
             epochs=self.epochs,
-            callbacks=[
-                early_stopping,
-                early_stopping_logger
-            ]
+            callbacks=callbacks
         )
 
         self.model_creator.save_weights()

@@ -1,5 +1,8 @@
 import os
 import io
+import re
+
+import unicodedata
 import wandb
 import tensorflow as tf
 from contextlib import redirect_stdout
@@ -48,7 +51,13 @@ class SiameseBertModel:
 
     @staticmethod
     def sanitize_artifact_name(name):
-        return name.replace(" ", "_").replace("/", "_")
+        # Normalize Unicode characters (e.g., "ë" → "e")
+        name = unicodedata.normalize('NFKD', name).encode('ascii', 'ignore').decode('ascii')
+        # Remove characters not in [a-zA-Z0-9._-]
+        name = re.sub(r'[^a-zA-Z0-9._-]', '', name)
+
+        name.replace(" ", "_").replace("/", "_")
+        return name
 
     @staticmethod
     def __get_weight_path(artifact_name):
