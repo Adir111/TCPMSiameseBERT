@@ -1,5 +1,6 @@
 /bert_siamese_authorship_verification/saved_trained_models/
 /bert_siamese_authorship_verification/wandb
+/bert_siamese_authorship_verification/artifacts
 
 # IntelliJ IDEA
 .idea/

@@ -9,7 +9,8 @@ from .data_loader import DataLoader
 from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
-from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, artifact_file_exists
+from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, \
+    artifact_file_exists
 
 # from src.dtw import compute_dtw_distance
 # from src.isolation_forest import AnomalyDetector
@@ -22,7 +23,8 @@ class Procedure:
     def __init__(self, config, logger):
         self.config = config
         self.logger = logger
-        self.general_preprocessor = Preprocessor(config=config)  # Uses non-fine-tuned BERT tokenizer, just for utilities...
+        self.general_preprocessor = Preprocessor(
+            config=config)  # Uses non-fine-tuned BERT tokenizer, just for utilities...
         self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.training_batch_size = config['training']['training_batch_size']
@@ -53,7 +55,8 @@ class Procedure:
         impostor_1_chunks, impostor_1_tokens_count = __load_and_preprocess(impostor_1)
         impostor_2_chunks, impostor_2_tokens_count = __load_and_preprocess(impostor_2)
 
-        impostor_1_chunks, impostor_2_chunks = self.general_preprocessor.equalize_chunks([impostor_1_chunks, impostor_2_chunks])
+        impostor_1_chunks, impostor_2_chunks = self.general_preprocessor.equalize_chunks(
+            [impostor_1_chunks, impostor_2_chunks])
 
         # Log after stabilizing
         self.logger.info(f"After equalization: {impostor_1[0]} - {len(impostor_1_chunks)} chunks")
@@ -174,7 +177,8 @@ class Procedure:
                 if weights_exist:
                     skip_training = True
 
-            model_creator = SiameseBertModel(config=self.config, logger=self.logger, impostor_1_name=impostor_1, impostor_2_name=impostor_2, use_pretrained_weights=skip_training)
+            model_creator = SiameseBertModel(config=self.config, logger=self.logger, impostor_1_name=impostor_1,
+                                             impostor_2_name=impostor_2, use_pretrained_weights=skip_training)
             model_creator.build_siamese_model(bert_model1, bert_model2)
 
             if skip_training:
@@ -207,7 +211,6 @@ class Procedure:
             increment_last_iteration(self.config)
 
         self.logger.info(f"Finished training {len(self.trained_networks)} models successfully!")
-
 
     def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
