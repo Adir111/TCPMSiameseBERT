@@ -65,7 +65,6 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
 
     # Process the 'text to classify.txt'
     classify_file_path = shakespeare_dir / classify_text_file_name
-    logger.info(classify_file_path)
     if not classify_file_path.exists():
         error_msg = f"Error: {classify_text_file_name} is missing in the directory {shakespeare_dir}"
         raise FileNotFoundError(error_msg)
