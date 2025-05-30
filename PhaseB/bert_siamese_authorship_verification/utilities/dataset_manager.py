@@ -2,11 +2,16 @@ import json
 from pathlib import Path
 
 from .make_pairs import make_pairs
+from .config_loader import get_config
+from .logger import get_logger
+
+config = get_config()
+logger = get_logger(config)
 
 
 def save_to_json(data, output_path, data_name):
     """
-    Save the given data to a JSON file and print the status.
+    Save the given data to a JSON file and log the status.
 
     Parameters:
     - data: The data to be saved (dict or list)
@@ -15,7 +20,7 @@ def save_to_json(data, output_path, data_name):
     """
     with output_path.open("w", encoding="utf-8") as json_file:
         json.dump(data, json_file, indent=4)
-    print(f"{data_name} saved to {output_path}.")
+    logger.info(f"{data_name} saved to {output_path}.")
 
 
 def handle_impostor_texts(impostor_dir, impostor_size=None):
@@ -46,10 +51,10 @@ def handle_impostor_texts(impostor_dir, impostor_size=None):
             "author": impostor_folder.name,
             "texts": impostor_texts
         })
-        print(f"Handled {len(impostor_texts)} {impostor_folder.name} texts.")
+        logger.info(f"Handled {len(impostor_texts)} {impostor_folder.name} texts.")
         count_impostors_texts += len(impostor_texts)
 
-    print(f"Handled {len(impostor_dataset)} impostor authors, with a total of {count_impostors_texts} texts.")
+    logger.info(f"Handled {len(impostor_dataset)} impostor authors, with a total of {count_impostors_texts} texts.")
     return impostor_dataset
 
 
@@ -60,7 +65,7 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
 
     # Process the 'text to classify.txt'
     classify_file_path = shakespeare_dir / classify_text_file_name
-    print(classify_file_path)
+    logger.info(classify_file_path)
     if not classify_file_path.exists():
         error_msg = f"Error: {classify_text_file_name} is missing in the directory {shakespeare_dir}"
         raise FileNotFoundError(error_msg)
@@ -83,8 +88,9 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
                 "text": text
             })
 
-    print(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
+    logger.info(f"Handled {len(shakespeare_collection)} Shakespeare texts.")
     return shakespeare_collection, classify_text
+
 
 def __generate_and_save_pairs(config, impostor_dataset):
     data_sources_folder = Path(config['data']['organised_data_folder_path'])

@@ -1,12 +1,14 @@
 import matplotlib
-import wandb
-matplotlib.use("Agg")  # Use non-interactive backend for matplotlib - so it works on Colab
+
+matplotlib.use("Agg")
+
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
 
 # UMAP is optional; only import if available so the rest of the library still works if it isn't
 try:
     import umap  # noqa: F401
+
     _HAS_UMAP = True
 except ImportError:  # pragma: no cover
     _HAS_UMAP = False
@@ -15,30 +17,46 @@ from .logger import WrappedWandbLogger
 
 
 class DataVisualizer:
-    def __init__(self, logger):
+    def __init__(self, is_wandb_logger, logger):
         self.logger = logger
-        self._is_wandb = isinstance(logger, WrappedWandbLogger)
+        self._is_wandb = is_wandb_logger
 
     def _finalize_plot(self, label):
+        fig = plt.gcf()
+        filename = f"{label}.png"
+        fig.savefig(filename)
+
         if self._is_wandb:
-            self.logger.log({label: wandb.Image(plt.gcf())})
-        plt.show()
+            try:
+                image = self.logger.Image(filename)
+                self.logger.log({label: image})
+                self.logger.log(f"✅ Logged {label} to W&B")
+            except Exception as e:
+                self.logger.error(f"[W&B] Failed to log figure: {e}")
+
+        plt.close(fig)
 
     def plot_metric(
-        self,
-        x=None,
-        y_series=None,
-        title="",
-        x_label="",
-        y_label="",
-        legend_labels=None,
+            self,
+            y_series=None,
+            title="",
+            x_label="",
+            y_label="",
+            legend_labels=None,
     ):
-        plt.figure()
+
+        width = max(6, int(len(title) * 0.1))
+        height = 0.75 * width
+
+        plt.figure(figsize=(width, height))
 
         if y_series is not None:
             for idx, y in enumerate(y_series):
                 label = legend_labels[idx] if legend_labels else None
-                plt.plot(x if x else range(len(y)), y, label=label)
+                x = range(len(y))
+                plt.plot(x, y, label=label)
+                plt.ylim(-0.1, max(y) + 0.5)
+                plt.xticks(x)
 
         plt.title(title)
         plt.xlabel(x_label)
@@ -150,4 +168,3 @@ class DataVisualizer:
             self.umap(embeddings, labels, title=title, **kwargs)
         else:
             raise ValueError(f"Unknown embedding method '{method}'. Use 'tsne' or 'umap'.")
-

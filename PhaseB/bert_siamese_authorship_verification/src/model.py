@@ -54,7 +54,7 @@ class SiameseBertModel:
     def __get_weight_path(artifact_name):
         artifact = wandb.use_artifact(artifact_name, type="model")
         artifact_dir = artifact.download()
-        return os.path.join(artifact_dir, "branch_weights.h5")
+        return os.path.join(artifact_dir, "model_weights.h5")
 
     @staticmethod
     def __upload_weights_to_artifact(branch_weights_path, artifact_name):

@@ -14,6 +14,7 @@ procedure = Procedure(config, logger)
 TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
+
 def __handle_selection(func):
     """
     Confirm selection before running the provided function.

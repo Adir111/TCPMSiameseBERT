@@ -23,12 +23,17 @@ class NoOpWandb:
     def info(data):
         print(f"[NoOpWandb] Info: {data}")
 
-    def warn(self, data):
+    @staticmethod
+    def warn(data):
         print(f"[NoOpWandb] Warning: {data}")
 
     @staticmethod
+    def error(data):
+        print(f"[NoOpWandb] Error: {data}")
+
+    @staticmethod
     def log(data):
-        print(f"[NoOpWandb] Logging: {data}")
+        print(f"[NoOpWandb] {data}")
 
     @staticmethod
     def watch(model=None, **kwargs):
@@ -81,6 +86,9 @@ class WrappedWandbLogger:
 
     def Histogram(self, *args, **kwargs):
         return self.wandb.Histogram(*args, **kwargs)
+
+    def Image(self, *args, **kwargs):
+        return self.wandb.Image(*args, **kwargs)
 
     def log_summary(self, summary_name, name):
         self.wandb.run.summary[summary_name] = name
