@@ -78,7 +78,7 @@ class DataLoader:
         data = load_json_data(self.data_path, self.text_to_classify_name)
         return _clean_text(data.get('text', ''))
 
-    def get_pairs(self, impostor_names):
+    def get_pairs(self):
         """
         Load and return pairs of impostor names.
         - If the pairs file exists, load and return it.

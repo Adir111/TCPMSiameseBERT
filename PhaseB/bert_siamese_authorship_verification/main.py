@@ -1,5 +1,4 @@
 import gc
-from pathlib import Path
 
 from PhaseB.bert_siamese_authorship_verification.utilities import BertFineTuner
 from utilities import get_config, get_logger, convert_texts_to_json, convert_all_impostor_texts_to_json
@@ -9,6 +8,7 @@ from src.procedure import Procedure
 # Load config
 config = get_config()
 logger = get_logger(config)
+procedure = Procedure(config, logger)
 
 # Paths
 TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
@@ -57,6 +57,30 @@ def __create_dataset():
     logger.log(f"✅ All impostors dataset created")
 
 
+def __training():
+    """ Triggers the training script. """
+    try:
+        logger.log("🚀 Starting Training Procedure...")
+        procedure.run_training_procedure()
+
+        logger.log("✅ Training Procedure completed!")
+        logger.log({"status": "completed"})
+    except Exception as e:
+        logger.error(f"❌ {e}")
+
+
+def __classification():
+    """ Triggers the classification procedure. """
+    try:
+        logger.log("🚀 Starting Classification Procedure...")
+        procedure.run_classification_procedure()
+
+        logger.log("✅ Classification Procedure completed!")
+        logger.log({"status": "completed"})
+    except Exception as e:
+        logger.error(f"❌ {e}")
+
+
 def __fine_tune_berts():
     """ Fine-tunes BERT models for the Siamese architecture. """
     try:
@@ -71,22 +95,9 @@ def __fine_tune_berts():
             gc.collect()
         logger.log("✅ BERT models fine-tuned successfully!")
     except FileNotFoundError:
-        logger.log("❌ ERROR - no dataset found, please create one first!")
+        logger.error("❌ No dataset found, please create one first!")
     except Exception as e:
-        logger.log(f"❌ An error occurred during fine-tuning: {e}")
-
-
-def __run_procedure():
-    """ Triggers the training script. """
-    try:
-        logger.log("🚀 Starting Full Procedure...")
-        procedure = Procedure(config, logger)
-        procedure.run()
-
-        logger.log("✅ Procedure completed!")
-        logger.log({"status": "completed"})
-    except Exception as e:
-        logger.log(f"❌ ERROR - {e}")
+        logger.error(f"❌ An error occurred during fine-tuning: {e}")
 
 
 def main():
@@ -95,20 +106,24 @@ def main():
         logger.log("\n📜 Menu:")
         logger.log("1 - Create Dataset")
         logger.log("2 - Run Model Procedure")
+        logger.log("3 - Classification Procedure")
         logger.log("999 - Fine Tune All BERTs")
-        logger.log("3 - Exit")
+        logger.log("0 - Exit")
 
-        option = input("Select an option (1/2/3/999): ").strip()
+        option = input("Select an option above: ").strip()
 
         if option == "1":
             __handle_selection(__create_dataset)
         elif option == "2":
-            __handle_selection(__run_procedure)
+            __handle_selection(__training)
+            break
+        elif option == "3":
+            __handle_selection(__classification)
             break
         elif option == "999":
             __handle_selection(__fine_tune_berts)
             break
-        elif option == "3":
+        elif option == "0":
             logger.log("👋 Exiting. Have a great day!")
             break
         else:
