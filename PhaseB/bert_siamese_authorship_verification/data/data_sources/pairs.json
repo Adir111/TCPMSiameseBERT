@@ -2,123 +2,11 @@
     "last_iteration": 0,
     "pairs": [
         [
-            "Agatha Christie",
-            "Arthur C Clarke"
-        ],
-        [
-            "Agatha Christie",
-            "Arthur Ignatius Conan Doyle"
-        ],
-        [
-            "Agatha Christie",
-            "ben Jonson"
-        ],
-        [
-            "Agatha Christie",
-            "Benjamin Disraeli"
-        ],
-        [
-            "Agatha Christie",
-            "Benjamin Jonson"
-        ],
-        [
-            "Agatha Christie",
-            "Charles Dickens"
-        ],
-        [
-            "Agatha Christie",
-            "Charlotte Bront\u00eb"
-        ],
-        [
-            "Agatha Christie",
-            "Christopher Marlowe"
-        ],
-        [
-            "Agatha Christie",
-            "Elizabeth Cleghorn Gaskell"
-        ],
-        [
-            "Agatha Christie",
-            "Fanny Burney"
-        ],
-        [
-            "Arthur C Clarke",
-            "Arthur Ignatius Conan Doyle"
-        ],
-        [
-            "Arthur C Clarke",
-            "ben Jonson"
-        ],
-        [
-            "Arthur C Clarke",
-            "Benjamin Disraeli"
-        ],
-        [
-            "Arthur C Clarke",
-            "Benjamin Jonson"
-        ],
-        [
-            "Arthur C Clarke",
-            "Charles Dickens"
-        ],
-        [
-            "Arthur C Clarke",
-            "Charlotte Bront\u00eb"
-        ],
-        [
-            "Arthur C Clarke",
-            "Christopher Marlowe"
-        ],
-        [
-            "Arthur C Clarke",
-            "Elizabeth Cleghorn Gaskell"
-        ],
-        [
-            "Arthur C Clarke",
-            "Fanny Burney"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "ben Jonson"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Benjamin Disraeli"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Benjamin Jonson"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Charles Dickens"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Charlotte Bront\u00eb"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Christopher Marlowe"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Elizabeth Cleghorn Gaskell"
-        ],
-        [
-            "Arthur Ignatius Conan Doyle",
-            "Fanny Burney"
-        ],
-        [
             "ben Jonson",
             "Benjamin Disraeli"
         ],
         [
             "ben Jonson",
-            "Benjamin Jonson"
-        ],
-        [
-            "ben Jonson",
             "Charles Dickens"
         ],
         [
@@ -138,8 +26,8 @@
             "Fanny Burney"
         ],
         [
-            "Benjamin Disraeli",
-            "Benjamin Jonson"
+            "ben Jonson",
+            "Francis Bacon"
         ],
         [
             "Benjamin Disraeli",
@@ -162,24 +50,8 @@
             "Fanny Burney"
         ],
         [
-            "Benjamin Jonson",
-            "Charles Dickens"
-        ],
-        [
-            "Benjamin Jonson",
-            "Charlotte Bront\u00eb"
-        ],
-        [
-            "Benjamin Jonson",
-            "Christopher Marlowe"
-        ],
-        [
-            "Benjamin Jonson",
-            "Elizabeth Cleghorn Gaskell"
-        ],
-        [
-            "Benjamin Jonson",
-            "Fanny Burney"
+            "Benjamin Disraeli",
+            "Francis Bacon"
         ],
         [
             "Charles Dickens",
@@ -196,6 +68,10 @@
         [
             "Charles Dickens",
             "Fanny Burney"
+        ],
+        [
+            "Charles Dickens",
+            "Francis Bacon"
         ],
         [
             "Charlotte Bront\u00eb",
@@ -208,6 +84,10 @@
         [
             "Charlotte Bront\u00eb",
             "Fanny Burney"
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "Francis Bacon"
         ],
         [
             "Christopher Marlowe",
@@ -216,10 +96,22 @@
         [
             "Christopher Marlowe",
             "Fanny Burney"
+        ],
+        [
+            "Christopher Marlowe",
+            "Francis Bacon"
         ],
         [
             "Elizabeth Cleghorn Gaskell",
             "Fanny Burney"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Francis Bacon"
+        ],
+        [
+            "Fanny Burney",
+            "Francis Bacon"
         ]
     ]
 }
