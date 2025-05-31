@@ -20,7 +20,7 @@ training:
   epochs: 10
   early_stopping:
     monitor: "val_accuracy"
-    patience: 2
+    patience: 4
     baseline: 0.97
   impostor_chunk_ratio: 4
   test_split: 0.25

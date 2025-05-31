@@ -48,15 +48,15 @@ class Trainer:
         """Train the model on the dataset."""
         self.__compile_model()
 
-        # early_stopping = EarlyStopping(
-        #     monitor=self.monitor,
-        #     mode='max',
-        #     patience=self.patience,
-        #     baseline=self.baseline,
-        #     restore_best_weights=True
-        # )
+        early_stopping = EarlyStopping(
+            monitor=self.monitor,
+            mode='max',
+            patience=self.patience,
+            baseline=self.baseline,
+            restore_best_weights=True
+        )
 
-        early_stopping = self.EarlyStoppingAtThreshold(monitor=self.monitor, threshold=self.baseline)
+        # early_stopping = self.EarlyStoppingAtThreshold(monitor=self.monitor, threshold=self.baseline)
         early_stopping_logger = self.EarlyStoppingLogger(self.logger)
 
         callbacks = [
