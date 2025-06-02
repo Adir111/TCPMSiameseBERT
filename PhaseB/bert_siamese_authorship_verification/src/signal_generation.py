@@ -41,7 +41,7 @@ class SignalGeneration:
         self.logger.info(
             f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
 
-        for model_creator in trained_networks:
+        for model_name, model_creator in trained_networks.items():
             model_name = model_creator.model_name
             classifier = model_creator.get_encoder_classifier()
             self.logger.info(f"Generating signal from model: {model_name}...")
