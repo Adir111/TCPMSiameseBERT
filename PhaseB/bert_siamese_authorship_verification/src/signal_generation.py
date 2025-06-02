@@ -9,11 +9,13 @@ from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer
 class SignalGeneration:
     _instance = None
 
+
     def __new__(cls, config, logger):
         if cls._instance is None:
             cls._instance = super(SignalGeneration, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
+
 
     def __init__(self, config, logger):
         if self._initialized:
@@ -29,8 +31,10 @@ class SignalGeneration:
 
         self._initialized = True
 
-    def generate_signals_for_text(self, shakespearian_text, trained_networks):
+
+    def generate_signals_for_text(self, shakespearian_text, trained_network):
         text_name = shakespearian_text['text_name']
+
         chunks_list, chunks_tokens_count = self.general_preprocessor.preprocess([shakespearian_text['text']])
         text_chunks = {
             "input_ids": np.stack([c["input_ids"].numpy().squeeze(0) for c in chunks_list]),
@@ -41,35 +45,34 @@ class SignalGeneration:
         self.logger.info(
             f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
 
-        for model_name, model_creator in trained_networks.items():
-            model_name = model_creator.model_name
-            classifier = model_creator.get_encoder_classifier()
-            self.logger.info(f"Generating signal from model: {model_name}...")
+        model_name, model_creator = next(iter(trained_network.items()))
+        classifier = model_creator.get_encoder_classifier()
+        self.logger.info(f"Generating signal from model: {model_name}...")
 
-            predictions = np.asarray(classifier.predict({
-                "input_ids": text_chunks['input_ids'],
-                "attention_mask": text_chunks['attention_mask'],
-                "token_type_ids": text_chunks['token_type_ids']
-            }))
+        predictions = np.asarray(classifier.predict({
+            "input_ids": text_chunks['input_ids'],
+            "attention_mask": text_chunks['attention_mask'],
+            "token_type_ids": text_chunks['token_type_ids']
+        }))
 
-            binary_outputs = (predictions >= 0.5).astype(int)
-            binary_outputs = binary_outputs.flatten().tolist()
+        binary_outputs = (predictions >= 0.5).astype(int)
+        binary_outputs = binary_outputs.flatten().tolist()
 
-            # Aggregate scores into signal chunks
-            signal = [np.mean(binary_outputs[i:i + self.chunks_per_batch]) for i in
-                      range(0, len(binary_outputs), self.chunks_per_batch)]
-            self.logger.log(f"[INFO] Signal representation: {signal}")
+        # Aggregate scores into signal chunks
+        signal = [
+            np.mean(binary_outputs[i:i + self.chunks_per_batch])
+            for i in range(0, len(binary_outputs), self.chunks_per_batch)
+        ]
+        self.logger.log(f"[INFO] Signal representation: {signal}")
 
-            # Initialize model entry if needed
-            if model_name not in self.all_signals:
-                self.all_signals[model_name] = {}
+        # Assign signal to the current text under this model
+        if model_name not in self.all_signals:
+            self.all_signals[model_name] = {}
+        self.all_signals[model_name][text_name] = signal
 
-            # Assign signal to the current text under this model
-            self.all_signals[model_name][text_name] = signal
+        self.logger.info(f"Signal generated for text: {text_name} by model: {model_name}")
+        self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
-            self.logger.info(
-                f"Signal generated for text: {text_name} by model: {model_name}")
-            self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
     def print_all_signals(self):
         for model_name, texts in self.all_signals.items():
@@ -77,6 +80,7 @@ class SignalGeneration:
             for text_name, signal in texts.items():
                 self.logger.log(f"  Text: {text_name}")
                 self.logger.log(f"    Signal: {signal}")
+
 
     def save_all_signals(self):
         """

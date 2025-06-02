@@ -60,6 +60,7 @@ class Procedure:
 
         return impostor_pairs, last_iteration
 
+
     def __load_tokenizer_and_model(self, impostor_name):
         model_path = Path(self.config['data']['fine_tuned_bert_model_path'])
         repo_id = self.config['bert']['repository']
@@ -90,54 +91,49 @@ class Procedure:
                 f"Failed to load BERT model: {hf_model_id}. Error: {e}"
             )
 
-    def __load_trained_networks(self):
+
+    def __load_trained_network(self, impostor_1, impostor_2):
         # ========= Signal Generation Phase =========
-        impostor_pairs, _ = self.__get_pairs_info()
-        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
+        model_name = f"{impostor_1}_{impostor_2}"
+        sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
 
-        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
-            self.logger.log("__________________________________________________________________________________________________")
-            model_name = f"{impostor_1}_{impostor_2}"
-            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+        # Skip if model already loaded
+        if model_name in self.trained_networks:
+            self.logger.info(f"Model for {model_name} already loaded. Skipping.")
+            return self.trained_networks[model_name]
 
-            # Skip if model already loaded
-            if model_name in self.trained_networks:
-                self.logger.info(f"Model for {model_name} already loaded. Skipping.")
-                continue
+        self.logger.info(f"Loading model for impostor pair: {model_name}")
 
-            self.logger.info(f"Loading model for impostor pair: {model_name}")
+        # Load tokenizers and models
+        tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
+        tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
 
-            # Load tokenizers and models
-            tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
-            tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
+        # Check that both weights exist
+        artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
 
-            # Check that both weights exist
-            artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
+        weights_exist = artifact_file_exists(
+            project_name=self.config['wandb']['project'],
+            artifact_name=artifact_name,
+            file_path="model_weights.h5"
+        )
 
-            weights_exist = artifact_file_exists(
-                project_name=self.config['wandb']['project'],
-                artifact_name=artifact_name,
-                file_path="model_weights.h5"
-            )
+        if not weights_exist:
+            self.logger.warn(f"Skipping model {model_name} due to missing weights.")
+            return None
 
-            if not weights_exist:
-                self.logger.warn(f"Skipping model {model_name} due to missing weights.")
-                continue
+        # Build Siamese model with pretrained weights
+        model_creator = SiameseBertModel(
+            config=self.config,
+            logger=self.logger,
+            impostor_1_name=impostor_1,
+            impostor_2_name=impostor_2,
+            use_pretrained_weights=True
+        )
+        model_creator.build_siamese_model(bert_model1, bert_model2, False)
 
-            # Build Siamese model with pretrained weights
-            model_creator = SiameseBertModel(
-                config=self.config,
-                logger=self.logger,
-                impostor_1_name=impostor_1,
-                impostor_2_name=impostor_2,
-                use_pretrained_weights=True
-            )
-            model_creator.build_siamese_model(bert_model1, bert_model2, False)
-
-            # Add to trained networks
-            self.trained_networks[model_name] = model_creator
-            self.logger.info(f"✓ Loaded and added model for {model_name}.")
-
+        # Add to trained networks
+        self.logger.info(f"✓ Loaded model for {model_name}.")
+        return model_creator
 
 
     # ============================================ Training Stages ============================================
@@ -167,6 +163,7 @@ class Procedure:
         self.logger.info("✅ Preprocessing stage has been completed!")
         print("----------------------")
         return impostor_1_chunks, impostor_2_chunks
+
 
     def __training_stage(self, model_creator, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
@@ -258,16 +255,21 @@ class Procedure:
 
         self.logger.info(f"Finished training {len(self.trained_networks)} models successfully!")
 
+
     def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
-        self.__load_trained_networks()
-
-        tested_collection_texts = self.data_loader.get_shakespeare_data()
         signal_generator = SignalGeneration(self.config, self.logger)
+        impostor_pairs, _ = self.__get_pairs_info()
+        tested_collection_texts = self.data_loader.get_shakespeare_data()
+        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
 
-        for text in tested_collection_texts:
-            self.logger.info(f"Processing text: {text['text_name']}")
-            signal_generator.generate_signals_for_text(text, self.trained_networks)
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
+            self.logger.log("__________________________________________________________________________________________________")
+            loaded_model = self.__load_trained_network(impostor_1, impostor_2)
+
+            for text in tested_collection_texts:
+                self.logger.info(f"Processing text: {text['text_name']}")
+                signal_generator.generate_signals_for_text(text, loaded_model)
 
         signal_generator.print_all_signals()
         signal_generator.save_all_signals()
