@@ -91,7 +91,7 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
     return shakespeare_collection, classify_text
 
 
-def __generate_and_save_pairs(config, impostor_dataset):
+def __generate_and_save_pairs(impostor_dataset):
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     pairs_output_path = data_sources_folder / config['data']['pairs']
     impostor_names = [author["author"] for author in impostor_dataset]
@@ -102,7 +102,7 @@ def __generate_and_save_pairs(config, impostor_dataset):
     save_to_json(pairs_data, pairs_output_path, "Impostor pairs")
 
 
-def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
+def convert_texts_to_json(shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     shakespeare_collection_output_path = data_sources_folder / config['data']['shakespeare_data_source']
     impostors_output_path = data_sources_folder / config['data']['impostors_data_source']
@@ -126,10 +126,10 @@ def convert_texts_to_json(config, shakespeare_dir, impostor_dir, shakespeare_col
     save_to_json(impostor_dataset, impostor_output_path, "Impostor dataset")
     save_to_json(shakespeare_collection, shakespeare_collection_output_path, "Shakespeare collection")
     save_to_json(classify_text, classify_text_output_path, "Text to classify data")
-    __generate_and_save_pairs(config, impostor_dataset)
+    __generate_and_save_pairs(impostor_dataset)
 
 
-def convert_all_impostor_texts_to_json(config, impostor_dir):
+def convert_all_impostor_texts_to_json(impostor_dir):
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     impostors_output_path = data_sources_folder / config['data']['all_impostors_data_source']
 

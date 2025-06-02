@@ -44,7 +44,6 @@ def __create_dataset():
 
     logger.log("🔄 Creating dataset...")
     convert_texts_to_json(
-        config,
         shakespeare_dir=TESTED_COLLECTION_PATH,
         impostor_dir=IMPOSTORS_PATH,
         shakespeare_collection_size=tested_collection_size,
@@ -53,7 +52,7 @@ def __create_dataset():
     logger.log(f"✅ Dataset created")
 
     logger.log("🔄 Creating all impostors dataset...")
-    convert_all_impostor_texts_to_json(config, impostor_dir=IMPOSTORS_PATH)
+    convert_all_impostor_texts_to_json(impostor_dir=IMPOSTORS_PATH)
     logger.log(f"✅ All impostors dataset created")
 
 
