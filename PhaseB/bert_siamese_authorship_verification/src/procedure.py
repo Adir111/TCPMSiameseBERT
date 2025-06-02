@@ -200,6 +200,8 @@ class Procedure:
             impostor_1 = impostor_pair[0]
             impostor_2 = impostor_pair[1]
             model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
 
             tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
             tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
@@ -209,15 +211,20 @@ class Procedure:
             if self.load_pretrained_model:
                 weights_exist = artifact_file_exists(
                     project_name=self.config['wandb']['project'],
-                    artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
+                    artifact_name=artifact_name,
                     file_path="model_weights.h5"
                 )
 
                 if weights_exist:
                     skip_training = True
 
-            model_creator = SiameseBertModel(config=self.config, logger=self.logger, impostor_1_name=impostor_1,
-                                             impostor_2_name=impostor_2, use_pretrained_weights=skip_training)
+            model_creator = SiameseBertModel(
+                config=self.config,
+                logger=self.logger,
+                impostor_1_name=impostor_1,
+                impostor_2_name=impostor_2,
+                use_pretrained_weights=skip_training
+            )
             model_creator.build_siamese_model(bert_model1, bert_model2)
 
             if skip_training:
