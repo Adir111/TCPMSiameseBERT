@@ -56,9 +56,10 @@ class Procedure:
     def __get_pairs_info(self):
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
-        last_iteration = impostor_pairs_data["last_iteration"]
+        last_iteration_training = impostor_pairs_data["last_iteration_training"]
+        last_iteration_signal = impostor_pairs_data["last_iteration_signal"]
 
-        return impostor_pairs, last_iteration
+        return impostor_pairs, last_iteration_training, last_iteration_signal
 
 
     def __load_tokenizer_and_model(self, impostor_name):
@@ -186,16 +187,13 @@ class Procedure:
     # ============================================ Procedures ============================================
 
     def run_training_procedure(self):
-        impostor_pairs, starting_iteration = self.__get_pairs_info()
+        impostor_pairs, starting_iteration, _ = self.__get_pairs_info()
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
         # ========= Training Phase =========
-        for idx in range(starting_iteration, len(impostor_pairs)):
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
             skip_training = False
-            impostor_pair = impostor_pairs[idx]
-            impostor_1 = impostor_pair[0]
-            impostor_2 = impostor_pair[1]
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
@@ -259,17 +257,22 @@ class Procedure:
     def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
         signal_generator = SignalGeneration(self.config, self.logger)
-        impostor_pairs, _ = self.__get_pairs_info()
+        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
         tested_collection_texts = self.data_loader.get_shakespeare_data()
-        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
+        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification, and {len(tested_collection_texts)} shakespeare texts.")
 
-        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
             self.logger.log("__________________________________________________________________________________________________")
+            self.logger.info(f"Generating signal index {idx} for impostor pair: {impostor_1} and {impostor_2}")
+
             loaded_model = self.__load_trained_network(impostor_1, impostor_2)
 
             for text in tested_collection_texts:
                 self.logger.info(f"Processing text: {text['text_name']}")
                 signal_generator.generate_signals_for_text(text, loaded_model)
+
+            self.logger.info(f"Model index {idx} signal generation complete.")
+            increment_last_iteration(self.config, False)
 
         signal_generator.print_all_signals()
         signal_generator.save_all_signals()

@@ -96,7 +96,8 @@ def __generate_and_save_pairs(impostor_dataset):
     pairs_output_path = data_sources_folder / config['data']['pairs']
     impostor_names = [author["author"] for author in impostor_dataset]
     pairs_data = {
-        "last_iteration": 0,
+        "last_iteration_training": 0,
+        "last_iteration_signal": 0,
         "pairs": make_pairs(impostor_names)
     }
     save_to_json(pairs_data, pairs_output_path, "Impostor pairs")

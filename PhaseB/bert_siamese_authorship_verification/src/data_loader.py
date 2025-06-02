@@ -94,8 +94,6 @@ class DataLoader:
     def get_pairs(self):
         """
         Load and return pairs of impostor names.
-        - If the pairs file exists, load and return it.
-        - Otherwise, generate the pairs, save with last_iteration=0, and return the object.
         """
         data = load_json_data(self.data_path, self.pairs)
         return data
