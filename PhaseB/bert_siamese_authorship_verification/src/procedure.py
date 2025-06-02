@@ -106,18 +106,15 @@ class Procedure:
             tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
 
             # Check that both weights exist
-            branch_1_weights_exist = artifact_file_exists(
+            artifact_name = f"{self.config['wandb']['artifact_name']}-{model_name.replace(' ', '_').replace('/', '_')}:latest"
+
+            weights_exist = artifact_file_exists(
                 project_name=self.config['wandb']['project'],
-                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
-                file_path="branch_weights.h5"
-            )
-            branch_2_weights_exist = artifact_file_exists(
-                project_name=self.config['wandb']['project'],
-                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_2.replace(' ', '_').replace('/', '_')}:latest",
-                file_path="branch_weights.h5"
+                artifact_name=artifact_name,
+                file_path="model_weights.h5"
             )
 
-            if not (branch_1_weights_exist and branch_2_weights_exist):
+            if not weights_exist:
                 self.logger.warn(f"Skipping model {model_name} due to missing weights.")
                 continue
 
