@@ -63,4 +63,4 @@ wandb:
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   artifact_name: "siamese-authorship-verification-branches"
-  api_key: 99cb11ef59cac847e6b99323c0d485a69157f548
+  api_key: 8dc3df6ba5ef5bae0ad60917973e82163f35bdf8
