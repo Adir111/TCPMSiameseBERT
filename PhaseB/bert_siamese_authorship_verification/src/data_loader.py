@@ -18,7 +18,18 @@ def _clean_text(text):
 
 
 class DataLoader:
+    _instance = None
+
+    def __new__(cls, config):
+        if cls._instance is None:
+            cls._instance = super(DataLoader, cls).__new__(cls)
+            cls._instance._initialized = False  # Track initialization
+        return cls._instance
+
     def __init__(self, config):
+        if self._initialized:
+            return  # Avoid reinitialization on repeated calls
+
         self._config = config
         self.data_path = (Path(__file__).parent.parent / config['data']['organised_data_folder_path']).resolve()
         self.shakespeare_dataset_name = config['data']['shakespeare_data_source']
@@ -26,6 +37,8 @@ class DataLoader:
         self.text_to_classify_name = config['data']['classify_text_data_source']
         self.all_impostors_dataset_name = config['data']['all_impostors_data_source']
         self.pairs = config['data']['pairs']
+
+        self._initialized = True  # Prevent reinitialization
 
     def get_shakespeare_data(self):
         """

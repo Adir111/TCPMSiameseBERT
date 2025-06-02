@@ -20,7 +20,18 @@ tf.get_logger().setLevel('ERROR')
 
 
 class Procedure:
+    _instance = None
+
+    def __new__(cls, config, logger):
+        if cls._instance is None:
+            cls._instance = super(Procedure, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self, config, logger):
+        if self._initialized:
+            return  # Avoid reinitialization
+
         self.config = config
         self.logger = logger
         self.general_preprocessor = Preprocessor(
@@ -32,6 +43,8 @@ class Procedure:
         self.data_loader = DataLoader(config=config)
         self.trained_networks = {}
         self.model_creator = None
+
+        self._initialized = True
 
     def __get_pairs_info(self):
         impostor_pairs_data = self.data_loader.get_pairs()
