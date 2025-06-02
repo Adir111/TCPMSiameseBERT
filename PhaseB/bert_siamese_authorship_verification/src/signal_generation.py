@@ -45,8 +45,8 @@ class SignalGeneration:
         self.logger.info(
             f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
 
-        model_name, model_creator = next(iter(trained_network.items()))
-        classifier = model_creator.get_encoder_classifier()
+        model_name = trained_network.model_name
+        classifier = trained_network.get_encoder_classifier()
         self.logger.info(f"Generating signal from model: {model_name}...")
 
         predictions = np.asarray(classifier.predict({
