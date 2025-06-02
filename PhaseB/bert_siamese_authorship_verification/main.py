@@ -15,7 +15,7 @@ TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
 
-def __handle_selection(func, selection):
+def __handle_selection(func, selection='selection'):
     """
     Confirm selection before running the provided function.
     If the user types 'yes', the function is executed.
