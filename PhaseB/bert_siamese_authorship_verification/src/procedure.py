@@ -1,7 +1,10 @@
 import tensorflow as tf
 import gc
+import logging
 from transformers import TFBertModel, BertTokenizer
+from transformers import logging as tf_logging
 from huggingface_hub import snapshot_download
+from huggingface_hub.utils import logging as hf_logging
 from pathlib import Path
 
 from .data_loader import DataLoader
@@ -17,7 +20,8 @@ from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer
 # from src.clustering import perform_kmedoids_clustering
 
 tf.get_logger().setLevel('ERROR')
-
+hf_logging.set_verbosity_error()
+tf_logging.set_verbosity_error()
 
 class Procedure:
     _instance = None
@@ -63,7 +67,7 @@ class Procedure:
 
         # Try Downloading from Hugging Face Hub
         try:
-            self.logger.log(f"Downloading model from Hugging Face Hub: {hf_model_id}")
+            self.logger.info(f"Downloading model from Hugging Face Hub: {hf_model_id}")
             # Download only the subfolder
             snapshot_path = snapshot_download(
                 repo_id,
@@ -71,7 +75,7 @@ class Procedure:
                 local_dir=model_path,
                 local_dir_use_symlinks=False
             )
-            self.logger.log(f"Model downloaded successfully: {hf_model_id}")
+            self.logger.info(f"Model downloaded successfully: {hf_model_id}")
 
             download_path = Path(snapshot_path) / impostor_name
 
@@ -92,7 +96,9 @@ class Procedure:
         self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
 
         for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
+            self.logger.log("__________________________________________________________________________________________________")
             model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
 
             # Skip if model already loaded
             if model_name in self.trained_networks:
@@ -106,7 +112,7 @@ class Procedure:
             tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
 
             # Check that both weights exist
-            artifact_name = f"{self.config['wandb']['artifact_name']}-{model_name.replace(' ', '_').replace('/', '_')}:latest"
+            artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
 
             weights_exist = artifact_file_exists(
                 project_name=self.config['wandb']['project'],
@@ -126,7 +132,7 @@ class Procedure:
                 impostor_2_name=impostor_2,
                 use_pretrained_weights=True
             )
-            model_creator.build_siamese_model(bert_model1, bert_model2)
+            model_creator.build_siamese_model(bert_model1, bert_model2, False)
 
             # Add to trained networks
             self.trained_networks[model_name] = model_creator
