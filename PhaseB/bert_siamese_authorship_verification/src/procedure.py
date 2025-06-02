@@ -118,7 +118,7 @@ class Procedure:
             )
 
             if not (branch_1_weights_exist and branch_2_weights_exist):
-                self.logger.warning(f"Skipping model {model_name} due to missing weights.")
+                self.logger.warn(f"Skipping model {model_name} due to missing weights.")
                 continue
 
             # Build Siamese model with pretrained weights
