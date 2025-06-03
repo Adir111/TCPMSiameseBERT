@@ -37,6 +37,7 @@ class DataLoader:
         self.text_to_classify_name = config['data']['classify_text_data_source']
         self.all_impostors_dataset_name = config['data']['all_impostors_data_source']
         self.pairs = config['data']['pairs']
+        self.all_signals = config['data']['all_signals']
 
         self._initialized = True  # Prevent reinitialization
 
@@ -96,4 +97,11 @@ class DataLoader:
         Load and return pairs of impostor names.
         """
         data = load_json_data(self.data_path, self.pairs)
+        return data
+
+    def get_all_signals(self):
+        """
+        Load and return all signals from JSON.
+        """
+        data = load_json_data(self.data_path, self.all_signals)
         return data
