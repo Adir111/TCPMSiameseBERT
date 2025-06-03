@@ -258,22 +258,22 @@ class Procedure:
         # ========= Signal Generation Phase =========
         signal_generator = SignalGeneration(self.config, self.logger)
         impostor_pairs, _, starting_iteration = self.__get_pairs_info()
-        tested_collection_texts = self.data_loader.get_shakespeare_data()
-        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification, and {len(tested_collection_texts)} shakespeare texts.")
+        self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
+        signal_generator.load_shakespeare_preprocessed_texts()
 
         for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
             self.logger.log("__________________________________________________________________________________________________")
             self.logger.info(f"Generating signal index {idx} for impostor pair: {impostor_1} and {impostor_2}")
 
             loaded_model = self.__load_trained_network(impostor_1, impostor_2)
+            model_name = loaded_model.model_name
+            classifier = loaded_model.get_encoder_classifier()
 
-            for text in tested_collection_texts:
-                self.logger.info(f"Processing text: {text['text_name']}")
-                signal_generator.generate_signals_for_text(text, loaded_model)
+            self.logger.info(f"Generating signals from model: {model_name}...")
+            signal_generator.generate_signals_for_preprocessed_texts(classifier, model_name)
+            signal_generator.save_model_signal(model_name)
 
             self.logger.info(f"Model index {idx} signal generation complete.")
             increment_last_iteration(self.config, False)
 
         signal_generator.print_all_signals()
-        signal_generator.save_all_signals()
-
