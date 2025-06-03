@@ -9,14 +9,34 @@ nltk.download('omw-1.4')
 nltk.download('stopwords')
 
 class Preprocessor:
+    _singleton_instance = None
+
+    def __new__(cls, config, tokenizer=None):
+        if tokenizer is None:
+            if cls._singleton_instance is None:
+                cls._singleton_instance = super(Preprocessor, cls).__new__(cls)
+                cls._singleton_instance._initialized = False
+            return cls._singleton_instance
+        else:
+            # Bypass singleton — return a fresh instance
+            instance = super(Preprocessor, cls).__new__(cls)
+            instance._initialized = False
+            return instance
+
     def __init__(self, config, tokenizer=None):
+        if self._initialized:
+            return
+
         self.config = config
         self.chunk_size = config['model']['chunk_size']
         self.test_split = config['training']['test_split']
+
         if tokenizer is None:
             self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
         else:
             self.tokenizer = tokenizer
+
+        self._initialized = True
 
     def __tokenize_text(self, text):
         """

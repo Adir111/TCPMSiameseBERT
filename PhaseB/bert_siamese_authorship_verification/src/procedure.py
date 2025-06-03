@@ -1,14 +1,17 @@
-import numpy as np
 import tensorflow as tf
 import gc
+import logging
 from transformers import TFBertModel, BertTokenizer
+from transformers import logging as tf_logging
 from huggingface_hub import snapshot_download
+from huggingface_hub.utils import logging as hf_logging
 from pathlib import Path
 
 from .data_loader import DataLoader
 from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
+from .signal_generation import SignalGeneration
 from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, \
     artifact_file_exists
 
@@ -17,28 +20,124 @@ from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer
 # from src.clustering import perform_kmedoids_clustering
 
 tf.get_logger().setLevel('ERROR')
-
+hf_logging.set_verbosity_error()
+tf_logging.set_verbosity_error()
 
 class Procedure:
+    _instance = None
+
+    def __new__(cls, config, logger):
+        if cls._instance is None:
+            cls._instance = super(Procedure, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self, config, logger):
+        if self._initialized:
+            return  # Avoid reinitialization
+
         self.config = config
         self.logger = logger
         self.general_preprocessor = Preprocessor(
             config=config)  # Uses non-fine-tuned BERT tokenizer, just for utilities...
         self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
-        self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.training_batch_size = config['training']['training_batch_size']
         self.load_pretrained_model = config['training']['load_pretrained_model']
         self.data_loader = DataLoader(config=config)
         self.trained_networks = {}
         self.model_creator = None
 
+        self._initialized = True
+
+
+
+    # ============================================ Utils ============================================
+
     def __get_pairs_info(self):
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
-        last_iteration = impostor_pairs_data["last_iteration"]
+        last_iteration_training = impostor_pairs_data["last_iteration_training"]
+        last_iteration_signal = impostor_pairs_data["last_iteration_signal"]
 
-        return impostor_pairs, last_iteration
+        return impostor_pairs, last_iteration_training, last_iteration_signal
+
+
+    def __load_tokenizer_and_model(self, impostor_name):
+        model_path = Path(self.config['data']['fine_tuned_bert_model_path'])
+        repo_id = self.config['bert']['repository']
+        hf_model_id = f"{repo_id}/{impostor_name}"
+
+        # Try Downloading from Hugging Face Hub
+        try:
+            self.logger.info(f"Downloading model from Hugging Face Hub: {hf_model_id}")
+            # Download only the subfolder
+            snapshot_path = snapshot_download(
+                repo_id,
+                allow_patterns=[f"{impostor_name}/*"],
+                local_dir=model_path,
+                local_dir_use_symlinks=False
+            )
+            self.logger.info(f"Model downloaded successfully: {hf_model_id}")
+
+            download_path = Path(snapshot_path) / impostor_name
+
+            tokenizer = BertTokenizer.from_pretrained(download_path)
+            model = TFBertModel.from_pretrained(download_path)
+            model.trainable = False  # Freeze the BERT's weights!!! Super important.
+
+            return tokenizer, model
+        except Exception as e:
+            self.logger.log(f"Failed to load model: {hf_model_id}. Error: {e}")
+            raise RuntimeError(
+                f"Failed to load BERT model: {hf_model_id}. Error: {e}"
+            )
+
+
+    def __load_trained_network(self, impostor_1, impostor_2):
+        # ========= Signal Generation Phase =========
+        model_name = f"{impostor_1}_{impostor_2}"
+        sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+
+        # Skip if model already loaded
+        if model_name in self.trained_networks:
+            self.logger.info(f"Model for {model_name} already loaded. Skipping.")
+            return self.trained_networks[model_name]
+
+        self.logger.info(f"Loading model for impostor pair: {model_name}")
+
+        # Load tokenizers and models
+        tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
+        tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
+
+        # Check that both weights exist
+        artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
+
+        weights_exist = artifact_file_exists(
+            project_name=self.config['wandb']['project'],
+            artifact_name=artifact_name,
+            file_path="model_weights.h5"
+        )
+
+        if not weights_exist:
+            self.logger.warn(f"Skipping model {model_name} due to missing weights.")
+            return None
+
+        # Build Siamese model with pretrained weights
+        model_creator = SiameseBertModel(
+            config=self.config,
+            logger=self.logger,
+            impostor_1_name=impostor_1,
+            impostor_2_name=impostor_2,
+            use_pretrained_weights=True
+        )
+        model_creator.build_siamese_model(bert_model1, bert_model2, False)
+
+        # Add to trained networks
+        self.logger.info(f"✓ Loaded model for {model_name}.")
+        return model_creator
+
+
+    # ============================================ Training Stages ============================================
 
     def __preprocessing_stage(self, impostor_1: tuple, impostor_2: tuple):
         print("----------------------")
@@ -66,35 +165,6 @@ class Procedure:
         print("----------------------")
         return impostor_1_chunks, impostor_2_chunks
 
-    def __load_tokenizer_and_model(self, impostor_name):
-        model_path = Path(self.config['data']['fine_tuned_bert_model_path'])
-        repo_id = self.config['bert']['repository']
-        hf_model_id = f"{repo_id}/{impostor_name}"
-
-        # Try Downloading from Hugging Face Hub
-        try:
-            self.logger.log(f"Downloading model from Hugging Face Hub: {hf_model_id}")
-            # Download only the subfolder
-            snapshot_path = snapshot_download(
-                repo_id,
-                allow_patterns=[f"{impostor_name}/*"],
-                local_dir=model_path,
-                local_dir_use_symlinks=False
-            )
-            self.logger.log(f"Model downloaded successfully: {hf_model_id}")
-
-            download_path = Path(snapshot_path) / impostor_name
-
-            tokenizer = BertTokenizer.from_pretrained(download_path)
-            model = TFBertModel.from_pretrained(download_path)
-            model.trainable = False  # Freeze the BERT's weights!!! Super important.
-
-            return tokenizer, model
-        except Exception as e:
-            self.logger.log(f"Failed to load model: {hf_model_id}. Error: {e}")
-            raise RuntimeError(
-                f"Failed to load BERT model: {hf_model_id}. Error: {e}"
-            )
 
     def __training_stage(self, model_creator, impostor_1_preprocessed, impostor_2_preprocessed):
         print("----------------------")
@@ -102,65 +172,31 @@ class Procedure:
 
         trainer = Trainer(self.config, self.logger, model_creator, self.training_batch_size)
 
-        x_train, y_train, x_test, y_test = self.general_preprocessor.create_xy(impostor_1_preprocessed,
-                                                                               impostor_2_preprocessed)
+        x_train, y_train, x_test, y_test = self.general_preprocessor.create_xy(
+            impostor_1_preprocessed,
+            impostor_2_preprocessed
+        )
         history = trainer.train(x_train, y_train, x_test, y_test)
 
         self.logger.info("✅ Training stage has been completed!")
-
         print("----------------------")
         return history
 
-    def __generate_signals_for_text(self, shakespearian_text):
-        text_name = shakespearian_text['text_name']
-        chunks_list, chunks_tokens_count = self.general_preprocessor.preprocess([shakespearian_text['text']])
-        text_chunks = {
-            "input_ids": np.stack([c["input_ids"].numpy().squeeze(0) for c in chunks_list]),
-            "attention_mask": np.stack([c["attention_mask"].numpy().squeeze(0) for c in chunks_list]),
-            "token_type_ids": np.stack([c["token_type_ids"].numpy().squeeze(0) for c in chunks_list]),
-        }
 
-        self.logger.info(
-            f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
 
-        all_signals = []
-        for model_creator in self.trained_networks:
-            model_name = model_creator.model_name
-            classifier = model_creator.get_encoder_classifier()
-            self.logger.info(f"Generating signal from model: {model_name}...")
-
-            predictions = np.asarray(classifier.predict({
-                "input_ids": text_chunks['input_ids'],
-                "attention_mask": text_chunks['attention_mask'],
-                "token_type_ids": text_chunks['token_type_ids']
-            }))
-
-            binary_outputs = (predictions >= 0.5).astype(int)
-            binary_outputs = binary_outputs.flatten().tolist()
-
-            # Aggregate scores into signal chunks
-            signal = [np.mean(binary_outputs[i:i + self.chunks_per_batch]) for i in
-                      range(0, len(binary_outputs), self.chunks_per_batch)]
-            self.logger.log(f"[INFO] Signal representation: {signal}")
-
-            all_signals.append(signal)
-            self.logger.info(
-                f"Signal generated for text: {text_name} by model: {model_name}")
-
-            self.data_visualizer.display_signal_plot(signal, text_name, model_name)
+    # ============================================ Procedures ============================================
 
     def run_training_procedure(self):
-        impostor_pairs, starting_iteration = self.__get_pairs_info()
+        impostor_pairs, starting_iteration, _ = self.__get_pairs_info()
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
         # ========= Training Phase =========
-        for idx in range(starting_iteration, len(impostor_pairs)):
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
             skip_training = False
-            impostor_pair = impostor_pairs[idx]
-            impostor_1 = impostor_pair[0]
-            impostor_2 = impostor_pair[1]
             model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            artifact_name = f"{self.config['wandb']['artifact_name']}-{sanitized_model_name}:latest"
 
             tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
             tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
@@ -170,15 +206,20 @@ class Procedure:
             if self.load_pretrained_model:
                 weights_exist = artifact_file_exists(
                     project_name=self.config['wandb']['project'],
-                    artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
+                    artifact_name=artifact_name,
                     file_path="model_weights.h5"
                 )
 
                 if weights_exist:
                     skip_training = True
 
-            model_creator = SiameseBertModel(config=self.config, logger=self.logger, impostor_1_name=impostor_1,
-                                             impostor_2_name=impostor_2, use_pretrained_weights=skip_training)
+            model_creator = SiameseBertModel(
+                config=self.config,
+                logger=self.logger,
+                impostor_1_name=impostor_1,
+                impostor_2_name=impostor_2,
+                use_pretrained_weights=skip_training
+            )
             model_creator.build_siamese_model(bert_model1, bert_model2)
 
             if skip_training:
@@ -212,57 +253,27 @@ class Procedure:
 
         self.logger.info(f"Finished training {len(self.trained_networks)} models successfully!")
 
+
     def run_classification_procedure(self):
         # ========= Signal Generation Phase =========
-        impostor_pairs, _ = self.__get_pairs_info()
+        signal_generator = SignalGeneration(self.config, self.logger)
+        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
         self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
+        signal_generator.load_shakespeare_preprocessed_texts()
 
-        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs):
-            model_name = f"{impostor_1}_{impostor_2}"
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
+            self.logger.log("__________________________________________________________________________________________________")
+            self.logger.info(f"Generating signal index {idx} for impostor pair: {impostor_1} and {impostor_2}")
 
-            # Skip if model already loaded
-            if model_name in self.trained_networks:
-                self.logger.info(f"Model for {model_name} already loaded. Skipping.")
-                continue
+            loaded_model = self.__load_trained_network(impostor_1, impostor_2)
+            model_name = loaded_model.model_name
+            classifier = loaded_model.get_encoder_classifier()
 
-            self.logger.info(f"Loading model for impostor pair: {model_name}")
+            self.logger.info(f"Generating signals from model: {model_name}...")
+            signal_generator.generate_signals_for_preprocessed_texts(classifier, model_name)
+            signal_generator.save_model_signal(model_name)
 
-            # Load tokenizers and models
-            tokenizer1, bert_model1 = self.__load_tokenizer_and_model(impostor_1)
-            tokenizer2, bert_model2 = self.__load_tokenizer_and_model(impostor_2)
+            self.logger.info(f"Model index {idx} signal generation complete.")
+            increment_last_iteration(self.config, False)
 
-            # Check that both weights exist
-            branch_1_weights_exist = artifact_file_exists(
-                project_name=self.config['wandb']['project'],
-                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_1.replace(' ', '_').replace('/', '_')}:latest",
-                file_path="branch_weights.h5"
-            )
-            branch_2_weights_exist = artifact_file_exists(
-                project_name=self.config['wandb']['project'],
-                artifact_name=f"{self.config['wandb']['artifact_name']}-{impostor_2.replace(' ', '_').replace('/', '_')}:latest",
-                file_path="branch_weights.h5"
-            )
-
-            if not (branch_1_weights_exist and branch_2_weights_exist):
-                self.logger.warning(f"Skipping model {model_name} due to missing weights.")
-                continue
-
-            # Build Siamese model with pretrained weights
-            model_creator = SiameseBertModel(
-                config=self.config,
-                logger=self.logger,
-                impostor_1_name=impostor_1,
-                impostor_2_name=impostor_2,
-                use_pretrained_weights=True
-            )
-            model_creator.build_siamese_model(bert_model1, bert_model2)
-
-            # Add to trained networks
-            self.trained_networks[model_name] = model_creator
-            self.logger.info(f"✓ Loaded and added model for {model_name}.")
-
-        # Signal Generation Phase
-        tested_collection_texts = self.data_loader.get_shakespeare_data()
-        for text in tested_collection_texts:
-            self.logger.info(f"Processing text: {text['text_name']}")
-            self.__generate_signals_for_text(text)
+        signal_generator.print_all_signals()

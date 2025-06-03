@@ -15,16 +15,16 @@ TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
 
-def __handle_selection(func):
+def __handle_selection(func, selection='selection'):
     """
     Confirm selection before running the provided function.
     If the user types 'yes', the function is executed.
     """
-    confirm = input(f"Are you sure you want to run '{func.__name__}'? (yes/no): ").strip().lower()
+    confirm = input(f"Are you sure you want to run '{selection}'? (yes/no): ").strip().lower()
     if confirm == "yes" or confirm == "y":
         return func()
     else:
-        print(f"Cancelled '{func.__name__}'.")
+        print(f"Cancelled '{selection}'.")
         return None
 
 
@@ -44,7 +44,6 @@ def __create_dataset():
 
     logger.log("🔄 Creating dataset...")
     convert_texts_to_json(
-        config,
         shakespeare_dir=TESTED_COLLECTION_PATH,
         impostor_dir=IMPOSTORS_PATH,
         shakespeare_collection_size=tested_collection_size,
@@ -53,7 +52,7 @@ def __create_dataset():
     logger.log(f"✅ Dataset created")
 
     logger.log("🔄 Creating all impostors dataset...")
-    convert_all_impostor_texts_to_json(config, impostor_dir=IMPOSTORS_PATH)
+    convert_all_impostor_texts_to_json(impostor_dir=IMPOSTORS_PATH)
     logger.log(f"✅ All impostors dataset created")
 
 
@@ -113,15 +112,15 @@ def main():
         option = input("Select an option above: ").strip()
 
         if option == "1":
-            __handle_selection(__create_dataset)
+            __handle_selection(__create_dataset, "Dataset Creation")
         elif option == "2":
-            __handle_selection(__training)
+            __handle_selection(__training, "Training Procedure")
             break
         elif option == "3":
-            __handle_selection(__classification)
+            __handle_selection(__classification, "Classification Procedure")
             break
         elif option == "999":
-            __handle_selection(__fine_tune_berts)
+            __handle_selection(__fine_tune_berts, "Fine Tune All BERTs")
             break
         elif option == "0":
             logger.log("👋 Exiting. Have a great day!")

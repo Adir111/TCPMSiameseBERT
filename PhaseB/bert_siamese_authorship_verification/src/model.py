@@ -146,14 +146,14 @@ class SiameseBertModel:
                              token_type_ids],
                      outputs=outputs)
 
-    def build_siamese_model(self, bert_model_1, bert_model_2):
+    def build_siamese_model(self, bert_model_1, bert_model_2, print_summary=True):
         """
             Builds the Siamese model architecture using two BERT branches.
             This function should only be used to initialize the model structure.
             Its return result should only be used for training.
             This is why we do not load any pre-trained weights here.
         """
-        self.logger.log(f"Started building model {self.model_name}...")
+        self.logger.info(f"Started building model {self.model_name}...")
 
         input_ids_1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="input_ids_1")
         attention_mask_1 = Input(shape=(self.chunk_size,), dtype=tf.int32, name="attention_mask_1")
@@ -180,9 +180,10 @@ class SiameseBertModel:
             ],
             outputs=output
         )
-        model_summary = self.get_model_summary_string(self.model)
-        self.logger.log(model_summary)
-        self.logger.log(f"Finished building model {self.model_name}...")
+        if print_summary:
+            model_summary = self.get_model_summary_string(self.model)
+            self.logger.log(model_summary)
+        self.logger.info(f"Finished building model {self.model_name}...")
         return self.model
 
     def get_encoder_classifier(self):

@@ -18,7 +18,18 @@ def _clean_text(text):
 
 
 class DataLoader:
+    _instance = None
+
+    def __new__(cls, config):
+        if cls._instance is None:
+            cls._instance = super(DataLoader, cls).__new__(cls)
+            cls._instance._initialized = False  # Track initialization
+        return cls._instance
+
     def __init__(self, config):
+        if self._initialized:
+            return  # Avoid reinitialization on repeated calls
+
         self._config = config
         self.data_path = (Path(__file__).parent.parent / config['data']['organised_data_folder_path']).resolve()
         self.shakespeare_dataset_name = config['data']['shakespeare_data_source']
@@ -26,6 +37,9 @@ class DataLoader:
         self.text_to_classify_name = config['data']['classify_text_data_source']
         self.all_impostors_dataset_name = config['data']['all_impostors_data_source']
         self.pairs = config['data']['pairs']
+        self.all_signals = config['data']['all_signals']
+
+        self._initialized = True  # Prevent reinitialization
 
     def get_shakespeare_data(self):
         """
@@ -81,8 +95,13 @@ class DataLoader:
     def get_pairs(self):
         """
         Load and return pairs of impostor names.
-        - If the pairs file exists, load and return it.
-        - Otherwise, generate the pairs, save with last_iteration=0, and return the object.
         """
         data = load_json_data(self.data_path, self.pairs)
+        return data
+
+    def get_all_signals(self):
+        """
+        Load and return all signals from JSON.
+        """
+        data = load_json_data(self.data_path, self.all_signals)
         return data

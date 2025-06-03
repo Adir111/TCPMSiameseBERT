@@ -17,9 +17,22 @@ from .logger import WrappedWandbLogger
 
 
 class DataVisualizer:
+    _instance = None
+
+    def __new__(cls, is_wandb_logger, logger):
+        if cls._instance is None:
+            cls._instance = super(DataVisualizer, cls).__new__(cls)
+            cls._instance._initialized = False
+        return cls._instance
+
     def __init__(self, is_wandb_logger, logger):
+        if self._initialized:
+            return  # Prevent reinitialization
+
         self.logger = logger
         self._is_wandb = is_wandb_logger
+
+        self._initialized = True
 
     def _finalize_plot(self, label):
         fig = plt.gcf()
