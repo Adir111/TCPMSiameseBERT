@@ -9,7 +9,7 @@ data:
   fine_tuned_bert_model_path: "saved_trained_models/berts/"
   trained_siamese_path: "saved_trained_models/models/"
   pairs: "pairs.json"
-  signals: "signals.json"
+  signals: "all_signals.json"
 
 training:
   load_pretrained_model: False
