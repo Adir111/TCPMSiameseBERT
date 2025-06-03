@@ -8,8 +8,9 @@ data:
   impostors_path: "data/raw/impostors"
   fine_tuned_bert_model_path: "saved_trained_models/berts/"
   trained_siamese_path: "saved_trained_models/models/"
+  signals_folder_path: "signals_per_model"
   pairs: "pairs.json"
-  signals: "all_signals.json"
+  all_signals: "all_signals.json"
 
 training:
   load_pretrained_model: False
@@ -59,7 +60,7 @@ bert:
 
 
 wandb:
-  enabled: True
+  enabled: False
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   artifact_name: "siamese-authorship-verification-branches"
