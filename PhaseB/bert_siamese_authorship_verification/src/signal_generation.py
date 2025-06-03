@@ -89,7 +89,7 @@ class SignalGeneration:
             self.all_signals[model_name][text_name] = signal
 
             self.logger.info(f"Signal generated for text: {text_name} by model: {model_name}")
-            # self.data_visualizer.display_signal_plot(signal, text_name, model_name)
+            self.data_visualizer.display_signal_plot(signal, text_name, model_name)
 
 
     def print_all_signals(self):
