@@ -29,13 +29,13 @@ class SignalDistanceManager:
 
 
     def compute_distance_matrix_for_model(self, model_name):
-        self.logger.log(f"Computing distance matrix for model: {model_name}")
+        self.logger.info(f"Computing distance matrix for model: {model_name}")
 
         # Load signal data
         model_signals = self.data_loader.get_model_signals(model_name)
 
         # Filter and batch-average signals
-        processed_signals = self.__batch_average_signals(model_signals)
+        processed_signals, included_text_names = self.__batch_average_signals(model_signals)
 
         if not processed_signals:
             self.logger.warn("No valid signals to process.")
@@ -45,11 +45,12 @@ class SignalDistanceManager:
         distance_matrix = self.__create_dtw_distance_matrix(processed_signals)
 
         # Save results
-        self.__save_results(processed_signals, distance_matrix, model_name)
-        self.logger.log(f"Finished computing distance matrix for {model_name}")
+        self.__save_results(processed_signals, distance_matrix, included_text_names, model_name)
+        self.logger.info(f"Finished computing distance matrix for {model_name}")
 
     def __batch_average_signals(self, signals_dict):
         processed = {}
+        included_text_names = []
 
         for text_name, signal in signals_dict.items():
             batched = []
@@ -64,10 +65,11 @@ class SignalDistanceManager:
             # Skip signals with fewer than 2 batches
             if len(batched) < 2:
                 continue
+            included_text_names.append(text_name)
 
             processed[text_name] = batched
 
-        return processed
+        return processed, included_text_names
 
     @staticmethod
     def __create_dtw_distance_matrix(signals_dict):
@@ -81,7 +83,7 @@ class SignalDistanceManager:
 
         return dist_mat
 
-    def __save_results(self, signals_dict, distance_matrix, model_name):
+    def __save_results(self, signals_dict, distance_matrix, included_text_names, model_name):
         # Create subfolder for this model
         model_output_dir = self.output_path / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
@@ -89,9 +91,8 @@ class SignalDistanceManager:
         # Define file paths (without repeating model_name in the filename)
         signal_file_path = model_output_dir / f"signals.json"
         matrix_file_path = model_output_dir / f"distance_matrix.json"
+        names_file_path = model_output_dir / "included_text_names.json"
 
         save_to_json(signals_dict, signal_file_path, f"Batched Signals ({model_name})")
         save_to_json(distance_matrix.tolist(), matrix_file_path, f"DTW ({model_name})")
-
-        self.logger.log(f"Saved signals to {signal_file_path}")
-        self.logger.log(f"Saved distance matrix to {matrix_file_path}")
+        save_to_json(included_text_names, names_file_path, f"Included Text Names ({model_name})")
