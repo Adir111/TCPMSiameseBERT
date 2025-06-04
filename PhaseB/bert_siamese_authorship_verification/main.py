@@ -104,6 +104,18 @@ def __isolation_forest():
         logger.error(f"❌ {e}")
 
 
+def __clustering():
+    """ Triggers the clustering procedure. """
+    try:
+        logger.log("🚀 Starting Clustering Procedure...")
+        procedure.run_clustering_procedure()
+
+        logger.log("✅ Clustering Procedure completed!")
+        logger.log({"status": "completed"})
+    except Exception as e:
+        logger.error(f"❌ {e}")
+
+
 def __fine_tune_berts():
     """ Fine-tunes BERT models for the Siamese architecture. """
     try:
@@ -132,6 +144,7 @@ def main():
         logger.log("3 - Classification Procedure")
         logger.log("4 - DTW Procedure")
         logger.log("5 - Isolation Forest Procedure")
+        logger.log("6 - Clustering Procedure")
         logger.log("999 - Fine Tune All BERTs")
         logger.log("0 - Exit")
 
@@ -147,6 +160,8 @@ def main():
             __handle_selection(__dtw, "DTW Procedure")
         elif option == "5":
             __handle_selection(__isolation_forest, "Isolation Forest Procedure")
+        elif option == "6":
+            __handle_selection(__clustering, "Clustering Procedure")
         elif option == "999":
             __handle_selection(__fine_tune_berts, "Fine Tune All BERTs")
         elif option == "0":
