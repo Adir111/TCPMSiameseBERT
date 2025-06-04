@@ -1,6 +1,5 @@
 import tensorflow as tf
 import gc
-import logging
 from transformers import TFBertModel, BertTokenizer
 from transformers import logging as tf_logging
 from huggingface_hub import snapshot_download
