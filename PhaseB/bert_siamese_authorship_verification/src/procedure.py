@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import gc
 from transformers import TFBertModel, BertTokenizer
@@ -13,6 +14,7 @@ from .model import SiameseBertModel
 from .signal_generation import SignalGeneration
 from .distance_manager import SignalDistanceManager
 from .isolation_forest import DTWIsolationForest
+from .clustering import Clustering
 from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, \
     artifact_file_exists
 
@@ -279,6 +281,7 @@ class Procedure:
 
         signal_generator.print_all_signals()
 
+
     def run_distance_matrix_generation(self):
         """
         Runs distance matrix generation for all models that have signals generated.
@@ -286,9 +289,9 @@ class Procedure:
         self.logger.info("Starting distance matrix generation procedure...")
         signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
 
-        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
+        impostor_pairs, _, _ = self.__get_pairs_info()
 
-        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
+        for impostor_1, impostor_2 in impostor_pairs:
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             self.logger.info(f"Processing distance matrix for model: {sanitized_model_name}")
@@ -296,6 +299,7 @@ class Procedure:
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
         self.logger.info("✅ All distance matrices generated.")
+
 
     def run_isolation_forest_procedure(self):
         """
@@ -305,9 +309,9 @@ class Procedure:
         self.logger.info("🚨 Starting Isolation Forest anomaly detection...")
         anomaly_detector = DTWIsolationForest(config=self.config, logger=self.logger)
 
-        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
+        impostor_pairs, _, _ = self.__get_pairs_info()
 
-        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
+        for impostor_1, impostor_2 in impostor_pairs:
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             self.logger.info(f"Analyzing anomalies for model: {sanitized_model_name}")
@@ -317,6 +321,36 @@ class Procedure:
             self.logger.info(f"✅ Model: {sanitized_model_name}")
             self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
-            self.logger.info(f"   → Total anomalies detected: {sum(y_pred_train == -1)}")
+            self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
 
         self.logger.info("🎯 Isolation Forest detection completed for all models.")
+
+
+    def run_clustering_procedure(self):
+        """
+        Runs clustering on DTW distance matrices for all models using the specified clustering algorithm.
+        Saves results to JSON and logs summary per model.
+        """
+        self.logger.info("🔍 Starting DTW clustering procedure...")
+
+        clustering = Clustering(config=self.config, logger=self.logger)
+        impostor_pairs, _, _ = self.__get_pairs_info()
+
+        for impostor_1, impostor_2 in impostor_pairs:
+            model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            self.logger.info(f"Clustering for model: {sanitized_model_name}")
+
+            try:
+                cluster_labels, medoid_indices = clustering.cluster_dtw(sanitized_model_name)
+                unique_clusters = np.unique(cluster_labels)
+                self.logger.info(f"✅ Model: {sanitized_model_name}")
+                self.logger.info(f"   → Total clusters: {len(unique_clusters)}")
+                self.logger.info(
+                    f"   → Cluster label counts: {dict(zip(*np.unique(cluster_labels, return_counts=True)))}")
+                if medoid_indices is not None:
+                    self.logger.info(f"   → Medoid indices: {medoid_indices}")
+            except Exception as e:
+                self.logger.error(f"❌ Failed clustering for model {sanitized_model_name}: {str(e)}")
+
+        self.logger.info("🎯 Clustering procedure completed for all models.")

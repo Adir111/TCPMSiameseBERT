@@ -10,6 +10,7 @@ data:
   trained_siamese_path: "saved_trained_models/models/"
   signals_folder_name: "signals_per_model"
   isolation_forest_folder_name: "isolation_forest_per_model"
+  clustering_folder_name: "clustering_per_model"
   dtw:
     output_distance_folder: "distance_per_model"
     dtw_file_name: "distance_matrix.json"
@@ -52,6 +53,13 @@ isolation_forest:
   number_of_trees: 100
   percentile_threshold: 5
   anomaly_score_threshold: 0.000025
+
+clustering:
+  algorithm: "k-medoids"
+  k-medoids:
+    n_clusters: 2
+    random_state: 0
+
 
 bert:
   model: "bert-base-uncased"
