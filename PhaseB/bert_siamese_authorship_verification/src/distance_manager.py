@@ -27,7 +27,6 @@ class SignalDistanceManager:
 
         self.output_path.mkdir(parents=True, exist_ok=True)
 
-
     def compute_distance_matrix_for_model(self, model_name):
         self.logger.log(f"Computing distance matrix for model: {model_name}")
 
