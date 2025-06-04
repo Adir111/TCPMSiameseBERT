@@ -1,0 +1,45 @@
+++++++++++++++++++++++++++++++++++++
+Isolation Forest Anomalies:
+MUCH ADO ABOUT NOTHING.txt 20
+THE HISTORY OF TROILUS AND CRESSIDA.txt 26
+The Puritaine Widdow by Shakespeare.txt 32
+THE TEMPEST.txt 35
+THE TRAGEDY OF ANTONY AND CLEOPATRA.txt 36
+THE TRAGEDY OF CORIOLANUS.txt 37
+THE TRAGEDY OF JULIUS CAESAR.txt 39
+THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt 42
+THE TRAGEDY OF ROMEO AND JULIET.txt 43
+The Two Noble Kinsmen by Shakespeare.txt 46
+
+Summation Ranking Anomalies:
+A MIDSUMMER NIGHT_S DREAM.txt 0
+AS YOU LIKE IT.txt 3
+CYMBELINE.txt 4
+King Henry IV, Part 1.txt 7
+KING HENRY V.txt 8
+KING HENRY VI part I.txt 9
+KING HENRY VI Part III.txt 11
+KING JOHN.txt 13
+Locrine Mucedorus by Shakespeare.txt 16
+Love_s Labour_s Lost.txt 17
+MUCH ADO ABOUT NOTHING.txt 20
+PERICLES PRINCE OF TYRE.txt 21
+Taming of the Shrew.txt 24
+THE HISTORY OF TROILUS AND CRESSIDA.txt 26
+THE LIFE OF TIMON OF ATHENS.txt 28
+The Merry Devill of Edmonton by Shakespeare.txt 30
+THE MERRY WIVES OF WINDSOR.txt 31
+The Puritaine Widdow by Shakespeare.txt 32
+THE TAMING OF THE SHREW.txt 34
+THE TEMPEST.txt 35
+THE TRAGEDY OF ANTONY AND CLEOPATRA.txt 36
+THE TRAGEDY OF CORIOLANUS.txt 37
+THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt 38
+THE TRAGEDY OF JULIUS CAESAR.txt 39
+THE TRAGEDY OF KING LEAR.txt 40
+THE TRAGEDY OF MACBETH.txt 41
+THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt 42
+THE TRAGEDY OF ROMEO AND JULIET.txt 43
+THE TWO GENTLEMEN OF VERONA.txt 45
+The Two Noble Kinsmen by Shakespeare.txt 46
+++++++++++++++++++++++++++++++++++++
