@@ -38,6 +38,7 @@ class DataLoader:
         self.all_impostors_dataset_name = config['data']['all_impostors_data_source']
         self.pairs = config['data']['pairs']
         self.all_signals = config['data']['all_signals']
+        self.signals_folder = config['data']['signals_folder_name']
 
         self._initialized = True  # Prevent reinitialization
 
@@ -104,4 +105,14 @@ class DataLoader:
         Load and return all signals from JSON.
         """
         data = load_json_data(self.data_path, self.all_signals)
+        return data
+
+    def get_model_signals(self, model_name):
+        """
+        Load signal data for a specific model from its JSON file.
+        """
+        file_name = f"{model_name}-signals.json"
+        path = self.data_path / self.signals_folder
+
+        data = load_json_data(path, file_name)
         return data
