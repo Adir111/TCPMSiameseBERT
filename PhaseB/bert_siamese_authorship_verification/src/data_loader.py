@@ -39,6 +39,10 @@ class DataLoader:
         self.pairs = config['data']['pairs']
         self.all_signals = config['data']['all_signals']
         self.signals_folder = config['data']['signals_folder_name']
+        self.distance_folder = config['data']['dtw']['output_distance_folder']
+        self.dtw_file_name = config['data']['dtw']['dtw_file_name']
+        self.included_text_names_file_name = config['data']['dtw']['included_text_names_file_name']
+        self.signals_file_name = config['data']['dtw']['signals_file_name']
 
         self._initialized = True  # Prevent reinitialization
 
@@ -113,6 +117,26 @@ class DataLoader:
         """
         file_name = f"{model_name}-signals.json"
         path = self.data_path / self.signals_folder
+
+        data = load_json_data(path, file_name)
+        return data
+
+    def get_shakespeare_included_text_names(self, model_name):
+        """
+        Load shakespeare included (in DTW) text names from JSON.
+        """
+        file_name = self.included_text_names_file_name
+        path = self.data_path / self.distance_folder / model_name
+
+        data = load_json_data(path, file_name)
+        return data
+
+    def get_dtw(self, model_name):
+        """
+        Load DTW distance matrix from JSON for given model.
+        """
+        file_name = self.dtw_file_name
+        path = self.data_path / self.distance_folder / model_name
 
         data = load_json_data(path, file_name)
         return data

@@ -2,14 +2,19 @@ data:
   organised_data_folder_path: "data/data_sources"
   shakespeare_data_source: "dataset_shakespeare_collection.json"
   impostors_data_source: "dataset_impostors.json"
-  all_impostors_data_source: "dataset_all_impostors.json"
-  classify_text_data_source: "text_to_classify.json"
   shakespeare_path: "data/raw/shakespeare"
   impostors_path: "data/raw/impostors"
+  all_impostors_data_source: "dataset_all_impostors.json"
+  classify_text_data_source: "text_to_classify.json"
   fine_tuned_bert_model_path: "saved_trained_models/berts/"
   trained_siamese_path: "saved_trained_models/models/"
   signals_folder_name: "signals_per_model"
-  output_distance_folder: "distance_per_model"
+  isolation_forest_folder_name: "isolation_forest_per_model"
+  dtw:
+    output_distance_folder: "distance_per_model"
+    dtw_file_name: "distance_matrix.json"
+    included_text_names_file_name: "included_text_names.json"
+    signals_file_name: "signals.json"
   pairs: "pairs.json"
   all_signals: "all_signals.json"
 
@@ -45,6 +50,8 @@ model:
 
 isolation_forest:
   number_of_trees: 100
+  percentile_threshold: 5
+  anomaly_score_threshold: 0.000025
 
 bert:
   model: "bert-base-uncased"

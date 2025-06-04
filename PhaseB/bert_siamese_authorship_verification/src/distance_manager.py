@@ -23,6 +23,9 @@ class SignalDistanceManager:
         self.logger = logger
         self.data_loader = DataLoader(config)
         self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['output_distance_folder']
+        self.dtw_file_name = config['data']['dtw']['dtw_file_name']
+        self.included_text_names_file_name = config['data']['dtw']['included_text_names_file_name']
+        self.signals_file_name = config['data']['dtw']['signals_file_name']
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
 
         self.output_path.mkdir(parents=True, exist_ok=True)
@@ -89,9 +92,9 @@ class SignalDistanceManager:
         model_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Define file paths (without repeating model_name in the filename)
-        signal_file_path = model_output_dir / f"signals.json"
-        matrix_file_path = model_output_dir / f"distance_matrix.json"
-        names_file_path = model_output_dir / "included_text_names.json"
+        signal_file_path = model_output_dir / self.signals_file_name
+        matrix_file_path = model_output_dir / self.dtw_file_name
+        names_file_path = model_output_dir / self.included_text_names_file_name
 
         save_to_json(signals_dict, signal_file_path, f"Batched Signals ({model_name})")
         save_to_json(distance_matrix.tolist(), matrix_file_path, f"DTW ({model_name})")
