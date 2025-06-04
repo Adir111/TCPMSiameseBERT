@@ -8,7 +8,8 @@ data:
   impostors_path: "data/raw/impostors"
   fine_tuned_bert_model_path: "saved_trained_models/berts/"
   trained_siamese_path: "saved_trained_models/models/"
-  signals_folder_path: "signals_per_model"
+  signals_folder_name: "signals_per_model"
+  output_distance_folder: "distance_per_model"
   pairs: "pairs.json"
   all_signals: "all_signals.json"
 
