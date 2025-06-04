@@ -24,7 +24,7 @@ def __handle_selection(func, selection='selection'):
     if confirm == "yes" or confirm == "y":
         return func()
     else:
-        print(f"Cancelled '{selection}'.")
+        logger.log(f"Cancelled '{selection}'.")
         return None
 
 
@@ -80,6 +80,18 @@ def __classification():
         logger.error(f"❌ {e}")
 
 
+def __dtw():
+    """ Triggers the DTW procedure. """
+    try:
+        logger.log("🚀 Starting DTW Procedure...")
+        procedure.run_distance_matrix_generation()
+
+        logger.log("✅ DTW Procedure completed!")
+        logger.log({"status": "completed"})
+    except Exception as e:
+        logger.error(f"❌ {e}")
+
+
 def __fine_tune_berts():
     """ Fine-tunes BERT models for the Siamese architecture. """
     try:
@@ -106,6 +118,7 @@ def main():
         logger.log("1 - Create Dataset")
         logger.log("2 - Run Model Procedure")
         logger.log("3 - Classification Procedure")
+        logger.log("4 - DTW Procedure")
         logger.log("999 - Fine Tune All BERTs")
         logger.log("0 - Exit")
 
@@ -115,13 +128,12 @@ def main():
             __handle_selection(__create_dataset, "Dataset Creation")
         elif option == "2":
             __handle_selection(__training, "Training Procedure")
-            break
         elif option == "3":
             __handle_selection(__classification, "Classification Procedure")
-            break
+        elif option == "4":
+            __handle_selection(__dtw, "DTW Procedure")
         elif option == "999":
             __handle_selection(__fine_tune_berts, "Fine Tune All BERTs")
-            break
         elif option == "0":
             logger.log("👋 Exiting. Have a great day!")
             break
