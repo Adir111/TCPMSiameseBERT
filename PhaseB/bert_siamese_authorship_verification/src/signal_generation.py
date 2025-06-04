@@ -108,11 +108,14 @@ class SignalGeneration:
         """
         Saves given model signal into a file
         """
+        model_signals = self.all_signals[model_name]
+
         file_name = f"{model_name}-signals.json"
         path = self.data_path / self.signals_folder / file_name
-        model_signals = self.all_signals[model_name]
         save_to_json(model_signals, path, f"{model_name} Signal data")
 
         # Also update the full all_signals JSON file after saving this model's signal
         all_signals_path = self.data_path / self.config['data']['all_signals']
-        save_to_json(self.all_signals, all_signals_path, "Updated all_signals with latest model signal")
+        all_signals = self.data_loader.get_all_signals()
+        all_signals[model_name] = model_signals
+        save_to_json(all_signals, all_signals_path, "Updated all_signals with latest model signal")
