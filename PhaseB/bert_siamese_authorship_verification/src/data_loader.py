@@ -92,10 +92,12 @@ class DataLoader:
 
     def get_text_to_classify(self):
         """
-        Load and return the text to classify from JSON.
+        Load the text from JSON and return it split by lines (raw, uncleaned).
+        This is used for matching anomaly line names.
         """
         data = load_json_data(self.data_path, self.text_to_classify_name)
-        return _clean_text(data.get('text', ''))
+        raw_text = data.get('text', '')
+        return [line.strip() for line in raw_text.split('\n') if line.strip()]
 
     def get_pairs(self):
         """

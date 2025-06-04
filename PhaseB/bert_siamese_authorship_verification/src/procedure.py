@@ -12,6 +12,7 @@ from .trainer import Trainer
 from .model import SiameseBertModel
 from .signal_generation import SignalGeneration
 from .distance_manager import SignalDistanceManager
+from .isolation_forest import DTWIsolationForest
 from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, \
     artifact_file_exists
 
@@ -295,3 +296,27 @@ class Procedure:
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
         self.logger.info("✅ All distance matrices generated.")
+
+    def run_isolation_forest_procedure(self):
+        """
+        Runs anomaly detection using Isolation Forest for all models with DTW distance matrices.
+        Logs the anomaly results per model.
+        """
+        self.logger.info("🚨 Starting Isolation Forest anomaly detection...")
+        anomaly_detector = DTWIsolationForest(config=self.config, logger=self.logger)
+
+        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
+
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
+            model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            self.logger.info(f"Analyzing anomalies for model: {sanitized_model_name}")
+
+            summa, scores, y_pred_train, rank = anomaly_detector.analyze(sanitized_model_name)
+
+            self.logger.info(f"✅ Model: {sanitized_model_name}")
+            self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
+            self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
+            self.logger.info(f"   → Total anomalies detected: {sum(y_pred_train == -1)}")
+
+        self.logger.info("🎯 Isolation Forest detection completed for all models.")
