@@ -21,13 +21,13 @@ class SignalGeneration:
         if self._initialized:
             return  # Avoid reinitializing on repeated instantiations
 
-        self.config = config
         self.logger = logger
         self.general_preprocessor = Preprocessor(config)
         self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
         self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
         self.data_loader = DataLoader(config)
         self.data_path = Path(config['data']['organised_data_folder_path'])
+        self.all_signals_file_name = self.config['data']['all_signals']
         self.signals_folder = config['data']['signals_folder_path']
         self.all_signals = {}
         self.shakespeare_preprocessed_texts = None
@@ -115,7 +115,7 @@ class SignalGeneration:
         save_to_json(model_signals, path, f"{model_name} Signal data")
 
         # Also update the full all_signals JSON file after saving this model's signal
-        all_signals_path = self.data_path / self.config['data']['all_signals']
+        all_signals_path = self.data_path / self.all_signals_file_name
         all_signals = self.data_loader.get_all_signals()
         all_signals[model_name] = model_signals
         save_to_json(all_signals, all_signals_path, "Updated all_signals with latest model signal")
