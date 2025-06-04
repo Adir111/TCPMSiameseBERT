@@ -27,11 +27,12 @@ class SignalGeneration:
         self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
         self.data_loader = DataLoader(config)
         self.data_path = Path(config['data']['organised_data_folder_path'])
-        self.all_signals_file_name = self.config['data']['all_signals']
-        self.signals_folder = config['data']['signals_folder_path']
+        self.all_signals_file_name = config['data']['all_signals']
+        self.signals_folder = config['data']['signals_folder_name']
         self.all_signals = {}
         self.shakespeare_preprocessed_texts = None
 
+        (self.data_path / self.signals_folder).mkdir(parents=True, exist_ok=True)
         self._initialized = True
 
 
