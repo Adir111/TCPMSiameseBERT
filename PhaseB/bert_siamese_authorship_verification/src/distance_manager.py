@@ -13,11 +13,12 @@ class SignalDistanceManager:
     def __new__(cls, config, logger):
         if cls._instance is None:
             cls._instance = super(SignalDistanceManager, cls).__new__(cls)
+            cls._instance._initialized = False
         return cls._instance
 
     def __init__(self, config, logger):
-        if hasattr(self, "_initialized") and self._initialized:
-            return  # Prevent re-initialization in singleton
+        if self._initialized:
+            return  # Avoid reinitialization
         self._initialized = True
 
         self.logger = logger
