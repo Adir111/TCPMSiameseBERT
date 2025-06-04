@@ -5,15 +5,27 @@ from sklearn.ensemble import IsolationForest
 from .data_loader import DataLoader
 
 class DTWIsolationForest:
+    _instance = None  # Singleton instance
+
+    def __new__(cls, config, logger):
+        if cls._instance is None:
+            cls._instance = super(DTWIsolationForest, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self, config, logger):
+        # Prevent reinitialization in singleton pattern
+        if hasattr(self, "_initialized") and self._initialized:
+            return
+
         self.logger = logger
         self.n_estimators = int(config["isolation_forest"]['number_of_trees'])
         self.percentile_threshold = float(config["isolation_forest"]['percentile_threshold'])
         self.anomaly_score_threshold = float(config["isolation_forest"]['anomaly_score_threshold'])
         self.data_loader = DataLoader(config)
         self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['isolation_forest_folder_name']
-
         self.output_path.mkdir(parents=True, exist_ok=True)
+
+        self._initialized = True  # Mark as initialized
 
 
     @staticmethod
