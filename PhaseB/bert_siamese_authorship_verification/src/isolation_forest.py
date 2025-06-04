@@ -34,7 +34,7 @@ class DTWIsolationForest:
         return list(set(list1) & set(list2))
 
 
-    def _save_results_to_file(self, model_name, shakespeare_texts_names, anomaly_indices, summa_indices):
+    def __save_results_to_file(self, model_name, shakespeare_texts_names, anomaly_indices, summa_indices):
         filepath = self.output_path / f"{model_name}.txt"
         with open(filepath, "w", encoding="utf-8") as f:
             f.write("++++++++++++++++++++++++++++++++++++\n")
@@ -87,6 +87,6 @@ class DTWIsolationForest:
         # summa_anomalies = [shakespeare_texts_names[i] for i in summa_indices]
 
         # Logging into file
-        self._save_results_to_file(model_name, shakespeare_texts_names, anomaly_indices, summa_indices)
+        self.__save_results_to_file(model_name, shakespeare_texts_names, anomaly_indices, summa_indices)
 
         return summa, scores, y_pred_train, rank
