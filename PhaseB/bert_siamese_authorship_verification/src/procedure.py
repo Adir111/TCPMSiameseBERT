@@ -1,6 +1,5 @@
 import tensorflow as tf
 import gc
-import logging
 from transformers import TFBertModel, BertTokenizer
 from transformers import logging as tf_logging
 from huggingface_hub import snapshot_download
@@ -12,6 +11,7 @@ from .preprocess import Preprocessor
 from .trainer import Trainer
 from .model import SiameseBertModel
 from .signal_generation import SignalGeneration
+from .distance_manager import SignalDistanceManager
 from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, \
     artifact_file_exists
 
@@ -277,3 +277,21 @@ class Procedure:
             increment_last_iteration(self.config, False)
 
         signal_generator.print_all_signals()
+
+    def run_distance_matrix_generation(self):
+        """
+        Runs distance matrix generation for all models that have signals generated.
+        """
+        self.logger.info("Starting distance matrix generation procedure...")
+        signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
+
+        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
+
+        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
+            model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name}")
+            signal_processor.compute_distance_matrix_for_model(sanitized_model_name)
+            self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
+
+        self.logger.info("✅ All distance matrices generated.")
