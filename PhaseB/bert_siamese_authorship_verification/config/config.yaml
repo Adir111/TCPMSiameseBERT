@@ -15,7 +15,7 @@ data:
     output_distance_folder: "distance_per_model"
     dtw_file_name: "distance_matrix.json"
     included_text_names_file_name: "included_text_names.json"
-    signals_file_name: "signals.json"
+    signals_file_name: "processed_signals.json"
   pairs: "pairs.json"
   all_signals: "all_signals.json"
 
@@ -76,7 +76,7 @@ bert:
 
 
 wandb:
-  enabled: True
+  enabled: False
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   artifact_name: "siamese-authorship-verification-branches"

@@ -23,7 +23,7 @@ class SignalDistanceManager:
 
         self.logger = logger
         self.data_loader = DataLoader(config)
-        self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['output_distance_folder']
+        self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['dtw']['output_distance_folder']
         self.dtw_file_name = config['data']['dtw']['dtw_file_name']
         self.included_text_names_file_name = config['data']['dtw']['included_text_names_file_name']
         self.signals_file_name = config['data']['dtw']['signals_file_name']
