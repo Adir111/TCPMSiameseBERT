@@ -323,6 +323,7 @@ class Procedure:
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
 
+        anomaly_detector.save_all_models_scores()
         self.logger.info("🎯 Isolation Forest detection completed for all models.")
 
 
