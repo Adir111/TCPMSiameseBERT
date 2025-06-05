@@ -1,4 +1,7 @@
 import matplotlib
+from pathlib import Path
+from datetime import datetime
+
 
 matplotlib.use("Agg")
 
@@ -12,8 +15,6 @@ try:
     _HAS_UMAP = True
 except ImportError:  # pragma: no cover
     _HAS_UMAP = False
-
-from .logger import WrappedWandbLogger
 
 
 class DataVisualizer:
@@ -36,12 +37,15 @@ class DataVisualizer:
 
     def _finalize_plot(self, label):
         fig = plt.gcf()
-        filename = f"{label}.png"
+        plots_dir = Path("plots")
+        plots_dir.mkdir(parents=True, exist_ok=True)
+        current_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+        filename = plots_dir / f"{label}_{current_date}.png"
         fig.savefig(filename)
 
         if self._is_wandb:
             try:
-                image = self.logger.Image(filename)
+                image = self.logger.Image(str(filename))
                 self.logger.log({label: image})
                 self.logger.log(f"✅ Logged {label} to W&B")
             except Exception as e:
@@ -127,7 +131,7 @@ class DataVisualizer:
     # ------------------------------------------------------------------ #
     # Embedding projections -------------------------------------------- #
     # ------------------------------------------------------------------ #
-    def _scatter_embeddings(self, embedded, labels, title: str):
+    def _scatter_embeddings(self, embedded, labels, title: str, medoid_indices=None):
         """Shared scatter‑plot helper for both t‑SNE and UMAP."""
         plt.figure(figsize=(10, 6))
         plt.title(title)
@@ -139,6 +143,18 @@ class DataVisualizer:
             s=60,
             edgecolors="k",
         )
+        if medoid_indices is not None:
+            plt.scatter(
+                embedded[medoid_indices, 0],
+                embedded[medoid_indices, 1],
+                c='red',
+                s=180,
+                edgecolors='white',
+                marker='*',
+                label='Medoids'
+            )
+            plt.legend()
+
         plt.xlabel("Dim‑1")
         plt.ylabel("Dim‑2")
         plt.colorbar(scatter, label="Label / Cluster")
@@ -147,12 +163,17 @@ class DataVisualizer:
         self._finalize_plot(title)
 
     def tsne(self, embeddings, labels, *, perplexity: int = 30, n_iter: int = 1000,
-             random_state: int = 42, title: str | None = None):
+             random_state: int = 42, title: str | None = None, medoid_indices=None):
         """Compute **t‑SNE** projection and display it."""
         tsne = TSNE(n_components=2, perplexity=perplexity, n_iter=n_iter,
                     metric="euclidean", random_state=random_state)
         embedded = tsne.fit_transform(embeddings)
-        self._scatter_embeddings(embedded, labels, title or "t‑SNE Projection")
+        self._scatter_embeddings(
+            embedded,
+            labels,
+            title or "t‑SNE Projection",
+            medoid_indices=medoid_indices
+        )
 
     def umap(self, embeddings, labels, *, n_neighbors: int = 15, min_dist: float = 0.1,
              metric: str = "euclidean", random_state: int = 42, title: str | None = None):
@@ -171,8 +192,8 @@ class DataVisualizer:
 
         Examples
         --------
-        >>> viz.plot_embedding(emb, lbl, method="tsne", perplexity=40, title="My t‑SNE")
-        >>> viz.plot_embedding(emb, lbl, method="umap", n_neighbors=20, min_dist=0.05)
+        # >>> viz.plot_embedding(emb, lbl, method="tsne", perplexity=40, title="My t‑SNE")
+        # >>> viz.plot_embedding(emb, lbl, method="umap", n_neighbors=20, min_dist=0.05)
         """
         method = method.lower()
         if method == "tsne":

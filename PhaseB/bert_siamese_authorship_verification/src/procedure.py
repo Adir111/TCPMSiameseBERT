@@ -329,20 +329,16 @@ class Procedure:
 
     def run_clustering_procedure(self):
         """
-        Runs clustering on DTW distance matrices for all models using the specified clustering algorithm.
-        Saves results to JSON and logs summary per model.
+        Runs clustering on isolation models matrix which was generated for all models using the specified clustering algorithm.
+        Saves results to JSON and logs summary.
         """
-        self.logger.info("🔍 Starting DTW clustering procedure...")
+        self.logger.info("🔍 Starting clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
         try:
-            cluster_labels, medoid_indices = clustering.cluster_results()
-            unique_clusters = np.unique(cluster_labels)
-            self.logger.info(f"   → Total clusters: {len(unique_clusters)}")
-            self.logger.info(
-                f"   → Cluster label counts: {dict(zip(*np.unique(cluster_labels, return_counts=True)))}")
-            if medoid_indices is not None:
-                self.logger.info(f"   → Medoid indices: {medoid_indices}")
+            clustering.cluster_results()
+            clustering.plot_clustering_results()
+            clustering.print_cluster_assignments()
         except Exception as e:
             self.logger.error(f"❌ Failed clustering: {str(e)}")
 
