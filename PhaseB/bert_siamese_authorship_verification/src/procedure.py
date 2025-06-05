@@ -323,6 +323,7 @@ class Procedure:
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
 
+        anomaly_detector.save_all_models_scores()
         self.logger.info("🎯 Isolation Forest detection completed for all models.")
 
 
@@ -334,23 +335,15 @@ class Procedure:
         self.logger.info("🔍 Starting DTW clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
-        impostor_pairs, _, _ = self.__get_pairs_info()
+        try:
+            cluster_labels, medoid_indices = clustering.cluster_results()
+            unique_clusters = np.unique(cluster_labels)
+            self.logger.info(f"   → Total clusters: {len(unique_clusters)}")
+            self.logger.info(
+                f"   → Cluster label counts: {dict(zip(*np.unique(cluster_labels, return_counts=True)))}")
+            if medoid_indices is not None:
+                self.logger.info(f"   → Medoid indices: {medoid_indices}")
+        except Exception as e:
+            self.logger.error(f"❌ Failed clustering: {str(e)}")
 
-        for impostor_1, impostor_2 in impostor_pairs:
-            model_name = f"{impostor_1}_{impostor_2}"
-            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
-            self.logger.info(f"Clustering for model: {sanitized_model_name}")
-
-            try:
-                cluster_labels, medoid_indices = clustering.cluster_dtw(sanitized_model_name)
-                unique_clusters = np.unique(cluster_labels)
-                self.logger.info(f"✅ Model: {sanitized_model_name}")
-                self.logger.info(f"   → Total clusters: {len(unique_clusters)}")
-                self.logger.info(
-                    f"   → Cluster label counts: {dict(zip(*np.unique(cluster_labels, return_counts=True)))}")
-                if medoid_indices is not None:
-                    self.logger.info(f"   → Medoid indices: {medoid_indices}")
-            except Exception as e:
-                self.logger.error(f"❌ Failed clustering for model {sanitized_model_name}: {str(e)}")
-
-        self.logger.info("🎯 Clustering procedure completed for all models.")
+        self.logger.info("🎯 Clustering procedure completed for all isolation forest scores.")

@@ -1,0 +1,52 @@
+++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_benJonson
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
+Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
+2 - Arden of Feversham.txt - Score: -0.036695
+5 - Fair Em by Shakespeare.txt - Score: -0.042363
+7 - King Henry IV, Part 1.txt - Score: -0.075108
+9 - KING HENRY VI part I.txt - Score: -0.042363
+15 - KING RICHARD III.txt - Score: -0.161377
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.260518
+18 - MEASURE FOR MEASURE.txt - Score: -0.042363
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.085676
+24 - Taming of the Shrew.txt - Score: -0.023719
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.021802
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.021802
+33 - THE RAPE OF LUCRECE.txt - Score: -0.166413
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.075108
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.042363
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.106855
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.036695
+44 - THE TRAGEDY OF TITUS ANDRONICUS.txt - Score: -0.075108
+48 - Venus and Adonis.txt - Score: -0.023719
+
+Summation Ranking Anomalies (DTW percentile > 5.0):
+0 - A MIDSUMMER NIGHT_S DREAM.txt
+2 - Arden of Feversham.txt
+5 - Fair Em by Shakespeare.txt
+6 - KING EDWARD III by Shakespeare.txt
+7 - King Henry IV, Part 1.txt
+8 - KING HENRY V.txt
+9 - KING HENRY VI part I.txt
+11 - KING HENRY VI Part III.txt
+12 - KING HENRY VIII.txt
+13 - KING JOHN.txt
+15 - KING RICHARD III.txt
+16 - Locrine Mucedorus by Shakespeare.txt
+18 - MEASURE FOR MEASURE.txt
+20 - MUCH ADO ABOUT NOTHING.txt
+21 - PERICLES PRINCE OF TYRE.txt
+24 - Taming of the Shrew.txt
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt
+32 - The Puritaine Widdow by Shakespeare.txt
+33 - THE RAPE OF LUCRECE.txt
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
+37 - THE TRAGEDY OF CORIOLANUS.txt
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+39 - THE TRAGEDY OF JULIUS CAESAR.txt
+44 - THE TRAGEDY OF TITUS ANDRONICUS.txt
+48 - Venus and Adonis.txt
+++++++++++++++++++++++++++++++++++++
