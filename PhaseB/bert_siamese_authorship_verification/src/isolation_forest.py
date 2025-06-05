@@ -3,6 +3,8 @@ from pathlib import Path
 from sklearn.ensemble import IsolationForest
 
 from .data_loader import DataLoader
+from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json
+
 
 class DTWIsolationForest:
     _instance = None  # Singleton instance
@@ -22,8 +24,10 @@ class DTWIsolationForest:
         self.percentile_threshold = float(config["isolation_forest"]['percentile_threshold'])
         self.anomaly_score_threshold = float(config["isolation_forest"]['anomaly_score_threshold'])
         self.data_loader = DataLoader(config)
-        self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['isolation_forest_folder_name']
+        self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['isolation_forest']['isolation_forest_folder_name']
+        self.all_models_scores_path = Path(config['data']['organised_data_folder_path']) / config['data']['isolation_forest']['all_models_scores_file_name']
         self.output_path.mkdir(parents=True, exist_ok=True)
+        self.all_models_scores = {}
 
         self._initialized = True  # Mark as initialized
 
@@ -33,20 +37,39 @@ class DTWIsolationForest:
         # Utility: intersection of two lists
         return list(set(list1) & set(list2))
 
+    import json
 
-    def __save_results_to_file(self, model_name, shakespeare_texts_names, anomaly_indices, summa_indices):
-        filepath = self.output_path / f"{model_name}.txt"
-        with open(filepath, "w", encoding="utf-8") as f:
+    def __save_results_to_file(self, model_name, scores, shakespeare_texts_names, anomaly_indices, summa_indices):
+        # Create subdirectory for model
+        model_output_dir = self.output_path / model_name
+        model_output_dir.mkdir(parents=True, exist_ok=True)
+
+        # === Text File (Anomaly Report) ===
+        text_report_path = model_output_dir / "anomaly_report.txt"
+        with open(text_report_path, "w", encoding="utf-8") as f:
             f.write("++++++++++++++++++++++++++++++++++++\n")
-            f.write("Isolation Forest Anomalies:\n")
+            f.write(f"Model: {model_name}\nNumber of documents: {len(scores)}\n")
+            f.write(f"Anomaly score threshold: {self.anomaly_score_threshold}\nPercentile threshold: {self.percentile_threshold}\n")
+            f.write(f"Isolation Forest Anomaly Scores (score < threshold [{self.anomaly_score_threshold}]):\n")
             for idx in anomaly_indices:
-                f.write(f"{shakespeare_texts_names[idx]} {idx}\n")
-            f.write("\nSummation Ranking Anomalies:\n")
+                name = shakespeare_texts_names[idx]
+                score = scores[idx]
+                f.write(f"{idx} - {name} - Score: {score:.6f}\n")
+
+            f.write("\nSummation Ranking Anomalies (DTW percentile > ")
+            f.write(f"{self.percentile_threshold}):\n")
             for idx in summa_indices:
-                f.write(f"{shakespeare_texts_names[idx]} {idx}\n")
+                f.write(f"{idx} - {shakespeare_texts_names[idx]}\n")
+
             f.write("++++++++++++++++++++++++++++++++++++\n")
 
-        self.logger.info(f"Anomaly results saved to {filepath}")
+        self.logger.info(f"Text anomaly report saved to {text_report_path}")
+
+        # === JSON File (Full Scores Dictionary) ===
+        scores_dict = {name: float(score) for name, score in zip(shakespeare_texts_names, scores)}
+        json_path = model_output_dir / "anomaly_scores.json"
+
+        save_to_json(scores_dict, json_path, "Anomaly scores")
 
     def analyze(self, model_name):
         """
@@ -87,6 +110,17 @@ class DTWIsolationForest:
         # summa_anomalies = [shakespeare_texts_names[i] for i in summa_indices]
 
         # Logging into file
-        self.__save_results_to_file(model_name, shakespeare_texts_names, anomaly_indices, summa_indices)
+        self.__save_results_to_file(model_name, scores, shakespeare_texts_names, anomaly_indices, summa_indices)
+
+        self.all_models_scores[model_name] = {
+            name: float(score) for name, score in zip(shakespeare_texts_names, scores)
+        }
 
         return summa, scores, y_pred_train, rank
+
+
+    def save_all_models_scores(self):
+        """
+        Saves the complete all_models_scores dictionary to a JSON file using the provided save_to_json method.
+        """
+        save_to_json(self.all_models_scores, self.all_models_scores_path, "All models anomaly scores")
