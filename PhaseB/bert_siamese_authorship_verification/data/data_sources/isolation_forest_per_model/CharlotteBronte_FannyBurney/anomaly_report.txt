@@ -1,10 +1,15 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlotteBronte_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.165822
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.019392
-29 - The London Prodigal.txt - Score: -0.117338
-33 - THE RAPE OF LUCRECE.txt - Score: -0.056480
-45 - THE TWO GENTLEMEN OF VERONA.txt - Score: -0.011190
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.005628
+2 - Arden of Feversham.txt - Score: -0.183959
+6 - KING EDWARD III by Shakespeare.txt - Score: -0.025558
+29 - The London Prodigal.txt - Score: -0.110676
+33 - THE RAPE OF LUCRECE.txt - Score: -0.056437
+45 - THE TWO GENTLEMEN OF VERONA.txt - Score: -0.001673
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,9 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlesDickens_CharlotteBronte
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.101370
-5 - Fair Em by Shakespeare.txt - Score: -0.029315
-9 - KING HENRY VI part I.txt - Score: -0.076089
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.301074
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.093459
+5 - Fair Em by Shakespeare.txt - Score: -0.006156
+9 - KING HENRY VI part I.txt - Score: -0.064802
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.310736
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

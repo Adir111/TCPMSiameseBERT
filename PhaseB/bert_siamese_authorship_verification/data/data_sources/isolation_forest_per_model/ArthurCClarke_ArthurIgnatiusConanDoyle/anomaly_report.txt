@@ -1,13 +1,19 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_ArthurIgnatiusConanDoyle
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-8 - KING HENRY V.txt - Score: -0.087933
-21 - PERICLES PRINCE OF TYRE.txt - Score: -0.041846
-24 - Taming of the Shrew.txt - Score: -0.009157
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.088374
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.228536
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.246217
-38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.018432
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.039300
+8 - KING HENRY V.txt - Score: -0.112478
+17 - Love_s Labour_s Lost.txt - Score: -0.012089
+21 - PERICLES PRINCE OF TYRE.txt - Score: -0.042494
+24 - Taming of the Shrew.txt - Score: -0.012087
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.106359
+34 - THE TAMING OF THE SHREW.txt - Score: -0.000414
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.245472
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.247709
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.031065
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.059046
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

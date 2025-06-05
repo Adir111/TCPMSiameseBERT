@@ -1,9 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ChristopherMarlowe_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.130966
-9 - KING HENRY VI part I.txt - Score: -0.193891
-29 - The London Prodigal.txt - Score: -0.058238
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.227658
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.110446
+9 - KING HENRY VI part I.txt - Score: -0.197492
+29 - The London Prodigal.txt - Score: -0.073238
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.221144
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,12 +1,16 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlotteBronte_ChristopherMarlowe
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.046970
-13 - KING JOHN.txt - Score: -0.013278
-18 - MEASURE FOR MEASURE.txt - Score: -0.001586
-19 - Merchant of Venice.txt - Score: -0.045181
-22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.006581
-29 - The London Prodigal.txt - Score: -0.002400
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.053108
+3 - AS YOU LIKE IT.txt - Score: -0.016221
+9 - KING HENRY VI part I.txt - Score: -0.030313
+13 - KING JOHN.txt - Score: -0.015178
+19 - Merchant of Venice.txt - Score: -0.053211
+22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.026259
+29 - The London Prodigal.txt - Score: -0.017352
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.026635
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,13 +1,18 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlotteBronte_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.040271
-2 - Arden of Feversham.txt - Score: -0.009062
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.099105
-9 - KING HENRY VI part I.txt - Score: -0.197457
-16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.010912
-31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.013446
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.034485
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.086983
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.050166
+6 - KING EDWARD III by Shakespeare.txt - Score: -0.114656
+8 - KING HENRY V.txt - Score: -0.002778
+9 - KING HENRY VI part I.txt - Score: -0.199681
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.016933
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.005639
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.012934
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.005143
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.095830
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

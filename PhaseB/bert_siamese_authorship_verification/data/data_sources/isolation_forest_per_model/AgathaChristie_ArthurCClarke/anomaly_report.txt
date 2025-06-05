@@ -1,11 +1,15 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_ArthurCClarke
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.150572
-21 - PERICLES PRINCE OF TYRE.txt - Score: -0.015441
-25 - The Comedy of Errors.txt - Score: -0.100339
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.065868
-27 - The Life and Death of the Lord Cromwell by Shakespeare.txt - Score: -0.047607
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.182793
+2 - Arden of Feversham.txt - Score: -0.138531
+21 - PERICLES PRINCE OF TYRE.txt - Score: -0.013399
+25 - The Comedy of Errors.txt - Score: -0.100997
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.055389
+27 - The Life and Death of the Lord Cromwell by Shakespeare.txt - Score: -0.043459
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.187681
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

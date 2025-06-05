@@ -1,14 +1,18 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_CharlotteBronte
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.078295
-9 - KING HENRY VI part I.txt - Score: -0.040674
-25 - The Comedy of Errors.txt - Score: -0.280532
-33 - THE RAPE OF LUCRECE.txt - Score: -0.077782
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.006958
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.054437
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.020110
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.040022
-48 - Venus and Adonis.txt - Score: -0.126303
+2 - Arden of Feversham.txt - Score: -0.069983
+9 - KING HENRY VI part I.txt - Score: -0.072102
+25 - The Comedy of Errors.txt - Score: -0.287582
+33 - THE RAPE OF LUCRECE.txt - Score: -0.106286
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.029377
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.069180
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.042771
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.068115
+48 - Venus and Adonis.txt - Score: -0.134336
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

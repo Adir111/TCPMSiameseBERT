@@ -1,13 +1,19 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_CharlotteBronte
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - AS YOU LIKE IT.txt - Score: -0.008265
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.256571
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.063945
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.067210
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.005639
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.077904
-38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.138634
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.137591
+3 - AS YOU LIKE IT.txt - Score: -0.001483
+7 - King Henry IV, Part 1.txt - Score: -0.007511
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.000962
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.243351
+24 - Taming of the Shrew.txt - Score: -0.017410
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.049917
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.071338
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.075583
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.110745
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.129333
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

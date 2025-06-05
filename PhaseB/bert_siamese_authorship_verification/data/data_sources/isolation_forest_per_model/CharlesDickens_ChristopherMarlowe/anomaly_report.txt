@@ -1,9 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlesDickens_ChristopherMarlowe
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.097557
-12 - KING HENRY VIII.txt - Score: -0.019111
-23 - Sir Thomas More by Shakespeare.txt - Score: -0.122745
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.017361
+9 - KING HENRY VI part I.txt - Score: -0.100229
+12 - KING HENRY VIII.txt - Score: -0.007304
+23 - Sir Thomas More by Shakespeare.txt - Score: -0.125012
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.005256
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.037468
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

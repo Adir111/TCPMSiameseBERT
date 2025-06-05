@@ -1,12 +1,16 @@
 ++++++++++++++++++++++++++++++++++++
+Model: FannyBurney_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.182755
-9 - KING HENRY VI part I.txt - Score: -0.184052
-25 - The Comedy of Errors.txt - Score: -0.043758
-28 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.052051
-29 - The London Prodigal.txt - Score: -0.007897
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.085267
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.027276
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.152918
+9 - KING HENRY VI part I.txt - Score: -0.220101
+25 - The Comedy of Errors.txt - Score: -0.007628
+28 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.027571
+29 - The London Prodigal.txt - Score: -0.008167
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.074491
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.006431
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

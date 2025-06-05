@@ -1,11 +1,16 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.101936
-16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.034068
-22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.000709
-33 - THE RAPE OF LUCRECE.txt - Score: -0.144172
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.061893
-48 - Venus and Adonis.txt - Score: -0.035908
+9 - KING HENRY VI part I.txt - Score: -0.122707
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.015787
+22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.038986
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.008939
+33 - THE RAPE OF LUCRECE.txt - Score: -0.156685
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.066953
+48 - Venus and Adonis.txt - Score: -0.039999
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

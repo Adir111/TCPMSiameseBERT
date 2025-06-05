@@ -1,13 +1,16 @@
 ++++++++++++++++++++++++++++++++++++
+Model: BenjaminDisraeli_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.002800
-16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.083633
-17 - Love_s Labour_s Lost.txt - Score: -0.043029
-21 - PERICLES PRINCE OF TYRE.txt - Score: -0.053097
-24 - Taming of the Shrew.txt - Score: -0.011103
-30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.019789
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.023618
-34 - THE TAMING OF THE SHREW.txt - Score: -0.105532
+6 - KING EDWARD III by Shakespeare.txt - Score: -0.001283
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.061513
+17 - Love_s Labour_s Lost.txt - Score: -0.032369
+21 - PERICLES PRINCE OF TYRE.txt - Score: -0.044234
+30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.003177
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.005422
+34 - THE TAMING OF THE SHREW.txt - Score: -0.070279
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

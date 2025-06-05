@@ -1,11 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_CharlesDickens
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-28 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.008872
-29 - The London Prodigal.txt - Score: -0.045660
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.048952
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.086663
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.327099
-48 - Venus and Adonis.txt - Score: -0.079042
+29 - The London Prodigal.txt - Score: -0.040335
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.032853
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.086397
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.339588
+48 - Venus and Adonis.txt - Score: -0.089412
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

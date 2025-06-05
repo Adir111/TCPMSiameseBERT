@@ -1,12 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_ArthurIgnatiusConanDoyle
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.013648
-14 - KING RICHARD II.txt - Score: -0.023204
-25 - The Comedy of Errors.txt - Score: -0.177961
-33 - THE RAPE OF LUCRECE.txt - Score: -0.003120
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.038225
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.016358
-48 - Venus and Adonis.txt - Score: -0.206920
+14 - KING RICHARD II.txt - Score: -0.019799
+25 - The Comedy of Errors.txt - Score: -0.157580
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.005038
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.009445
+48 - Venus and Adonis.txt - Score: -0.219936
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

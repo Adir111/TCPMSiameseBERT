@@ -1,10 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: benJonson_ChristopherMarlowe
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - AS YOU LIKE IT.txt - Score: -0.086936
-9 - KING HENRY VI part I.txt - Score: -0.199023
-14 - KING RICHARD II.txt - Score: -0.002942
-25 - The Comedy of Errors.txt - Score: -0.032549
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.007551
+3 - AS YOU LIKE IT.txt - Score: -0.076121
+9 - KING HENRY VI part I.txt - Score: -0.175515
+14 - KING RICHARD II.txt - Score: -0.022013
+25 - The Comedy of Errors.txt - Score: -0.044553
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.013716
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

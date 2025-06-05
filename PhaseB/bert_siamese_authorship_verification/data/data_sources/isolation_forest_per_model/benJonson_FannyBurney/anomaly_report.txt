@@ -1,10 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: benJonson_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - AS YOU LIKE IT.txt - Score: -0.035545
-9 - KING HENRY VI part I.txt - Score: -0.062993
-12 - KING HENRY VIII.txt - Score: -0.027319
-33 - THE RAPE OF LUCRECE.txt - Score: -0.077335
-48 - Venus and Adonis.txt - Score: -0.236416
+3 - AS YOU LIKE IT.txt - Score: -0.028797
+9 - KING HENRY VI part I.txt - Score: -0.067478
+12 - KING HENRY VIII.txt - Score: -0.039869
+33 - THE RAPE OF LUCRECE.txt - Score: -0.099420
+48 - Venus and Adonis.txt - Score: -0.257467
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

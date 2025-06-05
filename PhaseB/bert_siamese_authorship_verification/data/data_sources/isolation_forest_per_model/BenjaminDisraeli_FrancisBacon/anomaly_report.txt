@@ -1,9 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: BenjaminDisraeli_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-8 - KING HENRY V.txt - Score: -0.194124
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.028157
-40 - THE TRAGEDY OF KING LEAR.txt - Score: -0.048406
-48 - Venus and Adonis.txt - Score: -0.108813
+8 - KING HENRY V.txt - Score: -0.215995
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.010430
+40 - THE TRAGEDY OF KING LEAR.txt - Score: -0.037536
+48 - Venus and Adonis.txt - Score: -0.103589
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

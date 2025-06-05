@@ -1,12 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: benJonson_BenjaminDisraeli
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-8 - KING HENRY V.txt - Score: -0.008310
-9 - KING HENRY VI part I.txt - Score: -0.164616
-12 - KING HENRY VIII.txt - Score: -0.000498
-28 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.017573
-40 - THE TRAGEDY OF KING LEAR.txt - Score: -0.013087
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.193344
-48 - Venus and Adonis.txt - Score: -0.078012
+9 - KING HENRY VI part I.txt - Score: -0.145220
+28 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.030711
+40 - THE TRAGEDY OF KING LEAR.txt - Score: -0.006203
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.216031
+48 - Venus and Adonis.txt - Score: -0.077852
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

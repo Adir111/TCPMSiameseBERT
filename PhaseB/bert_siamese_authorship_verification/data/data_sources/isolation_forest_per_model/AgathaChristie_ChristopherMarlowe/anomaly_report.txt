@@ -1,12 +1,19 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_ChristopherMarlowe
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.007866
-13 - KING JOHN.txt - Score: -0.095947
-17 - Love_s Labour_s Lost.txt - Score: -0.126263
-19 - Merchant of Venice.txt - Score: -0.026058
-24 - Taming of the Shrew.txt - Score: -0.071916
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.004382
-34 - THE TAMING OF THE SHREW.txt - Score: -0.134511
+3 - AS YOU LIKE IT.txt - Score: -0.017313
+8 - KING HENRY V.txt - Score: -0.004330
+9 - KING HENRY VI part I.txt - Score: -0.005048
+13 - KING JOHN.txt - Score: -0.079762
+17 - Love_s Labour_s Lost.txt - Score: -0.129436
+19 - Merchant of Venice.txt - Score: -0.041793
+24 - Taming of the Shrew.txt - Score: -0.072876
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.024188
+34 - THE TAMING OF THE SHREW.txt - Score: -0.152072
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.005786
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

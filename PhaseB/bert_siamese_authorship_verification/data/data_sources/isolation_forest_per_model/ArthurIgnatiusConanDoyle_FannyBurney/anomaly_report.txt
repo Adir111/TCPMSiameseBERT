@@ -1,11 +1,15 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.290718
-7 - King Henry IV, Part 1.txt - Score: -0.111991
-8 - KING HENRY V.txt - Score: -0.098012
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.073878
-22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.054155
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.068642
+2 - Arden of Feversham.txt - Score: -0.294696
+7 - King Henry IV, Part 1.txt - Score: -0.118834
+8 - KING HENRY V.txt - Score: -0.079455
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.054559
+22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.044241
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.062402
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

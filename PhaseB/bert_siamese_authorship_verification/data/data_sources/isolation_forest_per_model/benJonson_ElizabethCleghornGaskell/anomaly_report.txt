@@ -1,12 +1,17 @@
 ++++++++++++++++++++++++++++++++++++
+Model: benJonson_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - AS YOU LIKE IT.txt - Score: -0.021479
-8 - KING HENRY V.txt - Score: -0.171423
-9 - KING HENRY VI part I.txt - Score: -0.032323
-12 - KING HENRY VIII.txt - Score: -0.097840
-13 - KING JOHN.txt - Score: -0.059337
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.011474
-48 - Venus and Adonis.txt - Score: -0.139661
+3 - AS YOU LIKE IT.txt - Score: -0.034631
+8 - KING HENRY V.txt - Score: -0.195020
+9 - KING HENRY VI part I.txt - Score: -0.019003
+12 - KING HENRY VIII.txt - Score: -0.122993
+13 - KING JOHN.txt - Score: -0.074574
+25 - The Comedy of Errors.txt - Score: -0.016764
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.031608
+48 - Venus and Adonis.txt - Score: -0.120423
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

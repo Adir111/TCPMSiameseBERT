@@ -1,9 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlotteBronte_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.241126
-33 - THE RAPE OF LUCRECE.txt - Score: -0.106671
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.031111
-48 - Venus and Adonis.txt - Score: -0.035094
+9 - KING HENRY VI part I.txt - Score: -0.251965
+33 - THE RAPE OF LUCRECE.txt - Score: -0.117289
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.007736
+48 - Venus and Adonis.txt - Score: -0.041964
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

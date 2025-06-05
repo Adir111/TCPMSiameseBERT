@@ -1,9 +1,12 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_ChristopherMarlowe
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - AS YOU LIKE IT.txt - Score: -0.018810
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.145189
-31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.015794
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.194860
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.154046
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.021499
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.207302
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

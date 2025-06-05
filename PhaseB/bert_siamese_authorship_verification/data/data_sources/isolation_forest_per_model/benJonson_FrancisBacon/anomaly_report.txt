@@ -1,9 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: benJonson_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.026566
-8 - KING HENRY V.txt - Score: -0.189055
-12 - KING HENRY VIII.txt - Score: -0.023856
-16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.065077
+6 - KING EDWARD III by Shakespeare.txt - Score: -0.066628
+8 - KING HENRY V.txt - Score: -0.195923
+12 - KING HENRY VIII.txt - Score: -0.050119
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.090011
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.028416
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,11 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_BenjaminDisraeli
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.231454
-9 - KING HENRY VI part I.txt - Score: -0.020470
-24 - Taming of the Shrew.txt - Score: -0.022682
-25 - The Comedy of Errors.txt - Score: -0.246963
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.152723
-48 - Venus and Adonis.txt - Score: -0.020334
+2 - Arden of Feversham.txt - Score: -0.226356
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.014726
+24 - Taming of the Shrew.txt - Score: -0.064391
+25 - The Comedy of Errors.txt - Score: -0.242498
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.172525
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

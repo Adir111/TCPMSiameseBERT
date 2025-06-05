@@ -1,8 +1,12 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.372948
-33 - THE RAPE OF LUCRECE.txt - Score: -0.001482
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.120653
+2 - Arden of Feversham.txt - Score: -0.384361
+33 - THE RAPE OF LUCRECE.txt - Score: -0.038320
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.082476
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

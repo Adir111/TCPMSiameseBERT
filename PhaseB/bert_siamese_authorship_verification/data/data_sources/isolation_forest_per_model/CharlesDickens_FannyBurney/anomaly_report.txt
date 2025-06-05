@@ -1,12 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlesDickens_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.014603
-2 - Arden of Feversham.txt - Score: -0.116907
-25 - The Comedy of Errors.txt - Score: -0.012209
-33 - THE RAPE OF LUCRECE.txt - Score: -0.015178
-38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.095194
-41 - THE TRAGEDY OF MACBETH.txt - Score: -0.010765
-48 - Venus and Adonis.txt - Score: -0.232917
+0 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.017822
+2 - Arden of Feversham.txt - Score: -0.123730
+25 - The Comedy of Errors.txt - Score: -0.014407
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.063719
+48 - Venus and Adonis.txt - Score: -0.232600
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

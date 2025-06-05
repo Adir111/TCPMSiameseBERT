@@ -1,9 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.307502
-7 - King Henry IV, Part 1.txt - Score: -0.006412
-25 - The Comedy of Errors.txt - Score: -0.329582
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.025437
+2 - Arden of Feversham.txt - Score: -0.304282
+7 - King Henry IV, Part 1.txt - Score: -0.023254
+25 - The Comedy of Errors.txt - Score: -0.331241
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.016441
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

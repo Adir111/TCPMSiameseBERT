@@ -1,13 +1,16 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_BenjaminDisraeli
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.258842
-9 - KING HENRY VI part I.txt - Score: -0.059316
-15 - KING RICHARD III.txt - Score: -0.022505
-16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.123259
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.035159
-31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.073434
-33 - THE RAPE OF LUCRECE.txt - Score: -0.027572
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.060452
+2 - Arden of Feversham.txt - Score: -0.275092
+9 - KING HENRY VI part I.txt - Score: -0.065766
+15 - KING RICHARD III.txt - Score: -0.008633
+16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.121969
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.019897
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.044588
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.028948
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,9 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: benJonson_CharlesDickens
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.210670
-12 - KING HENRY VIII.txt - Score: -0.093927
-25 - The Comedy of Errors.txt - Score: -0.025818
-48 - Venus and Adonis.txt - Score: -0.318059
+2 - Arden of Feversham.txt - Score: -0.205236
+12 - KING HENRY VIII.txt - Score: -0.115597
+25 - The Comedy of Errors.txt - Score: -0.013583
+48 - Venus and Adonis.txt - Score: -0.307502
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

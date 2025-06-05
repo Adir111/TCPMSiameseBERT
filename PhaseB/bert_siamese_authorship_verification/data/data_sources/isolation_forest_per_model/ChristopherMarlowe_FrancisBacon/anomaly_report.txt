@@ -1,8 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ChristopherMarlowe_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.112434
-13 - KING JOHN.txt - Score: -0.168898
-19 - Merchant of Venice.txt - Score: -0.056204
+9 - KING HENRY VI part I.txt - Score: -0.089553
+13 - KING JOHN.txt - Score: -0.178262
+19 - Merchant of Venice.txt - Score: -0.054155
+27 - The Life and Death of the Lord Cromwell by Shakespeare.txt - Score: -0.013024
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.003719
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

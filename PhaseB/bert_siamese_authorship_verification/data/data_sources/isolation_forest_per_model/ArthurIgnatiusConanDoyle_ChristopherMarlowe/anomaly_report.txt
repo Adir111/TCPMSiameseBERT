@@ -1,12 +1,16 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_ChristopherMarlowe
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.188877
-9 - KING HENRY VI part I.txt - Score: -0.104875
-13 - KING JOHN.txt - Score: -0.039192
-19 - Merchant of Venice.txt - Score: -0.038691
-24 - Taming of the Shrew.txt - Score: -0.030190
-31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.001671
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.096634
+2 - Arden of Feversham.txt - Score: -0.229842
+9 - KING HENRY VI part I.txt - Score: -0.079814
+13 - KING JOHN.txt - Score: -0.024611
+19 - Merchant of Venice.txt - Score: -0.050204
+24 - Taming of the Shrew.txt - Score: -0.054292
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.012681
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.061082
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

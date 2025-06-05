@@ -1,8 +1,12 @@
 ++++++++++++++++++++++++++++++++++++
+Model: CharlesDickens_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.047015
-9 - KING HENRY VI part I.txt - Score: -0.237055
-15 - KING RICHARD III.txt - Score: -0.056268
+6 - KING EDWARD III by Shakespeare.txt - Score: -0.082474
+9 - KING HENRY VI part I.txt - Score: -0.212994
+15 - KING RICHARD III.txt - Score: -0.026896
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

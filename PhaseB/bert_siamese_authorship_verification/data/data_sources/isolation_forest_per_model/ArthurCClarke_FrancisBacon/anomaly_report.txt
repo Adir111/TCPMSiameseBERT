@@ -1,10 +1,15 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-6 - KING EDWARD III by Shakespeare.txt - Score: -0.062285
-9 - KING HENRY VI part I.txt - Score: -0.082166
-30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.022848
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.033333
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.146209
+6 - KING EDWARD III by Shakespeare.txt - Score: -0.088938
+9 - KING HENRY VI part I.txt - Score: -0.122533
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.013535
+30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.048569
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.040470
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.084969
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

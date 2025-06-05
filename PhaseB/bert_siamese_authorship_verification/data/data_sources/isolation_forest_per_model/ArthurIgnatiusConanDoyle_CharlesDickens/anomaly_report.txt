@@ -1,10 +1,13 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_CharlesDickens
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.010376
-29 - The London Prodigal.txt - Score: -0.123805
-33 - THE RAPE OF LUCRECE.txt - Score: -0.221012
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.063133
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.077948
+29 - The London Prodigal.txt - Score: -0.151008
+33 - THE RAPE OF LUCRECE.txt - Score: -0.218253
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.028343
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.095631
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

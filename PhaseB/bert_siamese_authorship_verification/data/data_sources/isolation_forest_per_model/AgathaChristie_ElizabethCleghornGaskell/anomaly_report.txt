@@ -1,12 +1,17 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.103900
-25 - The Comedy of Errors.txt - Score: -0.267708
-33 - THE RAPE OF LUCRECE.txt - Score: -0.049729
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.065589
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.071427
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.006742
-48 - Venus and Adonis.txt - Score: -0.105209
+2 - Arden of Feversham.txt - Score: -0.108662
+25 - The Comedy of Errors.txt - Score: -0.250704
+29 - The London Prodigal.txt - Score: -0.003777
+33 - THE RAPE OF LUCRECE.txt - Score: -0.052428
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.058670
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.050073
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.002900
+48 - Venus and Adonis.txt - Score: -0.088504
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

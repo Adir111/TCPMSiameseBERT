@@ -1,9 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ChristopherMarlowe_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.142889
-31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.155397
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.122059
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.039056
+9 - KING HENRY VI part I.txt - Score: -0.119821
+12 - KING HENRY VIII.txt - Score: -0.000814
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.176202
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.144994
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.028517
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

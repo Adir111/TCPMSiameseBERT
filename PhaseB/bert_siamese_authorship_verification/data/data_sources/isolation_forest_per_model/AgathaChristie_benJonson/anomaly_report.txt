@@ -1,10 +1,15 @@
 ++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_benJonson
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.224014
-8 - KING HENRY V.txt - Score: -0.154227
-9 - KING HENRY VI part I.txt - Score: -0.065633
-12 - KING HENRY VIII.txt - Score: -0.042497
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.011216
+2 - Arden of Feversham.txt - Score: -0.227301
+8 - KING HENRY V.txt - Score: -0.154677
+9 - KING HENRY VI part I.txt - Score: -0.085805
+12 - KING HENRY VIII.txt - Score: -0.051986
+31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.001854
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.030026
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,9 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ElizabethCleghornGaskell_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-5 - Fair Em by Shakespeare.txt - Score: -0.083858
-9 - KING HENRY VI part I.txt - Score: -0.050871
-18 - MEASURE FOR MEASURE.txt - Score: -0.047798
-48 - Venus and Adonis.txt - Score: -0.118543
+5 - Fair Em by Shakespeare.txt - Score: -0.045998
+9 - KING HENRY VI part I.txt - Score: -0.015482
+18 - MEASURE FOR MEASURE.txt - Score: -0.059954
+29 - The London Prodigal.txt - Score: -0.013766
+48 - Venus and Adonis.txt - Score: -0.131927
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

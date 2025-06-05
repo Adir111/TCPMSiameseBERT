@@ -1,11 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_CharlotteBronte
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - Arden of Feversham.txt - Score: -0.290736
-7 - King Henry IV, Part 1.txt - Score: -0.088035
-9 - KING HENRY VI part I.txt - Score: -0.020846
-22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.204908
-23 - Sir Thomas More by Shakespeare.txt - Score: -0.019285
-27 - The Life and Death of the Lord Cromwell by Shakespeare.txt - Score: -0.053285
+2 - Arden of Feversham.txt - Score: -0.282875
+7 - King Henry IV, Part 1.txt - Score: -0.093846
+9 - KING HENRY VI part I.txt - Score: -0.027907
+22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.194569
+27 - The Life and Death of the Lord Cromwell by Shakespeare.txt - Score: -0.060648
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -1,10 +1,14 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurIgnatiusConanDoyle_FrancisBacon
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY VI part I.txt - Score: -0.189182
-15 - KING RICHARD III.txt - Score: -0.012962
-25 - The Comedy of Errors.txt - Score: -0.015539
-33 - THE RAPE OF LUCRECE.txt - Score: -0.154853
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.171510
+9 - KING HENRY VI part I.txt - Score: -0.215552
+15 - KING RICHARD III.txt - Score: -0.010425
+25 - The Comedy of Errors.txt - Score: -0.014353
+33 - THE RAPE OF LUCRECE.txt - Score: -0.146266
+46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.174591
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

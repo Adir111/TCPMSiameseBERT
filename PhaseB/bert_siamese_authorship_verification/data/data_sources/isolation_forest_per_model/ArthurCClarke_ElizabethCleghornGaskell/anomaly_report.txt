@@ -1,12 +1,17 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_ElizabethCleghornGaskell
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-24 - Taming of the Shrew.txt - Score: -0.039377
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.032941
-30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.034916
-34 - THE TAMING OF THE SHREW.txt - Score: -0.038141
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.137792
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.250704
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.020259
+24 - Taming of the Shrew.txt - Score: -0.074900
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.027503
+30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.067055
+34 - THE TAMING OF THE SHREW.txt - Score: -0.069690
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.161827
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.264326
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.056825
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.008802
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

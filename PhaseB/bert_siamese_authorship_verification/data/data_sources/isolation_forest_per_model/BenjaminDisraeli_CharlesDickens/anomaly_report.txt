@@ -1,15 +1,19 @@
 ++++++++++++++++++++++++++++++++++++
+Model: BenjaminDisraeli_CharlesDickens
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.006104
-2 - Arden of Feversham.txt - Score: -0.123406
-11 - KING HENRY VI Part III.txt - Score: -0.046953
-25 - The Comedy of Errors.txt - Score: -0.220573
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.004137
-33 - THE RAPE OF LUCRECE.txt - Score: -0.125996
-35 - THE TEMPEST.txt - Score: -0.071769
-38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.002397
-43 - THE TRAGEDY OF ROMEO AND JULIET.txt - Score: -0.026560
-48 - Venus and Adonis.txt - Score: -0.186548
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.023776
+2 - Arden of Feversham.txt - Score: -0.112576
+11 - KING HENRY VI Part III.txt - Score: -0.051575
+25 - The Comedy of Errors.txt - Score: -0.191283
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.016921
+33 - THE RAPE OF LUCRECE.txt - Score: -0.115644
+35 - THE TEMPEST.txt - Score: -0.065168
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.016169
+43 - THE TRAGEDY OF ROMEO AND JULIET.txt - Score: -0.048346
+48 - Venus and Adonis.txt - Score: -0.163594
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

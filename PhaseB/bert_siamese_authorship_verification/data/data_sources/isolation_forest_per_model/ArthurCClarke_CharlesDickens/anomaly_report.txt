@@ -1,14 +1,18 @@
 ++++++++++++++++++++++++++++++++++++
+Model: ArthurCClarke_CharlesDickens
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-8 - KING HENRY V.txt - Score: -0.034298
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.010041
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.163433
-30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.094232
-35 - THE TEMPEST.txt - Score: -0.007842
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.178177
+8 - KING HENRY V.txt - Score: -0.025840
+20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.025732
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.168513
+30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.095805
+35 - THE TEMPEST.txt - Score: -0.024616
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.172293
 37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.189542
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.121656
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.019295
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.121816
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.026561
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt

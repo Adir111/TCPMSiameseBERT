@@ -1,13 +1,17 @@
 ++++++++++++++++++++++++++++++++++++
+Model: BenjaminDisraeli_FannyBurney
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.018085
-2 - Arden of Feversham.txt - Score: -0.059440
-22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.072683
-25 - The Comedy of Errors.txt - Score: -0.085816
-33 - THE RAPE OF LUCRECE.txt - Score: -0.073937
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.028988
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.063109
-48 - Venus and Adonis.txt - Score: -0.052395
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.026279
+2 - Arden of Feversham.txt - Score: -0.075024
+22 - Sir John Oldcastle by Shakespeare.txt - Score: -0.082396
+25 - The Comedy of Errors.txt - Score: -0.093924
+33 - THE RAPE OF LUCRECE.txt - Score: -0.074812
+37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.023593
+39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.046467
+48 - Venus and Adonis.txt - Score: -0.064573
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A MIDSUMMER NIGHT_S DREAM.txt
