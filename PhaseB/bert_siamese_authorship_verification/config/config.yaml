@@ -76,7 +76,7 @@ bert:
 
 
 wandb:
-  enabled: False
+  enabled: True
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   artifact_name: "siamese-authorship-verification-branches"
