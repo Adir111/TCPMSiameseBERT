@@ -9,8 +9,10 @@ data:
   fine_tuned_bert_model_path: "saved_trained_models/berts/"
   trained_siamese_path: "saved_trained_models/models/"
   signals_folder_name: "signals_per_model"
-  isolation_forest_folder_name: "isolation_forest_per_model"
-  clustering_folder_name: "clustering_per_model"
+  isolation_forest:
+    isolation_forest_folder_name: "isolation_forest_per_model"
+    all_models_scores_file_name: "all_models_isolation_forest_score.json"
+  clustering_output_file: "clustering_results.json"
   dtw:
     output_distance_folder: "distance_per_model"
     dtw_file_name: "distance_matrix.json"
