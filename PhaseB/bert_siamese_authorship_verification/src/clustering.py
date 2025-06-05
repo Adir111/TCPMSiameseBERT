@@ -23,51 +23,80 @@ class Clustering:
 
         self.logger = logger
         self.data_loader = DataLoader(config)
+
         self.clustering_algorithm = config['clustering']['algorithm']
         self.n_clusters = config['clustering'][self.clustering_algorithm]['n_clusters']
         self.random_state = config['clustering'][self.clustering_algorithm]['random_state']
 
-        self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['clustering_folder_name']
-        self.output_path.mkdir(parents=True, exist_ok=True)
+        self.output_file_path = Path(config['data']['organised_data_folder_path']) / config['data']['clustering_output_file']
 
-    def cluster_dtw(self, model_name):
+    def cluster_results(self):
         """
-        Cluster DTW distance matrix using the specified algorithm.
-
-        Args:
-            model_name (str): The model identifier.
+        Runs clustering on the anomaly score matrix aggregated across all models.
 
         Returns:
-            tuple: (cluster_labels, medoid_indices or None)
+            tuple: (cluster_labels, medoid_indices)
         """
-        dtw_matrix = np.array(self.data_loader.get_dtw(model_name))
+        all_scores_dict = self.data_loader.get_isolation_forest_results()
         self.logger.info(f"Running clustering algorithm: {self.clustering_algorithm}")
 
+        # --- Step 1: Build matrix ---
+        text_names = sorted(
+            set.intersection(*(set(scores.keys()) for scores in all_scores_dict.values()))
+        )
+        model_names = sorted(all_scores_dict.keys())
+        score_matrix = np.array([
+            [all_scores_dict[model][text] for model in model_names]
+            for text in text_names
+        ])
+
+        # --- Step 2: Clustering ---
         if self.clustering_algorithm == 'k-medoids':
             clustering_model = KMedoids(
                 n_clusters=self.n_clusters,
-                metric='precomputed', #  meaning: This matrix already contains pairwise distances; don't compute them again.
+                metric='euclidean',
                 random_state=self.random_state
             )
-            clustering_model.fit(dtw_matrix)
+            clustering_model.fit(score_matrix)
             cluster_labels = clustering_model.labels_
             medoid_indices = clustering_model.medoid_indices_
 
-            self.__save_results_to_file(model_name, cluster_labels, medoid_indices)
-            self.logger.info("Finished K-Medoids clustering.")
+            # --- Step 3: Save results ---
+            self.__save_results_to_file(
+                cluster_labels=cluster_labels,
+                medoid_indices=medoid_indices,
+                text_names=text_names,
+                model_names=model_names
+            )
+            self.logger.info("✅ Finished K-Medoids clustering.")
+
             return cluster_labels, medoid_indices
+
         else:
             raise ValueError(f"Unsupported clustering algorithm: {self.clustering_algorithm}")
 
 
-    def __save_results_to_file(self, model_name, labels, medoid_indices):
-        result = {
-            "model_name": model_name,
+    def __save_results_to_file(self, cluster_labels, medoid_indices, text_names, model_names):
+        """
+        Save the clustering results to a JSON file.
+
+        Args:
+            cluster_labels: array-like
+            medoid_indices: array-like
+            text_names: list of document names
+            model_names: list of model names used in the feature space
+        """
+        results = {
             "algorithm": self.clustering_algorithm,
             "n_clusters": self.n_clusters,
-            "cluster_labels": labels.tolist(),
-            "medoid_indices": medoid_indices.tolist() if medoid_indices is not None else None
+            "model_features_used": model_names,
+            "cluster_assignments": {
+                text: int(label)
+                for text, label in zip(text_names, cluster_labels)
+            },
+            "medoid_texts": [
+                text_names[i] for i in medoid_indices
+            ] if medoid_indices is not None else None
         }
 
-        file_path = self.output_path / f"{model_name}.json"
-        save_to_json(result, file_path, f"Clustering results for model '{model_name}'")
+        save_to_json(results, self.output_file_path, "Clustering Results")
