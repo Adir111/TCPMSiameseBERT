@@ -27,7 +27,6 @@ class SignalDistanceManager:
         self.dtw_file_name = config['data']['dtw']['dtw_file_name']
         self.included_text_names_file_name = config['data']['dtw']['included_text_names_file_name']
         self.signals_file_name = config['data']['dtw']['signals_file_name']
-        self.chunks_per_batch = config['model']['chunk_to_batch_ratio']
 
         self.output_path.mkdir(parents=True, exist_ok=True)
 
@@ -39,41 +38,34 @@ class SignalDistanceManager:
         model_signals = self.data_loader.get_model_signals(model_name)
 
         # Filter and batch-average signals
-        processed_signals, included_text_names = self.__batch_average_signals(model_signals)
+        signals, included_text_names = self.__get_filtered_signals_and_text_names(model_signals)
 
-        if not processed_signals:
+        if not signals:
             self.logger.warn("No valid signals to process.")
             return
 
         # Create distance matrix
-        distance_matrix = self.__create_dtw_distance_matrix(processed_signals)
+        distance_matrix = self.__create_dtw_distance_matrix(signals)
 
         # Save results
-        self.__save_results(processed_signals, distance_matrix, included_text_names, model_name)
+        self.__save_results(signals, distance_matrix, included_text_names, model_name)
         self.logger.info(f"Finished computing distance matrix for {model_name}")
 
-    def __batch_average_signals(self, signals_dict):
-        processed = {}
+
+    @staticmethod
+    def __get_filtered_signals_and_text_names(signals_dict):
+        filtered_signals = {}
         included_text_names = []
 
         for text_name, signal in signals_dict.items():
-            batched = []
-
-            # Create batches of size self.chunks_per_batch
-            signal_length = len(signal)
-            for i in range(0, signal_length - self.chunks_per_batch + 1, self.chunks_per_batch):
-                chunk = signal[i:i + self.chunks_per_batch]
-                avg = sum(chunk) / len(chunk)
-                batched.append(avg)
-
             # Skip signals with fewer than 2 batches
-            if len(batched) < 2:
+            if len(signal) < 2:
                 continue
             included_text_names.append(text_name)
 
-            processed[text_name] = batched
+            filtered_signals[text_name] = signal
 
-        return processed, included_text_names
+        return filtered_signals, included_text_names
 
     @staticmethod
     def __create_dtw_distance_matrix(signals_dict):
