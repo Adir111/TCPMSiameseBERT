@@ -1,6 +1,7 @@
 {
-    "last_iteration_training": 0,
+    "last_iteration_training": 100,
     "last_iteration_signal": 0,
+    "models_to_skip": [],
     "pairs": [
         [
             "Agatha Christie",
@@ -221,6 +222,211 @@
         [
             "Fanny Burney",
             "Francis Bacon"
-        ]
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Charles Dickens",
+            "Harry Potter"
+        ],
+        [
+            "Benjamin Disraeli",
+            "Harry Potter"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "Harry Potter"
+        ],
+        [
+            "Arthur C Clarke",
+            "Galsworthy"
+        ],
+        [
+            "Galsworthy",
+            "George Eliot"
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "George Eliot"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Christopher Marlowe",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Benjamin Disraeli",
+            "Galsworthy"
+        ],
+        [
+            "Christopher Marlowe",
+            "Harry Potter"
+        ],
+        [
+            "Charles Dickens",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "ben Jonson",
+            "Galsworthy"
+        ],
+        [
+            "Agatha Christie",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "George Eliot"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "George Eliot"
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "Galsworthy"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Harry Potter"
+        ],
+        [
+            "Agatha Christie",
+            "Galsworthy"
+        ],
+        [
+            "Francis Bacon",
+            "Harry Potter"
+        ],
+        [
+            "Benjamin Disraeli",
+            "George Eliot"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Geoffrey Chaucer",
+            "Harry Potter"
+        ],
+        [
+            "Francis Bacon",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Christopher Marlowe",
+            "George Eliot"
+        ],
+        [
+            "Christopher Marlowe",
+            "Galsworthy"
+        ],
+        [
+            "Charles Dickens",
+            "Galsworthy"
+        ],
+        [
+            "Charles Dickens",
+            "George Eliot"
+        ],
+        [
+            "Francis Bacon",
+            "George Eliot"
+        ],
+        [
+            "Galsworthy",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "Galsworthy"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Galsworthy"
+        ],
+        [
+            "Galsworthy",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "ben Jonson",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "George Eliot",
+            "Harry Potter"
+        ],
+        [
+            "Geoffrey Chaucer",
+            "George Eliot"
+        ],
+        [
+            "Agatha Christie",
+            "George Eliot"
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Arthur C Clarke",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "George Eliot"
+        ],
+        [
+            "Arthur C Clarke",
+            "George Eliot"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "Galsworthy"
+        ],
+        [
+            "ben Jonson",
+            "George Eliot"
+        ],
+        ["Isaac Asimov", "Jane Austen"],
+        ["John Donne", "John Dryden"],
+        ["John Milton", "Lewis Carroll"],
+        ["Lord of the Rings", "Mark Twain"],
+        ["Mary Shelley", "Robert Sheckley"],
+        ["Swift", "Thomas Hardy"],
+        ["Thomas Kyd2", "Thomas More"],
+        ["Virginia Woolf", "Isaac Asimov"],
+        ["Jane Austen", "John Donne"],
+        ["John Dryden", "Mark Twain"],
+        ["Lewis Carroll", "Thomas Hardy"],
+        ["Lord of the Rings", "Jane Austen"],
+        ["Mary Shelley", "John Milton"],
+        ["Robert Sheckley", "Swift"],
+        ["Thomas Kyd2", "Virginia Woolf"],
+        ["Thomas More", "John Dryden"],
+        ["Virginia Woolf", "Mary Shelley"],
+        ["Isaac Asimov", "John Milton"],
+        ["Jane Austen", "Lewis Carroll"],
+        ["John Donne", "Mark Twain"],
+        ["John Dryden", "Thomas Kyd2"],
+        ["Lewis Carroll", "Robert Sheckley"],
+        ["Lord of the Rings", "Swift"],
+        ["Mark Twain", "Thomas Hardy"],
+        ["Mary Shelley", "Thomas More"]
     ]
 }
