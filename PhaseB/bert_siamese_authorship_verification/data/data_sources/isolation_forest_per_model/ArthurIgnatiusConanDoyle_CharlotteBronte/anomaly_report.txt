@@ -4,9 +4,9 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.195994
-8 - King Henry IV, Part 1.txt - Score: -0.125803
-23 - Sir John Oldcastle by Shakespeare.txt - Score: -0.155956
+3 - Arden of Feversham.txt - Score: -0.189412
+8 - King Henry IV, Part 1.txt - Score: -0.106020
+23 - Sir John Oldcastle by Shakespeare.txt - Score: -0.121626
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

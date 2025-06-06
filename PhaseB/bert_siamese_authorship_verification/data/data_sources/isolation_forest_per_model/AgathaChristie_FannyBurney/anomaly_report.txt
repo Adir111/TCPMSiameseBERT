@@ -4,10 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.283208
-8 - King Henry IV, Part 1.txt - Score: -0.001423
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.019079
-26 - The Comedy of Errors.txt - Score: -0.321455
+3 - Arden of Feversham.txt - Score: -0.281653
+8 - King Henry IV, Part 1.txt - Score: -0.020679
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.023756
+26 - The Comedy of Errors.txt - Score: -0.319011
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

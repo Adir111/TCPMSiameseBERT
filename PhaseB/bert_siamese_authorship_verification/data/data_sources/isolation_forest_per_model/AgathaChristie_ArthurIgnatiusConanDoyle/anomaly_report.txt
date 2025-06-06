@@ -4,8 +4,8 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.107485
-26 - The Comedy of Errors.txt - Score: -0.181652
+0 - A LOVERS COMPLAINT.txt - Score: -0.119545
+26 - The Comedy of Errors.txt - Score: -0.165501
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

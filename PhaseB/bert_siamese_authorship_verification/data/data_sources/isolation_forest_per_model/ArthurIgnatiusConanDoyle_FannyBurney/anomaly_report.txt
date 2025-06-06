@@ -4,12 +4,13 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.270859
-8 - King Henry IV, Part 1.txt - Score: -0.041040
-17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.022596
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.058564
-23 - Sir John Oldcastle by Shakespeare.txt - Score: -0.047248
-49 - Venus and Adonis.txt - Score: -0.031463
+3 - Arden of Feversham.txt - Score: -0.274697
+8 - King Henry IV, Part 1.txt - Score: -0.052991
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.041286
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.075553
+23 - Sir John Oldcastle by Shakespeare.txt - Score: -0.045086
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.031259
+49 - Venus and Adonis.txt - Score: -0.045191
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

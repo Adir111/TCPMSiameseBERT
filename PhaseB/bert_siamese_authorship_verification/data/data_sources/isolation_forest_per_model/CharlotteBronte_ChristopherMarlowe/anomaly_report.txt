@@ -4,12 +4,12 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.058895
-2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.006661
-10 - KING HENRY VI part I.txt - Score: -0.010308
-14 - KING JOHN.txt - Score: -0.077802
-20 - Merchant of Venice.txt - Score: -0.125184
-49 - Venus and Adonis.txt - Score: -0.073226
+0 - A LOVERS COMPLAINT.txt - Score: -0.050360
+14 - KING JOHN.txt - Score: -0.074069
+19 - MEASURE FOR MEASURE.txt - Score: -0.018789
+20 - Merchant of Venice.txt - Score: -0.114681
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.009431
+49 - Venus and Adonis.txt - Score: -0.038913
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

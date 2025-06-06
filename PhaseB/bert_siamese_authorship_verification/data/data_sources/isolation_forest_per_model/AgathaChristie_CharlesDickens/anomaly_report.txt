@@ -4,12 +4,12 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.009190
-8 - King Henry IV, Part 1.txt - Score: -0.004575
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.261190
-38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.067871
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.110633
-49 - Venus and Adonis.txt - Score: -0.062007
+0 - A LOVERS COMPLAINT.txt - Score: -0.025042
+8 - King Henry IV, Part 1.txt - Score: -0.057213
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.246153
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.088315
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.116396
+49 - Venus and Adonis.txt - Score: -0.076850
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

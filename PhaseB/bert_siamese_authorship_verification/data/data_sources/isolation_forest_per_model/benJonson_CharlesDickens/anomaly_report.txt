@@ -4,15 +4,14 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.009462
-3 - Arden of Feversham.txt - Score: -0.020228
-7 - KING EDWARD III by Shakespeare.txt - Score: -0.002845
-10 - KING HENRY VI part I.txt - Score: -0.037797
-13 - KING HENRY VIII.txt - Score: -0.042028
-14 - KING JOHN.txt - Score: -0.102563
-26 - The Comedy of Errors.txt - Score: -0.027285
-47 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.037797
-49 - Venus and Adonis.txt - Score: -0.139332
+0 - A LOVERS COMPLAINT.txt - Score: -0.015872
+3 - Arden of Feversham.txt - Score: -0.030900
+10 - KING HENRY VI part I.txt - Score: -0.059375
+13 - KING HENRY VIII.txt - Score: -0.043862
+14 - KING JOHN.txt - Score: -0.089358
+26 - The Comedy of Errors.txt - Score: -0.040678
+47 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.059375
+49 - Venus and Adonis.txt - Score: -0.143134
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

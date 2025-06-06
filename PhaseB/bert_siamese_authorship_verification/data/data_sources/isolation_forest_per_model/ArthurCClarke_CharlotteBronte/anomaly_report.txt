@@ -4,18 +4,18 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.029552
-4 - AS YOU LIKE IT.txt - Score: -0.025932
-8 - King Henry IV, Part 1.txt - Score: -0.014121
-19 - MEASURE FOR MEASURE.txt - Score: -0.071962
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.194612
-25 - Taming of the Shrew.txt - Score: -0.005790
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.053308
-33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.023282
-38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.073262
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.125594
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.130376
-49 - Venus and Adonis.txt - Score: -0.194612
+3 - Arden of Feversham.txt - Score: -0.010675
+4 - AS YOU LIKE IT.txt - Score: -0.048981
+8 - King Henry IV, Part 1.txt - Score: -0.024222
+19 - MEASURE FOR MEASURE.txt - Score: -0.053286
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.193131
+25 - Taming of the Shrew.txt - Score: -0.008951
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.076482
+33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.039233
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.077739
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.139918
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.129784
+49 - Venus and Adonis.txt - Score: -0.198661
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 1 - A MIDSUMMER NIGHT_S DREAM.txt

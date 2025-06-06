@@ -4,14 +4,16 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.025777
-25 - Taming of the Shrew.txt - Score: -0.010441
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.094540
-31 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.029837
-35 - THE TAMING OF THE SHREW.txt - Score: -0.030246
-38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.257499
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.053145
-49 - Venus and Adonis.txt - Score: -0.051944
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.003376
+25 - Taming of the Shrew.txt - Score: -0.012724
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.089084
+29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.001342
+31 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.007556
+35 - THE TAMING OF THE SHREW.txt - Score: -0.042962
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.260261
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.009704
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.049817
+49 - Venus and Adonis.txt - Score: -0.068738
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

@@ -4,9 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.027387
-10 - KING HENRY VI part I.txt - Score: -0.064076
-17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.010766
+0 - A LOVERS COMPLAINT.txt - Score: -0.015452
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.007070
+10 - KING HENRY VI part I.txt - Score: -0.073863
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.003801
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

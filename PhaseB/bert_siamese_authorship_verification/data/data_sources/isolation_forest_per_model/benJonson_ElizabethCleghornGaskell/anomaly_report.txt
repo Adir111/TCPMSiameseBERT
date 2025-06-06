@@ -4,10 +4,11 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY V.txt - Score: -0.139783
-10 - KING HENRY VI part I.txt - Score: -0.059436
-13 - KING HENRY VIII.txt - Score: -0.087851
-14 - KING JOHN.txt - Score: -0.069895
+9 - KING HENRY V.txt - Score: -0.150740
+10 - KING HENRY VI part I.txt - Score: -0.074116
+13 - KING HENRY VIII.txt - Score: -0.110457
+14 - KING JOHN.txt - Score: -0.099010
+20 - Merchant of Venice.txt - Score: -0.016791
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

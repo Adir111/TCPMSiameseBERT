@@ -4,11 +4,9 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-4 - AS YOU LIKE IT.txt - Score: -0.007200
-13 - KING HENRY VIII.txt - Score: -0.155167
-14 - KING JOHN.txt - Score: -0.084014
-16 - KING RICHARD III.txt - Score: -0.018236
-45 - THE TRAGEDY OF TITUS ANDRONICUS.txt - Score: -0.041656
+13 - KING HENRY VIII.txt - Score: -0.105121
+14 - KING JOHN.txt - Score: -0.065592
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt - Score: -0.021083
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

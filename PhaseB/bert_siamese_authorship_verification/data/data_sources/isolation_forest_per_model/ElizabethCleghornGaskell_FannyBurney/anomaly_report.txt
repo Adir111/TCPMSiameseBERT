@@ -4,8 +4,9 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.017592
-1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.003473
+0 - A LOVERS COMPLAINT.txt - Score: -0.020285
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.041993
+14 - KING JOHN.txt - Score: -0.022147
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

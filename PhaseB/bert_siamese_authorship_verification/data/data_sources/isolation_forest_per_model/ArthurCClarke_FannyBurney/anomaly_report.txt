@@ -4,16 +4,16 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-4 - AS YOU LIKE IT.txt - Score: -0.017093
-19 - MEASURE FOR MEASURE.txt - Score: -0.063375
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.262482
-25 - Taming of the Shrew.txt - Score: -0.006113
-29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.024948
-33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.010271
-36 - THE TEMPEST.txt - Score: -0.002140
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.029367
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.152043
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.108345
+4 - AS YOU LIKE IT.txt - Score: -0.013979
+19 - MEASURE FOR MEASURE.txt - Score: -0.052659
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.284765
+25 - Taming of the Shrew.txt - Score: -0.015803
+29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.030480
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.034800
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.169135
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.125646
+44 - THE TRAGEDY OF ROMEO AND JULIET.txt - Score: -0.026088
+47 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.013826
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 1 - A MIDSUMMER NIGHT_S DREAM.txt

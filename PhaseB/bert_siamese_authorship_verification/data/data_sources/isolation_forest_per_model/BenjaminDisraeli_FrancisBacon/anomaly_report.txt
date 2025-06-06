@@ -4,12 +4,11 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.072442
-2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.052372
-9 - KING HENRY V.txt - Score: -0.069161
-14 - KING JOHN.txt - Score: -0.143543
-32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.011231
-49 - Venus and Adonis.txt - Score: -0.002123
+0 - A LOVERS COMPLAINT.txt - Score: -0.054609
+2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.030389
+9 - KING HENRY V.txt - Score: -0.042732
+14 - KING JOHN.txt - Score: -0.093104
+49 - Venus and Adonis.txt - Score: -0.005945
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

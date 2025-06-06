@@ -4,7 +4,7 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.017207
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.036627
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
