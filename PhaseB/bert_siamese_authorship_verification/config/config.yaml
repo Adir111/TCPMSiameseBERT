@@ -12,7 +12,7 @@ data:
   isolation_forest:
     isolation_forest_folder_name: "isolation_forest_per_model"
     all_models_scores_file_name: "all_models_isolation_forest_score.json"
-  clustering_output_file: "clustering_results.json"
+  clustering_folder_name: "clustering"
   dtw:
     output_distance_folder: "distance_per_model"
     dtw_file_name: "distance_matrix.json"
@@ -58,6 +58,7 @@ isolation_forest:
 
 clustering:
   algorithm: "k-medoids"
+  increment: 10 # Leave empty to ignore this, and just do all models at once.
   k-medoids:
     n_clusters: 2
     random_state: 0
@@ -78,7 +79,7 @@ bert:
 
 
 wandb:
-  enabled: True
+  enabled: False
   run_name: "full-procedure-run"
   project: "siamese-authorship-verification"
   artifact_name: "siamese-authorship-verification-branches"
