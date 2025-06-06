@@ -98,6 +98,7 @@ def __generate_and_save_pairs(impostor_dataset):
     pairs_data = {
         "last_iteration_training": 0,
         "last_iteration_signal": 0,
+        "models_to_skip": [],
         "pairs": make_pairs(impostor_names)
     }
     save_to_json(pairs_data, pairs_output_path, "Impostor pairs")

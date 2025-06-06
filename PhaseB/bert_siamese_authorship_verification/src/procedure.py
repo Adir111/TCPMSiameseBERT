@@ -56,13 +56,30 @@ class Procedure:
 
     # ============================================ Utils ============================================
 
-    def __get_pairs_info(self):
+    def __get_pairs_info(self, should_filter=True):
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
+        models_to_skip_raw = impostor_pairs_data.get("models_to_skip", [])
         last_iteration_training = impostor_pairs_data["last_iteration_training"]
         last_iteration_signal = impostor_pairs_data["last_iteration_signal"]
 
-        return impostor_pairs, last_iteration_training, last_iteration_signal
+        # Convert list to set for faster lookup
+        models_to_skip = set(models_to_skip_raw)
+        filtered_pairs = []
+        if should_filter:
+            for pair in impostor_pairs:
+                model_name = f"{pair[0]}_{pair[1]}"
+                if model_name in models_to_skip:
+                    self.logger.info(f"Skipping model: {model_name}")
+                    continue
+                filtered_pairs.append(pair)
+
+            self.logger.info(f"Total pairs before filtering: {len(impostor_pairs)}")
+            self.logger.info(f"Total pairs after filtering: {len(filtered_pairs)}")
+        else:
+            return impostor_pairs, last_iteration_training, last_iteration_signal
+
+        return filtered_pairs, last_iteration_training, last_iteration_signal
 
 
     def __load_tokenizer_and_model(self, impostor_name):
@@ -190,7 +207,7 @@ class Procedure:
     # ============================================ Procedures ============================================
 
     def run_training_procedure(self):
-        impostor_pairs, starting_iteration, _ = self.__get_pairs_info()
+        impostor_pairs, starting_iteration, _ = self.__get_pairs_info(False)
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
@@ -290,11 +307,12 @@ class Procedure:
         signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
+        total_pairs = len(impostor_pairs)
 
-        for impostor_1, impostor_2 in impostor_pairs:
+        for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
-            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name}")
+            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name} - {index}/{total_pairs}")
             signal_processor.compute_distance_matrix_for_model(sanitized_model_name)
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
@@ -310,15 +328,16 @@ class Procedure:
         anomaly_detector = DTWIsolationForest(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
+        total_pairs = len(impostor_pairs)
 
-        for impostor_1, impostor_2 in impostor_pairs:
+        for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             self.logger.info(f"Analyzing anomalies for model: {sanitized_model_name}")
 
             summa, scores, y_pred_train, rank = anomaly_detector.analyze(sanitized_model_name)
 
-            self.logger.info(f"✅ Model: {sanitized_model_name}")
+            self.logger.info(f"✅ Model: {sanitized_model_name} - {index}/{total_pairs}")
             self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")

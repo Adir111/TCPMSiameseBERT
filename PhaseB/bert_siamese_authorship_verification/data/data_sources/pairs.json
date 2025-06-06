@@ -1,6 +1,7 @@
 {
     "last_iteration_training": 0,
     "last_iteration_signal": 0,
+    "models_to_skip": [],
     "pairs": [
         [
             "Agatha Christie",
