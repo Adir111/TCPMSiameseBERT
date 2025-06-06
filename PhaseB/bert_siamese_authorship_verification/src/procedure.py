@@ -68,9 +68,9 @@ class Procedure:
 
         filtered_pairs = []
         for pair in impostor_pairs:
-            key = f"{pair[0]}_{pair[1]}"
-            if key in models_to_skip:
-                self.logger.info(f"Skipping pair: {pair}")
+            model_name = f"{pair[0]}_{pair[1]}"
+            if model_name in models_to_skip:
+                self.logger.info(f"Skipping model: {model_name}")
                 continue
             filtered_pairs.append(pair)
 
