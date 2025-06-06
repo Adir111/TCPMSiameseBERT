@@ -49,6 +49,7 @@ class Procedure:
         self.data_loader = DataLoader(config=config)
         self.trained_networks = {}
         self.model_creator = None
+        self.clustering_increment = config['clustering']['increment']
 
         self._initialized = True
 
@@ -345,20 +346,25 @@ class Procedure:
         anomaly_detector.save_all_models_scores()
         self.logger.info("🎯 Isolation Forest detection completed for all models.")
 
-
     def run_clustering_procedure(self):
         """
-        Runs clustering on isolation models matrix which was generated for all models using the specified clustering algorithm.
-        Saves results to JSON and logs summary.
+        Runs clustering on isolation models matrix (optionally with increments).
+        Saves results to JSON, plots, and logs summaries.
         """
         self.logger.info("🔍 Starting clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
-        try:
-            clustering.cluster_results()
-            clustering.plot_clustering_results()
-            clustering.print_cluster_assignments()
-        except Exception as e:
-            self.logger.error(f"❌ Failed clustering: {str(e)}")
 
-        self.logger.info("🎯 Clustering procedure completed for all isolation forest scores.")
+        results = clustering.cluster_results(self.clustering_increment)
+
+        for step_idx, result in enumerate(results):
+            suffix = result["suffix"].lstrip("_") or "all_models"
+            self.logger.info(f"📈 Visualizing result for: {suffix}")
+
+            clustering.update_state_from_result(result)
+
+            clustering.plot_clustering_results(suffix=suffix)
+            clustering.print_cluster_assignments()
+
+        self.logger.info("🎯 Clustering procedure completed.")
+
