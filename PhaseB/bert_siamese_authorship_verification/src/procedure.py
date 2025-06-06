@@ -59,10 +59,25 @@ class Procedure:
     def __get_pairs_info(self):
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
+        models_to_skip_raw = impostor_pairs_data.get("models_to_skip", [])
         last_iteration_training = impostor_pairs_data["last_iteration_training"]
         last_iteration_signal = impostor_pairs_data["last_iteration_signal"]
 
-        return impostor_pairs, last_iteration_training, last_iteration_signal
+        # Convert list to set for faster lookup
+        models_to_skip = set(models_to_skip_raw)
+
+        filtered_pairs = []
+        for pair in impostor_pairs:
+            key = f"{pair[0]}_{pair[1]}"
+            if key in models_to_skip:
+                self.logger.info(f"Skipping pair: {pair}")
+                continue
+            filtered_pairs.append(pair)
+
+        self.logger.info(f"Total pairs before filtering: {len(impostor_pairs)}")
+        self.logger.info(f"Total pairs after filtering: {len(filtered_pairs)}")
+
+        return filtered_pairs, last_iteration_training, last_iteration_signal
 
 
     def __load_tokenizer_and_model(self, impostor_name):
