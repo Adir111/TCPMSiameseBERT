@@ -48,7 +48,7 @@ class SignalDistanceManager:
         distance_matrix = self.__create_dtw_distance_matrix(signals)
 
         # Save results
-        self.__save_results(signals, distance_matrix, included_text_names, model_name)
+        self.__save_results(distance_matrix, included_text_names, model_name)
         self.logger.info(f"Finished computing distance matrix for {model_name}")
 
 
@@ -79,16 +79,14 @@ class SignalDistanceManager:
 
         return dist_mat
 
-    def __save_results(self, signals_dict, distance_matrix, included_text_names, model_name):
+    def __save_results(self, distance_matrix, included_text_names, model_name):
         # Create subfolder for this model
         model_output_dir = self.output_path / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
 
         # Define file paths (without repeating model_name in the filename)
-        signal_file_path = model_output_dir / self.signals_file_name
         matrix_file_path = model_output_dir / self.dtw_file_name
         names_file_path = model_output_dir / self.included_text_names_file_name
 
-        save_to_json(signals_dict, signal_file_path, f"Batched Signals ({model_name})")
         save_to_json(distance_matrix.tolist(), matrix_file_path, f"DTW ({model_name})")
         save_to_json(included_text_names, names_file_path, f"Included Text Names ({model_name})")
