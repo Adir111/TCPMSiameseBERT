@@ -1,58 +1,60 @@
 ++++++++++++++++++++++++++++++++++++
 Model: benJonson_CharlotteBronte
-Number of documents: 49
+Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-31 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.089059
-33 - THE RAPE OF LUCRECE.txt - Score: -0.054479
-48 - Venus and Adonis.txt - Score: -0.223233
+0 - A LOVERS COMPLAINT.txt - Score: -0.058380
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.069366
+16 - KING RICHARD III.txt - Score: -0.027268
+36 - THE TEMPEST.txt - Score: -0.047063
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
-0 - A MIDSUMMER NIGHT_S DREAM.txt
-1 - A Yorkshire Tragedy by Shakespeare.txt
-2 - Arden of Feversham.txt
-3 - AS YOU LIKE IT.txt
-4 - CYMBELINE.txt
-5 - Fair Em by Shakespeare.txt
-7 - King Henry IV, Part 1.txt
-8 - KING HENRY V.txt
-9 - KING HENRY VI part I.txt
-10 - KING HENRY VI Part II.txt
-11 - KING HENRY VI Part III.txt
-12 - KING HENRY VIII.txt
-13 - KING JOHN.txt
-14 - KING RICHARD II.txt
-15 - KING RICHARD III.txt
-16 - Locrine Mucedorus by Shakespeare.txt
-17 - Love_s Labour_s Lost.txt
-18 - MEASURE FOR MEASURE.txt
-19 - Merchant of Venice.txt
-20 - MUCH ADO ABOUT NOTHING.txt
-21 - PERICLES PRINCE OF TYRE.txt
-22 - Sir John Oldcastle by Shakespeare.txt
-24 - Taming of the Shrew.txt
-25 - The Comedy of Errors.txt
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt
-27 - The Life and Death of the Lord Cromwell by Shakespeare.txt
-28 - THE LIFE OF TIMON OF ATHENS.txt
-29 - The London Prodigal.txt
-30 - The Merry Devill of Edmonton by Shakespeare.txt
-31 - THE MERRY WIVES OF WINDSOR.txt
-32 - The Puritaine Widdow by Shakespeare.txt
-33 - THE RAPE OF LUCRECE.txt
-35 - THE TEMPEST.txt
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
-37 - THE TRAGEDY OF CORIOLANUS.txt
-38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
-39 - THE TRAGEDY OF JULIUS CAESAR.txt
-40 - THE TRAGEDY OF KING LEAR.txt
-41 - THE TRAGEDY OF MACBETH.txt
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
-43 - THE TRAGEDY OF ROMEO AND JULIET.txt
-44 - THE TRAGEDY OF TITUS ANDRONICUS.txt
-45 - THE TWO GENTLEMEN OF VERONA.txt
-46 - The Two Noble Kinsmen by Shakespeare.txt
-47 - THE WINTERS TALE.txt
-48 - Venus and Adonis.txt
+0 - A LOVERS COMPLAINT.txt
+1 - A MIDSUMMER NIGHT_S DREAM.txt
+2 - A Yorkshire Tragedy by Shakespeare.txt
+3 - Arden of Feversham.txt
+4 - AS YOU LIKE IT.txt
+5 - CYMBELINE.txt
+6 - Fair Em by Shakespeare.txt
+7 - KING EDWARD III by Shakespeare.txt
+8 - King Henry IV, Part 1.txt
+9 - KING HENRY V.txt
+10 - KING HENRY VI part I.txt
+11 - KING HENRY VI Part II.txt
+12 - KING HENRY VI Part III.txt
+13 - KING HENRY VIII.txt
+14 - KING JOHN.txt
+15 - KING RICHARD II.txt
+16 - KING RICHARD III.txt
+17 - Locrine Mucedorus by Shakespeare.txt
+18 - Love_s Labour_s Lost.txt
+19 - MEASURE FOR MEASURE.txt
+20 - Merchant of Venice.txt
+23 - Sir John Oldcastle by Shakespeare.txt
+24 - Sir Thomas More by Shakespeare.txt
+25 - Taming of the Shrew.txt
+26 - The Comedy of Errors.txt
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt
+28 - The Life and Death of the Lord Cromwell by Shakespeare.txt
+29 - THE LIFE OF TIMON OF ATHENS.txt
+30 - The London Prodigal.txt
+31 - The Merry Devill of Edmonton by Shakespeare.txt
+32 - THE MERRY WIVES OF WINDSOR.txt
+33 - The Puritaine Widdow by Shakespeare.txt
+34 - THE RAPE OF LUCRECE.txt
+36 - THE TEMPEST.txt
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
+38 - THE TRAGEDY OF CORIOLANUS.txt
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+40 - THE TRAGEDY OF JULIUS CAESAR.txt
+41 - THE TRAGEDY OF KING LEAR.txt
+42 - THE TRAGEDY OF MACBETH.txt
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
+44 - THE TRAGEDY OF ROMEO AND JULIET.txt
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
+46 - THE TWO GENTLEMEN OF VERONA.txt
+47 - The Two Noble Kinsmen by Shakespeare.txt
+48 - THE WINTERS TALE.txt
+49 - Venus and Adonis.txt
 ++++++++++++++++++++++++++++++++++++

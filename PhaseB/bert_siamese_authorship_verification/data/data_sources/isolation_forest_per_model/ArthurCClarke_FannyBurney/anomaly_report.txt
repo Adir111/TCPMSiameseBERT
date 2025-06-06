@@ -1,57 +1,51 @@
 ++++++++++++++++++++++++++++++++++++
 Model: ArthurCClarke_FannyBurney
-Number of documents: 49
+Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-16 - Locrine Mucedorus by Shakespeare.txt - Score: -0.006696
-20 - MUCH ADO ABOUT NOTHING.txt - Score: -0.144438
-21 - PERICLES PRINCE OF TYRE.txt - Score: -0.012278
-24 - Taming of the Shrew.txt - Score: -0.005449
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.049453
-30 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.026772
-32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.041154
-34 - THE TAMING OF THE SHREW.txt - Score: -0.004499
-35 - THE TEMPEST.txt - Score: -0.100098
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.094884
-37 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.015150
-39 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.215744
-40 - THE TRAGEDY OF KING LEAR.txt - Score: -0.004499
-41 - THE TRAGEDY OF MACBETH.txt - Score: -0.003510
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.049495
-43 - THE TRAGEDY OF ROMEO AND JULIET.txt - Score: -0.077710
-46 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.046199
-48 - Venus and Adonis.txt - Score: 0.000023
+4 - AS YOU LIKE IT.txt - Score: -0.017093
+19 - MEASURE FOR MEASURE.txt - Score: -0.063375
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.262482
+25 - Taming of the Shrew.txt - Score: -0.006113
+29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.024948
+33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.010271
+36 - THE TEMPEST.txt - Score: -0.002140
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.029367
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.152043
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.108345
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
-0 - A MIDSUMMER NIGHT_S DREAM.txt
-3 - AS YOU LIKE IT.txt
-4 - CYMBELINE.txt
-7 - King Henry IV, Part 1.txt
-8 - KING HENRY V.txt
-9 - KING HENRY VI part I.txt
-11 - KING HENRY VI Part III.txt
-13 - KING JOHN.txt
-16 - Locrine Mucedorus by Shakespeare.txt
-17 - Love_s Labour_s Lost.txt
-20 - MUCH ADO ABOUT NOTHING.txt
-21 - PERICLES PRINCE OF TYRE.txt
-24 - Taming of the Shrew.txt
-26 - THE HISTORY OF TROILUS AND CRESSIDA.txt
-28 - THE LIFE OF TIMON OF ATHENS.txt
-30 - The Merry Devill of Edmonton by Shakespeare.txt
-31 - THE MERRY WIVES OF WINDSOR.txt
-32 - The Puritaine Widdow by Shakespeare.txt
-34 - THE TAMING OF THE SHREW.txt
-35 - THE TEMPEST.txt
-36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
-37 - THE TRAGEDY OF CORIOLANUS.txt
-38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
-39 - THE TRAGEDY OF JULIUS CAESAR.txt
-40 - THE TRAGEDY OF KING LEAR.txt
-41 - THE TRAGEDY OF MACBETH.txt
-42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
-43 - THE TRAGEDY OF ROMEO AND JULIET.txt
-45 - THE TWO GENTLEMEN OF VERONA.txt
-46 - The Two Noble Kinsmen by Shakespeare.txt
+1 - A MIDSUMMER NIGHT_S DREAM.txt
+4 - AS YOU LIKE IT.txt
+5 - CYMBELINE.txt
+8 - King Henry IV, Part 1.txt
+9 - KING HENRY V.txt
+10 - KING HENRY VI part I.txt
+12 - KING HENRY VI Part III.txt
+14 - KING JOHN.txt
+17 - Locrine Mucedorus by Shakespeare.txt
+18 - Love_s Labour_s Lost.txt
+19 - MEASURE FOR MEASURE.txt
+21 - MUCH ADO ABOUT NOTHING.txt
+22 - PERICLES PRINCE OF TYRE.txt
+25 - Taming of the Shrew.txt
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt
+29 - THE LIFE OF TIMON OF ATHENS.txt
+31 - The Merry Devill of Edmonton by Shakespeare.txt
+32 - THE MERRY WIVES OF WINDSOR.txt
+33 - The Puritaine Widdow by Shakespeare.txt
+35 - THE TAMING OF THE SHREW.txt
+36 - THE TEMPEST.txt
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
+38 - THE TRAGEDY OF CORIOLANUS.txt
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+40 - THE TRAGEDY OF JULIUS CAESAR.txt
+41 - THE TRAGEDY OF KING LEAR.txt
+42 - THE TRAGEDY OF MACBETH.txt
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
+44 - THE TRAGEDY OF ROMEO AND JULIET.txt
+46 - THE TWO GENTLEMEN OF VERONA.txt
+47 - The Two Noble Kinsmen by Shakespeare.txt
+49 - Venus and Adonis.txt
 ++++++++++++++++++++++++++++++++++++
