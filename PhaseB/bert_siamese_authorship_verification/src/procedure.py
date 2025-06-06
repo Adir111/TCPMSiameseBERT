@@ -307,11 +307,12 @@ class Procedure:
         signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
+        total_pairs = len(impostor_pairs)
 
-        for impostor_1, impostor_2 in impostor_pairs:
+        for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
-            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name}")
+            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name} - {index}/{total_pairs}")
             signal_processor.compute_distance_matrix_for_model(sanitized_model_name)
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
@@ -327,15 +328,16 @@ class Procedure:
         anomaly_detector = DTWIsolationForest(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
+        total_pairs = len(impostor_pairs)
 
-        for impostor_1, impostor_2 in impostor_pairs:
+        for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             self.logger.info(f"Analyzing anomalies for model: {sanitized_model_name}")
 
             summa, scores, y_pred_train, rank = anomaly_detector.analyze(sanitized_model_name)
 
-            self.logger.info(f"✅ Model: {sanitized_model_name}")
+            self.logger.info(f"✅ Model: {sanitized_model_name} - {index}/{total_pairs}")
             self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
