@@ -56,7 +56,7 @@ class Procedure:
 
     # ============================================ Utils ============================================
 
-    def __get_pairs_info(self):
+    def __get_pairs_info(self, should_filter=True):
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
         models_to_skip_raw = impostor_pairs_data.get("models_to_skip", [])
@@ -65,17 +65,19 @@ class Procedure:
 
         # Convert list to set for faster lookup
         models_to_skip = set(models_to_skip_raw)
-
         filtered_pairs = []
-        for pair in impostor_pairs:
-            model_name = f"{pair[0]}_{pair[1]}"
-            if model_name in models_to_skip:
-                self.logger.info(f"Skipping model: {model_name}")
-                continue
-            filtered_pairs.append(pair)
+        if should_filter:
+            for pair in impostor_pairs:
+                model_name = f"{pair[0]}_{pair[1]}"
+                if model_name in models_to_skip:
+                    self.logger.info(f"Skipping model: {model_name}")
+                    continue
+                filtered_pairs.append(pair)
 
-        self.logger.info(f"Total pairs before filtering: {len(impostor_pairs)}")
-        self.logger.info(f"Total pairs after filtering: {len(filtered_pairs)}")
+            self.logger.info(f"Total pairs before filtering: {len(impostor_pairs)}")
+            self.logger.info(f"Total pairs after filtering: {len(filtered_pairs)}")
+        else:
+            return impostor_pairs, last_iteration_training, last_iteration_signal
 
         return filtered_pairs, last_iteration_training, last_iteration_signal
 
@@ -205,7 +207,7 @@ class Procedure:
     # ============================================ Procedures ============================================
 
     def run_training_procedure(self):
-        impostor_pairs, starting_iteration, _ = self.__get_pairs_info()
+        impostor_pairs, starting_iteration, _ = self.__get_pairs_info(False)
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
