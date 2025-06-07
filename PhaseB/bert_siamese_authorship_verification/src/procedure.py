@@ -300,7 +300,9 @@ class Procedure:
             self.logger.info(f"Model index {idx + 1}/{total_pairs} signal generation complete.")
             increment_last_iteration(self.config, False)
 
-        signal_generator.print_all_signals()
+        user_input = input("Do you want to print all model signals? (y/n): ").strip().lower()
+        if user_input in {"y", "ye", "yes"}:
+            signal_generator.print_all_signals()
 
 
     def run_distance_matrix_generation(self):
