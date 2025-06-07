@@ -55,8 +55,6 @@ class SignalGeneration:
                     "text_chunks": text_chunks
                 }
                 self.shakespeare_preprocessed_texts.append(text_object)
-                if len(self.shakespeare_preprocessed_texts) == 2:
-                    break
 
         else:
             self.logger.warn(f"Shakespeare preprocessed texts already loaded.")

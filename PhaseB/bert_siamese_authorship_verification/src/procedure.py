@@ -298,8 +298,6 @@ class Procedure:
             signal_generator.generate_signals_for_preprocessed_texts(classifier, sanitized_model_name)
 
             self.logger.info(f"Model index {idx + 1}/{total_pairs} signal generation complete.")
-            if idx == 1:
-                break
             increment_last_iteration(self.config, False)
 
         signal_generator.print_all_signals()
