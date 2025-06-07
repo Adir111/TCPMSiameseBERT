@@ -142,38 +142,36 @@ def __fine_tune_berts():
 
 def main():
     """ Displays the menu and executes the selected action. """
+    selections = [
+        ("Exit", None, False),
+        ("Create Dataset", __create_dataset, False),
+        ("Run Training Procedure", __training, False),
+        ("Signal Generation Procedure", __signal_generation, False),
+        ("DTW Procedure", __dtw, False),
+        ("Isolation Forest Procedure", __isolation_forest, False),
+        ("Clustering Procedure", __clustering, False),
+        ("Fine-tune All BERTs", __fine_tune_berts, True)
+    ]
+
     while True:
         logger.log("\n📜 Menu:")
-        logger.log("1 - Create Dataset")
-        logger.log("2 - Run Model Procedure")
-        logger.log("3 - Classification Procedure")
-        logger.log("4 - DTW Procedure")
-        logger.log("5 - Isolation Forest Procedure")
-        logger.log("6 - Clustering Procedure")
-        logger.log("999 - Fine Tune All BERTs")
-        logger.log("0 - Exit")
+        for index in range(len(selections)):
+            logger.log(f"{index} - {selections[index][0]}")
 
-        option = input("Select an option above: ").strip()
+        try:
+            option = int(input("Select an option above: ").strip())
+        except ValueError:
+            logger.log("❌ Please enter a valid number.")
+            continue
 
-        if option == "1":
-            __handle_selection(__create_dataset, "Dataset Creation")
-        elif option == "2":
-            __handle_selection(__training, "Training Procedure")
-        elif option == "3":
-            __handle_selection(__classification, "Classification Procedure")
-        elif option == "4":
-            __handle_selection(__dtw, "DTW Procedure")
-        elif option == "5":
-            __handle_selection(__isolation_forest, "Isolation Forest Procedure")
-        elif option == "6":
-            __handle_selection(__clustering, "Clustering Procedure")
-        elif option == "999":
-            __handle_selection(__fine_tune_berts, "Fine Tune All BERTs")
-        elif option == "0":
+        if option < 0 or option >= len(selections):
+            logger.log("❌ Invalid option. Please try again.")
+            continue
+        elif selections[option][1] is None:
             logger.log("👋 Exiting. Have a great day!")
             break
         else:
-            logger.log("❌ Invalid option. Please try again.")
+            __handle_selection(selections[option][1], selections[option][0], selections[option][2])
 
 
 if __name__ == "__main__":
