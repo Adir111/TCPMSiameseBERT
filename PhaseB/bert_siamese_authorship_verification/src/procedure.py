@@ -287,6 +287,8 @@ class Procedure:
             self.logger.info(f"Generating signal index {idx} for impostor pair: {impostor_1} and {impostor_2}")
 
             loaded_model = self.__load_trained_network(impostor_1, impostor_2)
+            if loaded_model is None:
+                continue
             model_name = loaded_model.model_name
             classifier = loaded_model.get_encoder_classifier()
 
