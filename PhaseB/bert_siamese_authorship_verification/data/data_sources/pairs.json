@@ -1,6 +1,6 @@
 {
     "last_iteration_training": 0,
-    "last_iteration_signal": 0,
+    "last_iteration_signal": 62,
     "models_to_skip": [
         "Agatha Christie_ben Jonson",
         "Agatha Christie_Charles Dickens",
@@ -49,7 +49,7 @@
         "Virginia Woolf_Mary Shelley",
         "Thomas Kyd2_Virginia Woolf",
         "Mary Shelley_Robert Sheckley",
-        "Lewis Carroll_Thomas Hardy"     
+        "Lewis Carroll_Thomas Hardy"
     ],
     "pairs": [
         [
@@ -160,7 +160,7 @@
             "Arthur Ignatius Conan Doyle",
             "Francis Bacon"
         ],
-		[
+        [
             "ben Jonson",
             "Benjamin Disraeli"
         ],
@@ -420,22 +420,73 @@
             "Geoffrey Chaucer",
             "George Eliot"
         ],
-        ["Isaac Asimov", "Jane Austen"],
-        ["John Donne", "John Dryden"],
-        ["John Milton", "Lewis Carroll"],
-        ["Lord of the Rings", "Mark Twain"],
-        ["Mary Shelley", "Robert Sheckley"],
-        ["Swift", "Thomas Hardy"],
-        ["Thomas Kyd2", "Thomas More"],
-        ["Virginia Woolf", "Isaac Asimov"],
-        ["Jane Austen", "John Donne"],
-        ["John Dryden", "Mark Twain"],
-        ["Lewis Carroll", "Thomas Hardy"],
-        ["Lord of the Rings", "Jane Austen"],
-        ["Mary Shelley", "John Milton"],
-        ["Robert Sheckley", "Swift"],
-        ["Thomas Kyd2", "Virginia Woolf"],
-        ["Thomas More", "John Dryden"],
-        ["Virginia Woolf", "Mary Shelley"]
+        [
+            "Isaac Asimov",
+            "Jane Austen"
+        ],
+        [
+            "John Donne",
+            "John Dryden"
+        ],
+        [
+            "John Milton",
+            "Lewis Carroll"
+        ],
+        [
+            "Lord of the Rings",
+            "Mark Twain"
+        ],
+        [
+            "Mary Shelley",
+            "Robert Sheckley"
+        ],
+        [
+            "Swift",
+            "Thomas Hardy"
+        ],
+        [
+            "Thomas Kyd2",
+            "Thomas More"
+        ],
+        [
+            "Virginia Woolf",
+            "Isaac Asimov"
+        ],
+        [
+            "Jane Austen",
+            "John Donne"
+        ],
+        [
+            "John Dryden",
+            "Mark Twain"
+        ],
+        [
+            "Lewis Carroll",
+            "Thomas Hardy"
+        ],
+        [
+            "Lord of the Rings",
+            "Jane Austen"
+        ],
+        [
+            "Mary Shelley",
+            "John Milton"
+        ],
+        [
+            "Robert Sheckley",
+            "Swift"
+        ],
+        [
+            "Thomas Kyd2",
+            "Virginia Woolf"
+        ],
+        [
+            "Thomas More",
+            "John Dryden"
+        ],
+        [
+            "Virginia Woolf",
+            "Mary Shelley"
+        ]
     ]
 }
