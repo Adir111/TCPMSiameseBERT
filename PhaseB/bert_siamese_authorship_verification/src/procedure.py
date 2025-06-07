@@ -292,11 +292,12 @@ class Procedure:
             if loaded_model is None:
                 continue
             model_name = loaded_model.model_name
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             classifier = loaded_model.get_encoder_classifier()
 
-            self.logger.info(f"Generating signals from model: {model_name}...")
-            signal_generator.generate_signals_for_preprocessed_texts(classifier, model_name)
-            signal_generator.save_model_signal(model_name)
+            self.logger.info(f"Generating signals from model: {sanitized_model_name}...")
+            signal_generator.generate_signals_for_preprocessed_texts(classifier, sanitized_model_name)
+            signal_generator.save_model_signal(sanitized_model_name)
 
             self.logger.info(f"Model index {idx} signal generation complete.")
             increment_last_iteration(self.config, False)
@@ -316,10 +317,10 @@ class Procedure:
 
         for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
-            # sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
-            self.logger.info(f"Processing distance matrix for model: {model_name} - {index + 1}/{total_pairs}")
-            signal_processor.compute_distance_matrix_for_model(model_name)
-            self.logger.info(f"✓ Distance matrix for {model_name} completed and saved.")
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name} - {index + 1}/{total_pairs}")
+            signal_processor.compute_distance_matrix_for_model(sanitized_model_name)
+            self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
         self.logger.info("✅ All distance matrices generated.")
 
@@ -337,12 +338,12 @@ class Procedure:
 
         for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
-            # sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
-            self.logger.info(f"Analyzing anomalies for model: {model_name}")
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            self.logger.info(f"Analyzing anomalies for model: {sanitized_model_name}")
 
-            summa, scores, y_pred_train, rank = anomaly_detector.analyze(model_name)
+            summa, scores, y_pred_train, rank = anomaly_detector.analyze(sanitized_model_name)
 
-            self.logger.info(f"✅ Model: {model_name} - {index + 1}/{total_pairs}")
+            self.logger.info(f"✅ Model: {sanitized_model_name} - {index + 1}/{total_pairs}")
             self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
