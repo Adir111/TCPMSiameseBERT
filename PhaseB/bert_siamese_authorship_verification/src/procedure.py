@@ -209,6 +209,7 @@ class Procedure:
 
     def run_training_procedure(self):
         impostor_pairs, starting_iteration, _ = self.__get_pairs_info(False)
+        total_pairs = len(impostor_pairs)
 
         self.logger.info(f"Batch size is {self.training_batch_size}")
 
@@ -252,7 +253,7 @@ class Procedure:
                 continue
 
             self.logger.info(
-                f"Training model index {idx} for impostor pair: {impostor_1} and {impostor_2}")
+                f"Training model index {idx + 1}/{total_pairs} for impostor pair: {impostor_1} and {impostor_2}")
             impostor_1_preprocessed, impostor_2_preprocessed = self.__preprocessing_stage((impostor_1, preprocessor1),
                                                                                           (impostor_2, preprocessor2))
             del preprocessor1, preprocessor2
@@ -275,16 +276,17 @@ class Procedure:
         self.logger.info(f"Finished training {len(self.trained_networks)} models successfully!")
 
 
-    def run_classification_procedure(self):
+    def run_signal_generation_procedure(self):
         # ========= Signal Generation Phase =========
         signal_generator = SignalGeneration(self.config, self.logger)
         impostor_pairs, _, starting_iteration = self.__get_pairs_info()
         self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
         signal_generator.load_shakespeare_preprocessed_texts()
+        total_pairs = len(impostor_pairs)
 
         for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
             self.logger.log("__________________________________________________________________________________________________")
-            self.logger.info(f"Generating signal index {idx} for impostor pair: {impostor_1} and {impostor_2}")
+            self.logger.info(f"Generating signal index {idx + 1}/{total_pairs} for impostor pair: {impostor_1} and {impostor_2}")
 
             loaded_model = self.__load_trained_network(impostor_1, impostor_2)
             if loaded_model is None:
@@ -315,7 +317,7 @@ class Procedure:
         for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
-            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name} - {index}/{total_pairs}")
+            self.logger.info(f"Processing distance matrix for model: {sanitized_model_name} - {index + 1}/{total_pairs}")
             signal_processor.compute_distance_matrix_for_model(sanitized_model_name)
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
@@ -340,7 +342,7 @@ class Procedure:
 
             summa, scores, y_pred_train, rank = anomaly_detector.analyze(sanitized_model_name)
 
-            self.logger.info(f"✅ Model: {sanitized_model_name} - {index}/{total_pairs}")
+            self.logger.info(f"✅ Model: {sanitized_model_name} - {index + 1}/{total_pairs}")
             self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
             self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
