@@ -1,7 +1,56 @@
 {
     "last_iteration_training": 0,
     "last_iteration_signal": 0,
-    "models_to_skip": [],
+    "models_to_skip": [
+        "Agatha Christie_ben Jonson",
+        "Agatha Christie_Charles Dickens",
+        "Agatha Christie_Benjamin Disraeli",
+        "Agatha Christie_Arthur Ignatius Conan Doyle",
+        "Arthur C Clarke_Elizabeth Cleghorn Gaskell",
+        "Arthur C Clarke_Charlotte Bront\u00eb",
+        "Arthur C Clarke_Arthur Ignatius Conan Doyle",
+        "Agatha Christie_Fanny Burney",
+        "ben Jonson_Benjamin Disraeli",
+        "ben Jonson_Elizabeth Cleghorn Gaskell",
+        "ben Jonson_Charles Dickens",
+        "ben Jonson_Benjamin Disraeli",
+        "Charlotte Bront\u00eb_Christopher Marlowe",
+        "Charles Dickens_Francis Bacon",
+        "Charles Dickens_Fanny Burney",
+        "Charles Dickens_Elizabeth Cleghorn Gaskell",
+        "Charles Dickens_Christopher Marlowe",
+        "Benjamin Disraeli_Francis Bacon",
+        "Benjamin Disraeli_Christopher Marlowe",
+        "Benjamin Disraeli_Charles Dickens",
+        "Arthur Ignatius Conan Doyle_Fanny Burney",
+        "Arthur Ignatius Conan Doyle_Elizabeth Cleghorn Gaskell",
+        "Arthur Ignatius Conan Doyle_Charlotte Bront\u00eb",
+        "Arthur Ignatius Conan Doyle_Benjamin Disraeli",
+        "Elizabeth Cleghorn Gaskell_Francis Bacon",
+        "Charlotte Bront\u00eb_Francis Bacon",
+        "Christopher Marlowe_Geoffrey Chaucer",
+        "Charlotte Bront\u00eb_George Eliot",
+        "Charlotte Bront\u00eb_Geoffrey Chaucer",
+        "Charles Dickens_Geoffrey Chaucer",
+        "Benjamin Disraeli_Galsworthy",
+        "Arthur Ignatius Conan Doyle_Geoffrey Chaucer",
+        "Fanny Burney_Harry Potter",
+        "Fanny Burney_George Eliot",
+        "Charlotte Bront\u00eb_Galsworthy",
+        "Arthur Ignatius Conan Doyle_George Eliot",
+        "Agatha Christie_Harry Potter",
+        "ben Jonson_Geoffrey Chaucer",
+        "Galsworthy_Harry Potter",
+        "Francis Bacon_Geoffrey Chaucer",
+        "Fanny Burney_Galsworthy",
+        "Elizabeth Cleghorn Gaskell_Galsworthy",
+        "Christopher Marlowe_George Eliot",
+        "Charles Dickens_George Eliot",
+        "Virginia Woolf_Mary Shelley",
+        "Thomas Kyd2_Virginia Woolf",
+        "Mary Shelley_Robert Sheckley",
+        "Lewis Carroll_Thomas Hardy"     
+    ],
     "pairs": [
         [
             "Agatha Christie",
@@ -222,6 +271,171 @@
         [
             "Fanny Burney",
             "Francis Bacon"
-        ]
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Charles Dickens",
+            "Harry Potter"
+        ],
+        [
+            "Benjamin Disraeli",
+            "Harry Potter"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "Harry Potter"
+        ],
+        [
+            "Arthur C Clarke",
+            "Galsworthy"
+        ],
+        [
+            "Galsworthy",
+            "George Eliot"
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "George Eliot"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Christopher Marlowe",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Benjamin Disraeli",
+            "Galsworthy"
+        ],
+        [
+            "Christopher Marlowe",
+            "Harry Potter"
+        ],
+        [
+            "Charles Dickens",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "ben Jonson",
+            "Galsworthy"
+        ],
+        [
+            "Agatha Christie",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "George Eliot"
+        ],
+        [
+            "Arthur Ignatius Conan Doyle",
+            "George Eliot"
+        ],
+        [
+            "Charlotte Bront\u00eb",
+            "Galsworthy"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Harry Potter"
+        ],
+        [
+            "Agatha Christie",
+            "Galsworthy"
+        ],
+        [
+            "Francis Bacon",
+            "Harry Potter"
+        ],
+        [
+            "Benjamin Disraeli",
+            "George Eliot"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Geoffrey Chaucer",
+            "Harry Potter"
+        ],
+        [
+            "Francis Bacon",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "Christopher Marlowe",
+            "George Eliot"
+        ],
+        [
+            "Christopher Marlowe",
+            "Galsworthy"
+        ],
+        [
+            "Charles Dickens",
+            "Galsworthy"
+        ],
+        [
+            "Charles Dickens",
+            "George Eliot"
+        ],
+        [
+            "Francis Bacon",
+            "George Eliot"
+        ],
+        [
+            "Galsworthy",
+            "Harry Potter"
+        ],
+        [
+            "Fanny Burney",
+            "Galsworthy"
+        ],
+        [
+            "Elizabeth Cleghorn Gaskell",
+            "Galsworthy"
+        ],
+        [
+            "Galsworthy",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "ben Jonson",
+            "Geoffrey Chaucer"
+        ],
+        [
+            "George Eliot",
+            "Harry Potter"
+        ],
+        [
+            "Geoffrey Chaucer",
+            "George Eliot"
+        ],
+        ["Isaac Asimov", "Jane Austen"],
+        ["John Donne", "John Dryden"],
+        ["John Milton", "Lewis Carroll"],
+        ["Lord of the Rings", "Mark Twain"],
+        ["Mary Shelley", "Robert Sheckley"],
+        ["Swift", "Thomas Hardy"],
+        ["Thomas Kyd2", "Thomas More"],
+        ["Virginia Woolf", "Isaac Asimov"],
+        ["Jane Austen", "John Donne"],
+        ["John Dryden", "Mark Twain"],
+        ["Lewis Carroll", "Thomas Hardy"],
+        ["Lord of the Rings", "Jane Austen"],
+        ["Mary Shelley", "John Milton"],
+        ["Robert Sheckley", "Swift"],
+        ["Thomas Kyd2", "Virginia Woolf"],
+        ["Thomas More", "John Dryden"],
+        ["Virginia Woolf", "Mary Shelley"]
     ]
 }
