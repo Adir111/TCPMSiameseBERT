@@ -4,10 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.069502
-26 - The Comedy of Errors.txt - Score: -0.031069
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.048143
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.008360
+3 - Arden of Feversham.txt - Score: -0.053370
+26 - The Comedy of Errors.txt - Score: -0.011744
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.035110
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.001004
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

@@ -4,11 +4,9 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.040778
-8 - King Henry IV, Part 1.txt - Score: -0.017736
-14 - KING JOHN.txt - Score: -0.040314
-20 - Merchant of Venice.txt - Score: -0.004417
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.012225
+3 - Arden of Feversham.txt - Score: -0.024020
+14 - KING JOHN.txt - Score: -0.032008
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.032438
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

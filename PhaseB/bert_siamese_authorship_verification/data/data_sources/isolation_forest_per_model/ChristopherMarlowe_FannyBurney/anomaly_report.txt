@@ -4,8 +4,8 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-14 - KING JOHN.txt - Score: -0.024700
-32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.039529
+14 - KING JOHN.txt - Score: -0.011739
+32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.018406
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

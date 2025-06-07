@@ -4,19 +4,15 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-5 - CYMBELINE.txt - Score: -0.004197
-9 - KING HENRY V.txt - Score: -0.010193
-18 - Love_s Labour_s Lost.txt - Score: -0.010287
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.040266
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.123285
-31 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.083036
-36 - THE TEMPEST.txt - Score: -0.018981
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.114067
-38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.228763
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.011142
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.063972
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.044897
-49 - Venus and Adonis.txt - Score: -0.002258
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.068982
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.136965
+31 - The Merry Devill of Edmonton by Shakespeare.txt - Score: -0.110671
+36 - THE TEMPEST.txt - Score: -0.017933
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.118297
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.234451
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.017142
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.088751
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.035254
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

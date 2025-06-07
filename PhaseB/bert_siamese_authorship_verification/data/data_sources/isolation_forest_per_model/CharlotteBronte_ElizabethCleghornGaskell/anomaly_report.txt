@@ -4,8 +4,8 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.062994
-14 - KING JOHN.txt - Score: -0.111457
+0 - A LOVERS COMPLAINT.txt - Score: -0.035526
+14 - KING JOHN.txt - Score: -0.109420
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

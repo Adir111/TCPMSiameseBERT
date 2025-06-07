@@ -4,9 +4,7 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.005109
-6 - Fair Em by Shakespeare.txt - Score: -0.047260
-10 - KING HENRY VI part I.txt - Score: -0.029291
+6 - Fair Em by Shakespeare.txt - Score: -0.045851
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

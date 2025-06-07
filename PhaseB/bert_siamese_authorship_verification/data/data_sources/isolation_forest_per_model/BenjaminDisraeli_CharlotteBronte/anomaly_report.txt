@@ -4,10 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.060240
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.141753
-38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.090312
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.037499
+0 - A LOVERS COMPLAINT.txt - Score: -0.106510
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.129018
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.086721
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.065032
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

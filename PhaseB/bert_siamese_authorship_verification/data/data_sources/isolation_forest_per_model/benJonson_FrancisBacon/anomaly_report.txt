@@ -4,12 +4,13 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-9 - KING HENRY V.txt - Score: -0.035054
-13 - KING HENRY VIII.txt - Score: -0.213135
-14 - KING JOHN.txt - Score: -0.001491
-16 - KING RICHARD III.txt - Score: -0.028925
-32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.018066
-49 - Venus and Adonis.txt - Score: -0.055763
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.007684
+9 - KING HENRY V.txt - Score: -0.024107
+13 - KING HENRY VIII.txt - Score: -0.212346
+14 - KING JOHN.txt - Score: -0.000749
+16 - KING RICHARD III.txt - Score: -0.036200
+32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.017415
+49 - Venus and Adonis.txt - Score: -0.042271
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
