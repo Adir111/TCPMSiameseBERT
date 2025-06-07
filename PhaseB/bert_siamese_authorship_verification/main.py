@@ -15,13 +15,18 @@ TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
 
-def __handle_selection(func, selection='selection'):
+def __handle_selection(func, selection='selection', extra_verification=False):
     """
     Confirm selection before running the provided function.
     If the user types 'yes', the function is executed.
     """
     confirm = input(f"Are you sure you want to run '{selection}'? (yes/no): ").strip().lower()
     if confirm == "yes" or confirm == "y":
+        if extra_verification:
+            verify = input(f"This selection requires extra verification, please write 'verify':").strip().lower()
+            if verify != "verify":
+                logger.log(f"Verification failed, cancelled '{selection}'")
+                return None
         return func()
     else:
         logger.log(f"Cancelled '{selection}'.")
