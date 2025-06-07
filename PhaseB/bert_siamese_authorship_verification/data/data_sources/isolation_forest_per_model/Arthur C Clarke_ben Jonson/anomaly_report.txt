@@ -1,0 +1,41 @@
+++++++++++++++++++++++++++++++++++++
+Model: Arthur C Clarke_ben Jonson
+Number of documents: 50
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
+Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
+3 - Arden of Feversham.txt - Score: -0.085630
+16 - KING RICHARD III.txt - Score: -0.085630
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.332959
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.085630
+34 - THE RAPE OF LUCRECE.txt - Score: -0.085630
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.085630
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.085630
+
+Summation Ranking Anomalies (DTW percentile > 5.0):
+1 - A MIDSUMMER NIGHT_S DREAM.txt
+3 - Arden of Feversham.txt
+6 - Fair Em by Shakespeare.txt
+7 - KING EDWARD III by Shakespeare.txt
+8 - King Henry IV, Part 1.txt
+9 - KING HENRY V.txt
+10 - KING HENRY VI part I.txt
+12 - KING HENRY VI Part III.txt
+13 - KING HENRY VIII.txt
+14 - KING JOHN.txt
+16 - KING RICHARD III.txt
+17 - Locrine Mucedorus by Shakespeare.txt
+19 - MEASURE FOR MEASURE.txt
+21 - MUCH ADO ABOUT NOTHING.txt
+22 - PERICLES PRINCE OF TYRE.txt
+25 - Taming of the Shrew.txt
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt
+33 - The Puritaine Widdow by Shakespeare.txt
+34 - THE RAPE OF LUCRECE.txt
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
+38 - THE TRAGEDY OF CORIOLANUS.txt
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+40 - THE TRAGEDY OF JULIUS CAESAR.txt
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
+49 - Venus and Adonis.txt
+++++++++++++++++++++++++++++++++++++
