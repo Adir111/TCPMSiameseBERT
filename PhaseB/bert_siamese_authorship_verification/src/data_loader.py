@@ -39,6 +39,11 @@ class DataLoader:
         self.pairs = config['data']['pairs']
         self.all_signals = config['data']['all_signals']
         self.signals_folder = config['data']['signals_folder_name']
+        self.distance_folder = config['data']['dtw']['output_distance_folder']
+        self.dtw_file_name = config['data']['dtw']['dtw_file_name']
+        self.included_text_names_file_name = config['data']['dtw']['included_text_names_file_name']
+        self.all_isolation_forest_scores = config['data']['isolation_forest']['all_models_scores_file_name']
+        self.signals_file_name = config['data']['dtw']['signals_file_name']
 
         self._initialized = True  # Prevent reinitialization
 
@@ -88,10 +93,12 @@ class DataLoader:
 
     def get_text_to_classify(self):
         """
-        Load and return the text to classify from JSON.
+        Load the text from JSON and return it split by lines (raw, uncleaned).
+        This is used for matching anomaly line names.
         """
         data = load_json_data(self.data_path, self.text_to_classify_name)
-        return _clean_text(data.get('text', ''))
+        raw_text = data.get('text', '')
+        return [line.strip() for line in raw_text.split('\n') if line.strip()]
 
     def get_pairs(self):
         """
@@ -115,4 +122,31 @@ class DataLoader:
         path = self.data_path / self.signals_folder
 
         data = load_json_data(path, file_name)
+        return data
+
+    def get_shakespeare_included_text_names(self, model_name):
+        """
+        Load shakespeare included (in DTW) text names from JSON.
+        """
+        file_name = self.included_text_names_file_name
+        path = self.data_path / self.distance_folder / model_name
+
+        data = load_json_data(path, file_name)
+        return data
+
+    def get_dtw(self, model_name):
+        """
+        Load DTW distance matrix from JSON for given model.
+        """
+        file_name = self.dtw_file_name
+        path = self.data_path / self.distance_folder / model_name
+
+        data = load_json_data(path, file_name)
+        return data
+
+    def get_isolation_forest_results(self):
+        """
+        Load all models isolation forest score
+        """
+        data = load_json_data(self.data_path, self.all_isolation_forest_scores)
         return data

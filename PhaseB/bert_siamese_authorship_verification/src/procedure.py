@@ -1,3 +1,4 @@
+import numpy as np
 import tensorflow as tf
 import gc
 from transformers import TFBertModel, BertTokenizer
@@ -12,6 +13,8 @@ from .trainer import Trainer
 from .model import SiameseBertModel
 from .signal_generation import SignalGeneration
 from .distance_manager import SignalDistanceManager
+from .isolation_forest import DTWIsolationForest
+from .clustering import Clustering
 from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer, increment_last_iteration, \
     artifact_file_exists
 
@@ -278,6 +281,7 @@ class Procedure:
 
         signal_generator.print_all_signals()
 
+
     def run_distance_matrix_generation(self):
         """
         Runs distance matrix generation for all models that have signals generated.
@@ -285,9 +289,9 @@ class Procedure:
         self.logger.info("Starting distance matrix generation procedure...")
         signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
 
-        impostor_pairs, _, starting_iteration = self.__get_pairs_info()
+        impostor_pairs, _, _ = self.__get_pairs_info()
 
-        for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
+        for impostor_1, impostor_2 in impostor_pairs:
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             self.logger.info(f"Processing distance matrix for model: {sanitized_model_name}")
@@ -295,3 +299,47 @@ class Procedure:
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
 
         self.logger.info("✅ All distance matrices generated.")
+
+
+    def run_isolation_forest_procedure(self):
+        """
+        Runs anomaly detection using Isolation Forest for all models with DTW distance matrices.
+        Logs the anomaly results per model.
+        """
+        self.logger.info("🚨 Starting Isolation Forest anomaly detection...")
+        anomaly_detector = DTWIsolationForest(config=self.config, logger=self.logger)
+
+        impostor_pairs, _, _ = self.__get_pairs_info()
+
+        for impostor_1, impostor_2 in impostor_pairs:
+            model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            self.logger.info(f"Analyzing anomalies for model: {sanitized_model_name}")
+
+            summa, scores, y_pred_train, rank = anomaly_detector.analyze(sanitized_model_name)
+
+            self.logger.info(f"✅ Model: {sanitized_model_name}")
+            self.logger.info(f"   → Anomaly rank (hits in ground truth): {rank}")
+            self.logger.info(f"   → Isolation Forest anomaly score range: [{scores.min():.4f}, {scores.max():.4f}]")
+            self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
+
+        anomaly_detector.save_all_models_scores()
+        self.logger.info("🎯 Isolation Forest detection completed for all models.")
+
+
+    def run_clustering_procedure(self):
+        """
+        Runs clustering on isolation models matrix which was generated for all models using the specified clustering algorithm.
+        Saves results to JSON and logs summary.
+        """
+        self.logger.info("🔍 Starting clustering procedure...")
+
+        clustering = Clustering(config=self.config, logger=self.logger)
+        try:
+            clustering.cluster_results()
+            clustering.plot_clustering_results()
+            clustering.print_cluster_assignments()
+        except Exception as e:
+            self.logger.error(f"❌ Failed clustering: {str(e)}")
+
+        self.logger.info("🎯 Clustering procedure completed for all isolation forest scores.")

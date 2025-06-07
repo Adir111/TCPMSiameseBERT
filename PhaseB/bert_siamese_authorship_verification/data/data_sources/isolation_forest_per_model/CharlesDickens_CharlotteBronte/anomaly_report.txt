@@ -1,0 +1,59 @@
+++++++++++++++++++++++++++++++++++++
+Model: CharlesDickens_CharlotteBronte
+Number of documents: 49
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
+Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
+1 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.093459
+5 - Fair Em by Shakespeare.txt - Score: -0.006156
+9 - KING HENRY VI part I.txt - Score: -0.064802
+32 - The Puritaine Widdow by Shakespeare.txt - Score: -0.310736
+
+Summation Ranking Anomalies (DTW percentile > 5.0):
+0 - A MIDSUMMER NIGHT_S DREAM.txt
+1 - A Yorkshire Tragedy by Shakespeare.txt
+2 - Arden of Feversham.txt
+3 - AS YOU LIKE IT.txt
+4 - CYMBELINE.txt
+5 - Fair Em by Shakespeare.txt
+6 - KING EDWARD III by Shakespeare.txt
+7 - King Henry IV, Part 1.txt
+8 - KING HENRY V.txt
+9 - KING HENRY VI part I.txt
+10 - KING HENRY VI Part II.txt
+11 - KING HENRY VI Part III.txt
+12 - KING HENRY VIII.txt
+13 - KING JOHN.txt
+14 - KING RICHARD II.txt
+15 - KING RICHARD III.txt
+16 - Locrine Mucedorus by Shakespeare.txt
+18 - MEASURE FOR MEASURE.txt
+19 - Merchant of Venice.txt
+20 - MUCH ADO ABOUT NOTHING.txt
+21 - PERICLES PRINCE OF TYRE.txt
+22 - Sir John Oldcastle by Shakespeare.txt
+23 - Sir Thomas More by Shakespeare.txt
+24 - Taming of the Shrew.txt
+25 - The Comedy of Errors.txt
+26 - THE HISTORY OF TROILUS AND CRESSIDA.txt
+27 - The Life and Death of the Lord Cromwell by Shakespeare.txt
+28 - THE LIFE OF TIMON OF ATHENS.txt
+29 - The London Prodigal.txt
+30 - The Merry Devill of Edmonton by Shakespeare.txt
+32 - The Puritaine Widdow by Shakespeare.txt
+34 - THE TAMING OF THE SHREW.txt
+35 - THE TEMPEST.txt
+36 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
+37 - THE TRAGEDY OF CORIOLANUS.txt
+38 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+39 - THE TRAGEDY OF JULIUS CAESAR.txt
+40 - THE TRAGEDY OF KING LEAR.txt
+41 - THE TRAGEDY OF MACBETH.txt
+42 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
+43 - THE TRAGEDY OF ROMEO AND JULIET.txt
+44 - THE TRAGEDY OF TITUS ANDRONICUS.txt
+45 - THE TWO GENTLEMEN OF VERONA.txt
+46 - The Two Noble Kinsmen by Shakespeare.txt
+47 - THE WINTERS TALE.txt
+48 - Venus and Adonis.txt
+++++++++++++++++++++++++++++++++++++
