@@ -27,9 +27,7 @@ class SignalGeneration:
         self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
         self.data_loader = DataLoader(config)
         self.data_path = Path(config['data']['organised_data_folder_path'])
-        self.all_signals_file_name = config['data']['all_signals']
         self.signals_folder = config['data']['signals_folder_name']
-        self.all_signals = {}
         self.shakespeare_preprocessed_texts = None
 
         (self.data_path / self.signals_folder).mkdir(parents=True, exist_ok=True)
@@ -57,6 +55,8 @@ class SignalGeneration:
                     "text_chunks": text_chunks
                 }
                 self.shakespeare_preprocessed_texts.append(text_object)
+                if len(self.shakespeare_preprocessed_texts) == 2:
+                    break
 
         else:
             self.logger.warn(f"Shakespeare preprocessed texts already loaded.")
@@ -65,6 +65,7 @@ class SignalGeneration:
 
 
     def generate_signals_for_preprocessed_texts(self, classifier, model_name):
+        model_signals = {}
         for text_object in self.shakespeare_preprocessed_texts:
             text_name = text_object['text_name']
             text_chunks = text_object["text_chunks"]
@@ -84,39 +85,34 @@ class SignalGeneration:
             ]
             self.logger.log(f"[INFO] Signal representation: {signal}")
 
-            # Assign signal to the current text under this model
-            if model_name not in self.all_signals:
-                self.all_signals[model_name] = {}
-            self.all_signals[model_name][text_name] = signal
-
             self.logger.info(f"Signal generated for text: {text_name} by model: {model_name}")
             self.data_visualizer.display_signal_plot(signal, text_name, model_name)
+
+            model_signals[text_name] = signal
+
+        self.__save_model_signal(model_name, model_signals)
 
 
     def print_all_signals(self):
         """
-        Load all signals from JSON and print them using logger.
+        Load each model's signals from its own JSON file and print them using logger.
         """
-        all_signals = self.data_loader.get_all_signals()
-        for model_name, texts in all_signals.items():
+        signals_path = self.data_path / self.signals_folder
+
+        for file in signals_path.glob("*-signals.json"):
+            model_name = file.stem.replace("-signals", "")
+            model_signals = self.data_loader.get_model_signals(model_name)
             self.logger.log(f"\nModel: {model_name}")
-            for text_name, signal in texts.items():
+
+            for text_name, signal in model_signals.items():
                 self.logger.log(f"  Text: {text_name}")
                 self.logger.log(f"    Signal: {signal}")
 
 
-    def save_model_signal(self, model_name):
+    def __save_model_signal(self, model_name, signal):
         """
         Saves given model signal into a file
         """
-        model_signals = self.all_signals[model_name]
-
         file_name = f"{model_name}-signals.json"
         path = self.data_path / self.signals_folder / file_name
-        save_to_json(model_signals, path, f"{model_name} Signal data")
-
-        # Also update the full all_signals JSON file after saving this model's signal
-        all_signals_path = self.data_path / self.all_signals_file_name
-        all_signals = self.data_loader.get_all_signals()
-        all_signals[model_name] = model_signals
-        save_to_json(all_signals, all_signals_path, "Updated all_signals with latest model signal")
+        save_to_json(signal, path, f"{model_name} Signal data")

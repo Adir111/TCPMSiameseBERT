@@ -37,7 +37,6 @@ class DataLoader:
         self.text_to_classify_name = config['data']['classify_text_data_source']
         self.all_impostors_dataset_name = config['data']['all_impostors_data_source']
         self.pairs = config['data']['pairs']
-        self.all_signals = config['data']['all_signals']
         self.signals_folder = config['data']['signals_folder_name']
         self.distance_folder = config['data']['dtw']['output_distance_folder']
         self.dtw_file_name = config['data']['dtw']['dtw_file_name']
@@ -105,13 +104,6 @@ class DataLoader:
         Load and return pairs of impostor names.
         """
         data = load_json_data(self.data_path, self.pairs)
-        return data
-
-    def get_all_signals(self):
-        """
-        Load and return all signals from JSON.
-        """
-        data = load_json_data(self.data_path, self.all_signals)
         return data
 
     def get_model_signals(self, model_name):

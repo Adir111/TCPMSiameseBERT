@@ -277,7 +277,6 @@ class Procedure:
 
 
     def run_signal_generation_procedure(self):
-        # ========= Signal Generation Phase =========
         signal_generator = SignalGeneration(self.config, self.logger)
         impostor_pairs, _, starting_iteration = self.__get_pairs_info()
         self.logger.info(f"Loading {len(impostor_pairs)} pretrained models for classification.")
@@ -297,9 +296,10 @@ class Procedure:
 
             self.logger.info(f"Generating signals from model: {sanitized_model_name}...")
             signal_generator.generate_signals_for_preprocessed_texts(classifier, sanitized_model_name)
-            signal_generator.save_model_signal(sanitized_model_name)
 
-            self.logger.info(f"Model index {idx} signal generation complete.")
+            self.logger.info(f"Model index {idx + 1}/{total_pairs} signal generation complete.")
+            if idx == 1:
+                break
             increment_last_iteration(self.config, False)
 
         signal_generator.print_all_signals()

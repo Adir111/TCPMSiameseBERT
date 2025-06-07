@@ -19,7 +19,6 @@ data:
     included_text_names_file_name: "included_text_names.json"
     signals_file_name: "processed_signals.json"
   pairs: "pairs.json"
-  all_signals: "all_signals.json"
 
 training:
   load_pretrained_model: False
