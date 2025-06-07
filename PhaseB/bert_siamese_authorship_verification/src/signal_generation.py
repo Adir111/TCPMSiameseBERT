@@ -38,14 +38,14 @@ class SignalGeneration:
 
     def load_shakespeare_preprocessed_texts(self, reload=False):
         if reload or self.shakespeare_preprocessed_texts is None:
-            self.logger.info("Loading shakespeare preprocessed texts...")
+            self.logger.info("Loading shakespeare texts and preprocessing...")
             self.shakespeare_preprocessed_texts = []
             tested_collection_texts = self.data_loader.get_shakespeare_data()
             for text_object in tested_collection_texts:
                 text_name = text_object['text_name']
                 text = text_object['text']
                 self.logger.info(f"Processing text: {text_name}")
-                chunks_list, chunks_tokens_count = self.general_preprocessor.preprocess(text)
+                chunks_list, chunks_tokens_count = self.general_preprocessor.preprocess([text])
                 text_chunks = {
                     "input_ids": np.stack([c["input_ids"].numpy().squeeze(0) for c in chunks_list]),
                     "attention_mask": np.stack([c["attention_mask"].numpy().squeeze(0) for c in chunks_list]),
