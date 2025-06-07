@@ -59,7 +59,7 @@ class Preprocessor:
 
     def __handle_chunk(self, chunk_text, preprocessed_collection):
         tokenized = self.__tokenize_text(chunk_text)
-        tokens_count = len(tokenized['input_ids'])
+        tokens_count = tokenized.data['input_ids'].shape[1]
         preprocessed_collection.append(tokenized)
         return tokens_count
 
