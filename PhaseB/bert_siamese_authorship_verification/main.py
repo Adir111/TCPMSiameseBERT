@@ -68,13 +68,13 @@ def __training():
         logger.error(f"❌ {e}")
 
 
-def __classification():
-    """ Triggers the classification procedure. """
+def __signal_generation():
+    """ Triggers the signal generation procedure. """
     try:
-        logger.log("🚀 Starting Classification Procedure...")
-        procedure.run_classification_procedure()
+        logger.log("🚀 Starting Signal Generation Procedure...")
+        procedure.run_signal_generation_procedure()
 
-        logger.log("✅ Classification Procedure completed!")
+        logger.log("✅ Signal Generation Procedure completed!")
         logger.log({"status": "completed"})
     except Exception as e:
         logger.error(f"❌ {e}")
