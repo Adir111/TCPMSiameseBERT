@@ -4,9 +4,12 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.149354
-26 - The Comedy of Errors.txt - Score: -0.166649
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.048801
+0 - A LOVERS COMPLAINT.txt - Score: -0.118442
+3 - Arden of Feversham.txt - Score: -0.040225
+26 - The Comedy of Errors.txt - Score: -0.194703
+34 - THE RAPE OF LUCRECE.txt - Score: -0.000477
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.067581
+49 - Venus and Adonis.txt - Score: -0.007836
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

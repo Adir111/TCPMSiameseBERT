@@ -4,15 +4,15 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.025307
-6 - Fair Em by Shakespeare.txt - Score: -0.025307
-7 - KING EDWARD III by Shakespeare.txt - Score: -0.025307
-10 - KING HENRY VI part I.txt - Score: -0.016521
-15 - KING RICHARD II.txt - Score: -0.025307
-26 - The Comedy of Errors.txt - Score: -0.086714
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.027232
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.064569
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.166953
+0 - A LOVERS COMPLAINT.txt - Score: -0.030511
+6 - Fair Em by Shakespeare.txt - Score: -0.030511
+7 - KING EDWARD III by Shakespeare.txt - Score: -0.030511
+10 - KING HENRY VI part I.txt - Score: -0.017738
+15 - KING RICHARD II.txt - Score: -0.030511
+26 - The Comedy of Errors.txt - Score: -0.072779
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.027318
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.051281
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.151762
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

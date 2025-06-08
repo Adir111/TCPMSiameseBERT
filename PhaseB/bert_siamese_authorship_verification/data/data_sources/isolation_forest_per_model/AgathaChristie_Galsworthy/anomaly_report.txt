@@ -1,0 +1,58 @@
+++++++++++++++++++++++++++++++++++++
+Model: AgathaChristie_Galsworthy
+Number of documents: 50
+Anomaly score threshold: 2.5e-05
+Percentile threshold: 5.0
+Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
+0 - A LOVERS COMPLAINT.txt - Score: -0.033178
+3 - Arden of Feversham.txt - Score: -0.061027
+
+Summation Ranking Anomalies (DTW percentile > 5.0):
+0 - A LOVERS COMPLAINT.txt
+1 - A MIDSUMMER NIGHT_S DREAM.txt
+2 - A Yorkshire Tragedy by Shakespeare.txt
+3 - Arden of Feversham.txt
+4 - AS YOU LIKE IT.txt
+5 - CYMBELINE.txt
+6 - Fair Em by Shakespeare.txt
+7 - KING EDWARD III by Shakespeare.txt
+8 - King Henry IV, Part 1.txt
+9 - KING HENRY V.txt
+10 - KING HENRY VI part I.txt
+11 - KING HENRY VI Part II.txt
+12 - KING HENRY VI Part III.txt
+13 - KING HENRY VIII.txt
+14 - KING JOHN.txt
+15 - KING RICHARD II.txt
+16 - KING RICHARD III.txt
+17 - Locrine Mucedorus by Shakespeare.txt
+18 - Love_s Labour_s Lost.txt
+19 - MEASURE FOR MEASURE.txt
+20 - Merchant of Venice.txt
+21 - MUCH ADO ABOUT NOTHING.txt
+23 - Sir John Oldcastle by Shakespeare.txt
+24 - Sir Thomas More by Shakespeare.txt
+25 - Taming of the Shrew.txt
+26 - The Comedy of Errors.txt
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt
+28 - The Life and Death of the Lord Cromwell by Shakespeare.txt
+29 - THE LIFE OF TIMON OF ATHENS.txt
+30 - The London Prodigal.txt
+32 - THE MERRY WIVES OF WINDSOR.txt
+33 - The Puritaine Widdow by Shakespeare.txt
+34 - THE RAPE OF LUCRECE.txt
+35 - THE TAMING OF THE SHREW.txt
+36 - THE TEMPEST.txt
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
+38 - THE TRAGEDY OF CORIOLANUS.txt
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+40 - THE TRAGEDY OF JULIUS CAESAR.txt
+41 - THE TRAGEDY OF KING LEAR.txt
+42 - THE TRAGEDY OF MACBETH.txt
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
+44 - THE TRAGEDY OF ROMEO AND JULIET.txt
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
+47 - The Two Noble Kinsmen by Shakespeare.txt
+48 - THE WINTERS TALE.txt
+49 - Venus and Adonis.txt
+++++++++++++++++++++++++++++++++++++

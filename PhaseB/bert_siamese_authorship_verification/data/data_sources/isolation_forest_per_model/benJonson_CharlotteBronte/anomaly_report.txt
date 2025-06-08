@@ -4,11 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.052026
-1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.068383
-2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.010590
-16 - KING RICHARD III.txt - Score: -0.002945
-36 - THE TEMPEST.txt - Score: -0.025956
+0 - A LOVERS COMPLAINT.txt - Score: -0.036247
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.079942
+16 - KING RICHARD III.txt - Score: -0.016255
+36 - THE TEMPEST.txt - Score: -0.044120
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

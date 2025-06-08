@@ -4,11 +4,11 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-10 - KING HENRY VI part I.txt - Score: -0.018417
-14 - KING JOHN.txt - Score: -0.056968
-25 - Taming of the Shrew.txt - Score: -0.185841
-35 - THE TAMING OF THE SHREW.txt - Score: -0.023979
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.004034
+14 - KING JOHN.txt - Score: -0.042645
+20 - Merchant of Venice.txt - Score: -0.013799
+25 - Taming of the Shrew.txt - Score: -0.174225
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.000669
+35 - THE TAMING OF THE SHREW.txt - Score: -0.017665
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

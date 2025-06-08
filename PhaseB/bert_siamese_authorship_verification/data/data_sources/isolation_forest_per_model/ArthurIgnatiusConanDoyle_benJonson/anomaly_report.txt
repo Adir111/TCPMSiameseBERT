@@ -4,16 +4,16 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.012508
-1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.155378
-4 - AS YOU LIKE IT.txt - Score: -0.045695
-5 - CYMBELINE.txt - Score: -0.014220
-10 - KING HENRY VI part I.txt - Score: -0.029186
-13 - KING HENRY VIII.txt - Score: -0.035959
-14 - KING JOHN.txt - Score: -0.118725
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.013815
-36 - THE TEMPEST.txt - Score: -0.029186
-48 - THE WINTERS TALE.txt - Score: -0.103299
+0 - A LOVERS COMPLAINT.txt - Score: -0.043070
+1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.127727
+4 - AS YOU LIKE IT.txt - Score: -0.038926
+5 - CYMBELINE.txt - Score: -0.029648
+10 - KING HENRY VI part I.txt - Score: -0.030852
+13 - KING HENRY VIII.txt - Score: -0.024671
+14 - KING JOHN.txt - Score: -0.102086
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.029053
+36 - THE TEMPEST.txt - Score: -0.030852
+48 - THE WINTERS TALE.txt - Score: -0.121967
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

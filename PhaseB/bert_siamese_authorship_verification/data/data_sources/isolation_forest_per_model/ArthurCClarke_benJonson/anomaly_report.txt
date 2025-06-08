@@ -4,13 +4,13 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.094421
-16 - KING RICHARD III.txt - Score: -0.094421
-17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.327187
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.094421
-34 - THE RAPE OF LUCRECE.txt - Score: -0.094421
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.094421
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.094421
+3 - Arden of Feversham.txt - Score: -0.092653
+16 - KING RICHARD III.txt - Score: -0.092653
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.314953
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.092653
+34 - THE RAPE OF LUCRECE.txt - Score: -0.092653
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.092653
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.092653
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 1 - A MIDSUMMER NIGHT_S DREAM.txt
