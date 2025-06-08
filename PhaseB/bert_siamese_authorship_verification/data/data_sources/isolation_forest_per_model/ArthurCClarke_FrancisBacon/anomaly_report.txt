@@ -4,10 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.102982
-10 - KING HENRY VI part I.txt - Score: -0.010965
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.046318
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.142648
+0 - A LOVERS COMPLAINT.txt - Score: -0.127496
+10 - KING HENRY VI part I.txt - Score: -0.016324
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.070783
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.145386
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

@@ -4,9 +4,8 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-10 - KING HENRY VI part I.txt - Score: -0.013969
-14 - KING JOHN.txt - Score: -0.054201
-33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.117608
+14 - KING JOHN.txt - Score: -0.046107
+33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.125361
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt

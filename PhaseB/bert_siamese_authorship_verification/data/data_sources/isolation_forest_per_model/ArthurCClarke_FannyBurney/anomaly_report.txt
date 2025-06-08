@@ -4,17 +4,22 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-4 - AS YOU LIKE IT.txt - Score: -0.008784
-19 - MEASURE FOR MEASURE.txt - Score: -0.052442
-21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.279708
-25 - Taming of the Shrew.txt - Score: -0.016952
-29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.025833
-33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.001561
-36 - THE TEMPEST.txt - Score: -0.003577
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.004748
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.164959
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.128998
-44 - THE TRAGEDY OF ROMEO AND JULIET.txt - Score: -0.014269
+4 - AS YOU LIKE IT.txt - Score: -0.040743
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.002886
+19 - MEASURE FOR MEASURE.txt - Score: -0.064866
+21 - MUCH ADO ABOUT NOTHING.txt - Score: -0.290241
+25 - Taming of the Shrew.txt - Score: -0.020101
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.000188
+29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.048596
+33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.011132
+36 - THE TEMPEST.txt - Score: -0.008885
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.039969
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.004892
+39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.004448
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.140316
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.121629
+44 - THE TRAGEDY OF ROMEO AND JULIET.txt - Score: -0.037840
+47 - The Two Noble Kinsmen by Shakespeare.txt - Score: -0.018064
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 1 - A MIDSUMMER NIGHT_S DREAM.txt

@@ -4,13 +4,13 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.011558
-2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.011558
-34 - THE RAPE OF LUCRECE.txt - Score: -0.011558
-37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.096421
-40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.027398
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.115979
-49 - Venus and Adonis.txt - Score: -0.011558
+0 - A LOVERS COMPLAINT.txt - Score: -0.029163
+2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.029163
+34 - THE RAPE OF LUCRECE.txt - Score: -0.029163
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt - Score: -0.082336
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.029752
+43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt - Score: -0.077960
+49 - Venus and Adonis.txt - Score: -0.029163
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
