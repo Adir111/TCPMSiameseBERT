@@ -37,7 +37,6 @@ class DTWIsolationForest:
         # Utility: intersection of two lists
         return list(set(list1) & set(list2))
 
-    import json
 
     def __save_results_to_file(self, model_name, scores, shakespeare_texts_names, anomaly_indices, summa_indices):
         # Create subdirectory for model
