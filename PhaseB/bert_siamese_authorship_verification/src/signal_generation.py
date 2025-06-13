@@ -1,3 +1,17 @@
+"""
+This module defines the SignalGeneration singleton class, which is responsible for:
+- Loading and preprocessing text data (e.g., Shakespeare texts) into tokenized chunks.
+- Generating signals by running predictions on the preprocessed texts using trained classifiers.
+- Aggregating and visualizing signals for further analysis.
+- Saving and loading generated signals from JSON files.
+
+The class depends on external components such as DataLoader for data retrieval,
+Preprocessor for tokenization and text chunking, and DataVisualizer for plotting.
+
+The generated signals are typically used in downstream tasks like distance matrix computation,
+anomaly detection, and clustering in authorship verification pipelines.
+"""
+
 import numpy as np
 from pathlib import Path
 
@@ -7,10 +21,27 @@ from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer
 
 
 class SignalGeneration:
+    """
+    Singleton class responsible for generating and managing signal representations
+    for texts processed by Siamese BERT models.
+
+    Loads and preprocesses texts, generates signal arrays from classifier predictions,
+    visualizes signals, and saves signals to JSON files.
+    """
     _instance = None
 
 
     def __new__(cls, config, logger):
+        """
+        Ensures only one instance of SignalGeneration exists (singleton pattern).
+
+        Args:
+            config (dict): Configuration dictionary.
+            logger (Logger): Logger instance for logging.
+
+        Returns:
+            SignalGeneration: Singleton instance.
+        """
         if cls._instance is None:
             cls._instance = super(SignalGeneration, cls).__new__(cls)
             cls._instance._initialized = False
@@ -18,6 +49,14 @@ class SignalGeneration:
 
 
     def __init__(self, config, logger):
+        """
+        Initializes the SignalGeneration instance.
+        Avoids reinitialization if already initialized.
+
+        Args:
+            config (dict): Configuration dictionary.
+            logger (Logger): Logger instance.
+        """
         if self._initialized:
             return  # Avoid reinitializing on repeated instantiations
 
@@ -35,6 +74,14 @@ class SignalGeneration:
 
 
     def load_shakespeare_preprocessed_texts(self, reload=False):
+        """
+        Loads and preprocesses Shakespeare texts for classification.
+        Preprocesses texts into chunks and token IDs for model input.
+        Caches preprocessed texts unless `reload` is True.
+
+        Args:
+            reload (bool): If True, forces reloading and preprocessing.
+        """
         if reload or self.shakespeare_preprocessed_texts is None:
             self.logger.info("Loading shakespeare texts and preprocessing...")
             self.shakespeare_preprocessed_texts = []
@@ -63,6 +110,15 @@ class SignalGeneration:
 
 
     def generate_signals_for_preprocessed_texts(self, classifier, model_name):
+        """
+        Generates signals from classifier predictions for all preprocessed texts.
+        Converts classifier probabilities to binary outputs, aggregates into signal chunks,
+        logs and visualizes the signal, then saves signals to disk.
+
+        Args:
+            classifier: A trained classifier with a predict method.
+            model_name (str): Name used for saving the signal files.
+        """
         model_signals = {}
         for text_object in self.shakespeare_preprocessed_texts:
             text_name = text_object['text_name']
@@ -93,7 +149,8 @@ class SignalGeneration:
 
     def print_all_signals(self):
         """
-        Load each model's signals from its own JSON file and print them using logger.
+        Loads and prints all saved model signals from JSON files using the logger.
+        Iterates through all saved signal files in the signals folder.
         """
         signals_path = self.data_path / self.signals_folder
 
@@ -108,6 +165,15 @@ class SignalGeneration:
 
 
     def __get_signal_file_path(self, model_name):
+        """
+        Constructs the full file path for the signal JSON file of a given model.
+
+        Args:
+            model_name (str): The model name used in the file name.
+
+        Returns:
+            pathlib.Path: Full path to the signal JSON file.
+        """
         file_name = f"{model_name}-signals.json"
         path = self.data_path / self.signals_folder / file_name
         return path
@@ -115,7 +181,13 @@ class SignalGeneration:
 
     def signal_already_exists(self, model_name):
         """
-        Check if the signal file for the given model already exists.
+        Checks if the signal JSON file for a given model already exists.
+
+        Args:
+            model_name (str): The model name to check.
+
+        Returns:
+            bool: True if the signal file exists, False otherwise.
         """
         path = self.__get_signal_file_path(model_name)
         return path.exists()
@@ -123,7 +195,11 @@ class SignalGeneration:
 
     def __save_model_signal(self, model_name, signal):
         """
-        Saves given model signal into a file
+        Saves the signal data of a model into a JSON file.
+
+        Args:
+            model_name (str): The model name to use in the file name.
+            signal (dict): The signal data to save.
         """
         path = self.__get_signal_file_path(model_name)
         save_to_json(signal, path, f"{model_name} Signal data")
