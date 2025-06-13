@@ -7,11 +7,6 @@ from sklearn_extra.cluster import KMedoids
 from .data_loader import DataLoader
 from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json, DataVisualizer
 
-import matplotlib.pyplot as plt
-from sklearn.manifold import TSNE
-from sklearn.cluster import DBSCAN
-from sklearn.preprocessing import StandardScaler
-
 
 class Clustering:
     _instance = None # Singleton instance
@@ -175,7 +170,7 @@ class Clustering:
     def plot_clustering_results(self, suffix=""):
         self.logger.info("📊 Plotting cluster...")
         try:
-            title = "t-SNE of Clusters on Anomaly Score Space"
+            title = "Clusters on Anomaly Score Space"
             if suffix:
                 title += f" ({suffix})"
 
@@ -210,25 +205,7 @@ class Clustering:
 
 
     def plot_core_vs_outside(self):
-        # Step 1: t-SNE
-        tsne = TSNE(n_components=2, random_state=42)
-        embeddings = tsne.fit_transform(self.score_matrix)
-
-        # Step 2: Normalize for better clustering
-        scaled = StandardScaler().fit_transform(embeddings)
-
-        # Step 3: DBSCAN to find dense core
-        dbscan = DBSCAN(eps=0.5, min_samples=5)
-        labels = dbscan.fit_predict(scaled)
-
-        # Step 4: Assume the largest cluster is CORE
-        unique_labels, counts = np.unique(labels[labels != -1], return_counts=True)
-        core_label = unique_labels[np.argmax(counts)]
-
-        core_indices = np.where(labels == core_label)[0]
-        outside_indices = np.where(labels != core_label)[0]
-
-        # Step 5: Plot
-        self.data_visualizer.display_core_vs_outside_plot(embeddings, core_indices, outside_indices)
-
-        return [self.text_names[i] for i in core_indices], [self.text_names[i] for i in outside_indices]
+        core_indices, outside_indices = self.data_visualizer.plot_core_vs_outside_from_score_matrix(self.score_matrix)
+        core_names = [self.text_names[i] for i in core_indices]
+        outside_names = [self.text_names[i] for i in outside_indices]
+        return core_names, outside_names

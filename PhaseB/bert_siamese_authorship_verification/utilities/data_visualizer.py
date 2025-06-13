@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib
 from pathlib import Path
 from datetime import datetime
@@ -7,6 +8,8 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
 
 # UMAP is optional; only import if available so the rest of the library still works if it isn't
 try:
@@ -206,8 +209,43 @@ class DataVisualizer:
         else:
             raise ValueError(f"Unknown embedding method '{method}'. Use 'tsne' or 'umap'.")
 
+    def plot_core_vs_outside_from_score_matrix(self, score_matrix):
+        """
+        Runs t-SNE, DBSCAN, and plots CORE vs suspicious points.
 
-    def display_core_vs_outside_plot(self, embeddings_2d, core_indices, outside_indices):
+        Args:
+            score_matrix (ndarray): Anomaly scores matrix (n_samples x n_features).
+
+        Returns:
+            core_indices (List[int]), outside_indices (List[int])
+        """
+        # Step 1: t-SNE
+        tsne = TSNE(n_components=2, random_state=42)
+        embeddings = tsne.fit_transform(score_matrix)
+
+        # Step 2: Normalize for better clustering
+        scaled = StandardScaler().fit_transform(embeddings)
+
+        # Step 3: DBSCAN
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        labels = dbscan.fit_predict(scaled)
+
+        # Step 4: Largest cluster is CORE
+        unique_labels, counts = np.unique(labels[labels != -1], return_counts=True)
+        if len(unique_labels) == 0:
+            self.logger.warn("⚠️ DBSCAN failed to find any CORE cluster.")
+            return [], []
+
+        core_label = unique_labels[np.argmax(counts)]
+        core_indices = np.where(labels == core_label)[0]
+        outside_indices = np.where(labels != core_label)[0]
+
+        # Step 5: Plot
+        self.__display_core_vs_outside_plot(embeddings, core_indices, outside_indices)
+        return core_indices, outside_indices
+
+
+    def __display_core_vs_outside_plot(self, embeddings_2d, core_indices, outside_indices):
         """
         Display a 2D scatter plot showing CORE (green) vs Outside (orange).
         """
