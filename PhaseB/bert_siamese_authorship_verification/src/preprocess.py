@@ -1,12 +1,15 @@
 import nltk
+import contextlib
+import os
 from sklearn.model_selection import train_test_split
 from transformers import BertTokenizer
 import numpy as np
 import random
 
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-nltk.download('stopwords')
+with contextlib.redirect_stdout(open(os.devnull, 'w')), contextlib.redirect_stderr(open(os.devnull, 'w')):
+    nltk.download('wordnet', quiet=True)
+    nltk.download('omw-1.4', quiet=True)
+    nltk.download('stopwords', quiet=True)
 
 class Preprocessor:
     _singleton_instance = None
