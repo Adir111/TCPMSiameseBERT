@@ -362,7 +362,7 @@ class Procedure:
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
 
         anomaly_detector.save_all_models_scores()
-        self.logger.info("🎯 Isolation Forest detection completed for all models.")
+
 
     def run_clustering_procedure(self):
         """
@@ -377,15 +377,10 @@ class Procedure:
         for step_idx, result in enumerate(results):
             suffix = result["suffix"].lstrip("_") or "all_models"
             self.logger.info(f"📈 Visualizing result for: {suffix}")
-
             clustering.update_state_from_result(result)
 
             clustering.plot_clustering_results(suffix=suffix)
-            clustering.print_cluster_assignments()
+            clustering.plot_core_vs_outside(suffix=suffix)
 
-            core_names, outside_names = clustering.plot_core_vs_outside()
-            clustering.save_core_vs_outside_to_file(core_names, outside_names, suffix)
-
-
-        self.logger.info("🎯 Clustering procedure completed.")
-
+        self.logger.info("Printing the clustering summary for all scores")
+        clustering.print_full_clustering_summary() # should only print once all is done.

@@ -209,12 +209,13 @@ class DataVisualizer:
         else:
             raise ValueError(f"Unknown embedding method '{method}'. Use 'tsne' or 'umap'.")
 
-    def plot_core_vs_outside_from_score_matrix(self, score_matrix):
+    def plot_core_vs_outside_from_score_matrix(self, score_matrix, title):
         """
         Runs t-SNE, DBSCAN, and plots CORE vs suspicious points.
 
         Args:
             score_matrix (ndarray): Anomaly scores matrix (n_samples x n_features).
+            title: The title of the plot
 
         Returns:
             core_indices (List[int]), outside_indices (List[int])
@@ -241,16 +242,16 @@ class DataVisualizer:
         outside_indices = np.where(labels != core_label)[0]
 
         # Step 5: Plot
-        self.__display_core_vs_outside_plot(embeddings, core_indices, outside_indices)
+        self.__display_core_vs_outside_plot(embeddings, core_indices, outside_indices, title)
         return core_indices, outside_indices
 
 
-    def __display_core_vs_outside_plot(self, embeddings_2d, core_indices, outside_indices):
+    def __display_core_vs_outside_plot(self, embeddings_2d, core_indices, outside_indices, title):
         """
         Display a 2D scatter plot showing CORE (green) vs Outside (orange).
         """
         plt.figure(figsize=(10, 6))
-        plt.title("Detected CORE vs Outside using DBSCAN on t-SNE Embedding")
+        plt.title(title)
 
         # Plot outside (suspicious) in orange
         plt.scatter(
@@ -275,4 +276,4 @@ class DataVisualizer:
         plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        self._finalize_plot("CORE vs Outside")
+        self._finalize_plot(title)
