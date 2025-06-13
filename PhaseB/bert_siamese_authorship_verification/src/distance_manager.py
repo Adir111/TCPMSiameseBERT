@@ -79,14 +79,28 @@ class SignalDistanceManager:
 
         return dist_mat
 
-    def __save_results(self, distance_matrix, included_text_names, model_name):
-        # Create subfolder for this model
+    def __get_dtw_file_paths(self, model_name):
+        """
+        Returns the paths for the DTW matrix and included text names JSON files.
+        """
         model_output_dir = self.output_path / model_name
-        model_output_dir.mkdir(parents=True, exist_ok=True)
-
-        # Define file paths (without repeating model_name in the filename)
         matrix_file_path = model_output_dir / self.dtw_file_name
         names_file_path = model_output_dir / self.included_text_names_file_name
+        return model_output_dir, matrix_file_path, names_file_path
+
+
+    def dtw_results_already_exist(self, model_name):
+        """
+        Check if the DTW results for the given model already exist.
+        """
+        _, matrix_file_path, names_file_path = self.__get_dtw_file_paths(model_name)
+        return matrix_file_path.exists() and names_file_path.exists()
+
+
+    def __save_results(self, distance_matrix, included_text_names, model_name):
+        model_output_dir, matrix_file_path, names_file_path = self.__get_dtw_file_paths(model_name)
+        # Create subfolder for this model
+        model_output_dir.mkdir(parents=True, exist_ok=True)
 
         save_to_json(distance_matrix.tolist(), matrix_file_path, f"DTW ({model_name})")
         save_to_json(included_text_names, names_file_path, f"Included Text Names ({model_name})")

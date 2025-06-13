@@ -107,10 +107,23 @@ class SignalGeneration:
                 self.logger.log(f"    Signal: {signal}")
 
 
+    def __get_signal_file_path(self, model_name):
+        file_name = f"{model_name}-signals.json"
+        path = self.data_path / self.signals_folder / file_name
+        return path
+
+
+    def signal_already_exists(self, model_name):
+        """
+        Check if the signal file for the given model already exists.
+        """
+        path = self.__get_signal_file_path(model_name)
+        return path.exists()
+
+
     def __save_model_signal(self, model_name, signal):
         """
         Saves given model signal into a file
         """
-        file_name = f"{model_name}-signals.json"
-        path = self.data_path / self.signals_folder / file_name
+        path = self.__get_signal_file_path(model_name)
         save_to_json(signal, path, f"{model_name} Signal data")
