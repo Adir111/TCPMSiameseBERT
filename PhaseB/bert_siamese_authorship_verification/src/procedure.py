@@ -6,6 +6,7 @@ from transformers import logging as tf_logging
 from huggingface_hub import snapshot_download
 from huggingface_hub.utils import logging as hf_logging
 from pathlib import Path
+import warnings
 
 from .data_loader import DataLoader
 from .preprocess import Preprocessor
@@ -25,6 +26,8 @@ from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer
 tf.get_logger().setLevel('ERROR')
 hf_logging.set_verbosity_error()
 tf_logging.set_verbosity_error()
+# warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn.manifold._t_sne")
+
 
 class Procedure:
     _instance = None
