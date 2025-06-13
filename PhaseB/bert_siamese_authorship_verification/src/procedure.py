@@ -26,7 +26,7 @@ from PhaseB.bert_siamese_authorship_verification.utilities import DataVisualizer
 tf.get_logger().setLevel('ERROR')
 hf_logging.set_verbosity_error()
 tf_logging.set_verbosity_error()
-warnings.filterwarnings("ignore", category=FutureWarning, module="sklearn.manifold._t_sne")
+warnings.filterwarnings("ignore", category=FutureWarning)
 
 
 class Procedure:
