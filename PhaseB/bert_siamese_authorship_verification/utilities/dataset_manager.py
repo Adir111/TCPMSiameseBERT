@@ -1,3 +1,14 @@
+"""
+Dataset Manager module for processing and converting text datasets into JSON format.
+
+This module supports:
+- Handling impostor text datasets organized in folders per author
+- Handling Shakespeare texts including a special "text to classify.txt"
+- Generating pairs data for impostor authors using make_pairs function
+- Saving datasets and metadata to JSON files
+- Logging progress and errors using configured logger
+"""
+
 import json
 from pathlib import Path
 
@@ -24,6 +35,16 @@ def save_to_json(data, output_path, data_name):
 
 
 def handle_impostor_texts(impostor_dir, impostor_size=None):
+    """
+    Process impostor dataset directory structure and load text data.
+
+    Parameters:
+    - impostor_dir: Path to directory containing impostor author folders
+    - impostor_size: Optional maximum number of impostor authors to process
+
+    Returns:
+    - List of dicts, each with keys "author" (folder name) and "texts" (list of strings)
+    """
     impostor_dataset = []
 
     # Process impostors
@@ -59,6 +80,18 @@ def handle_impostor_texts(impostor_dir, impostor_size=None):
 
 
 def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
+    """
+    Load Shakespeare texts and a special classification text.
+
+    Parameters:
+    - shakespeare_dir: Path to Shakespeare dataset directory
+    - shakespeare_collection_size: Optional max number of Shakespeare texts to load
+
+    Returns:
+    - Tuple: (list of Shakespeare text dicts, dict with classification text)
+      Each Shakespeare dict has keys "text_name" and "text"
+      Classification text dict has keys "text_name" and "text"
+    """
     classify_text = {}
     shakespeare_collection = []
     classify_text_file_name = "text to classify.txt"
@@ -92,6 +125,14 @@ def handle_shakespeare_texts(shakespeare_dir, shakespeare_collection_size=None):
 
 
 def __generate_and_save_pairs(impostor_dataset):
+    """
+    Generate impostor author pairs and save them to JSON.
+
+    Parameters:
+    - impostor_dataset: List of impostor author dicts (from handle_impostor_texts)
+
+    Uses configuration paths to determine output location.
+    """
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     pairs_output_path = data_sources_folder / config['data']['pairs']
     impostor_names = [author["author"] for author in impostor_dataset]
@@ -105,6 +146,18 @@ def __generate_and_save_pairs(impostor_dataset):
 
 
 def convert_texts_to_json(shakespeare_dir, impostor_dir, shakespeare_collection_size=None, impostor_size=None):
+    """
+    Convert Shakespeare and impostor datasets from raw texts to JSON files.
+
+    Parameters:
+    - shakespeare_dir: Directory path of Shakespeare texts
+    - impostor_dir: Directory path of impostor texts
+    - shakespeare_collection_size: Optional max number of Shakespeare texts to process
+    - impostor_size: Optional max number of impostor authors to process
+
+    Saves multiple JSON files including pairs, impostor dataset,
+    Shakespeare collection, and classification text.
+    """
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     shakespeare_collection_output_path = data_sources_folder / config['data']['shakespeare_data_source']
     impostors_output_path = data_sources_folder / config['data']['impostors_data_source']
@@ -132,6 +185,14 @@ def convert_texts_to_json(shakespeare_dir, impostor_dir, shakespeare_collection_
 
 
 def convert_all_impostor_texts_to_json(impostor_dir):
+    """
+    Convert all impostor texts to JSON without limiting size.
+
+    Parameters:
+    - impostor_dir: Directory path containing impostor author folders
+
+    Saves the entire impostor dataset to JSON.
+    """
     data_sources_folder = Path(config['data']['organised_data_folder_path'])
     impostors_output_path = data_sources_folder / config['data']['all_impostors_data_source']
 

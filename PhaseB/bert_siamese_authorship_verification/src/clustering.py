@@ -1,3 +1,8 @@
+"""
+Performs clustering (K-Medoids) on anomaly score data from multiple models.
+Handles state management, visualization, and saving clustering results.
+"""
+
 import numpy as np
 from pathlib import Path
 from collections import defaultdict
@@ -9,15 +14,30 @@ from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json, 
 
 
 class Clustering:
+    """
+    Singleton class for clustering text data using anomaly scores from multiple models.
+    """
+
     _instance = None # Singleton instance
 
     def __new__(cls, config, logger):
+        """
+        Implements the singleton pattern to ensure only one instance of Clustering exists.
+        Initializes the instance if it doesn't exist yet, otherwise returns the existing one.
+        """
         if cls._instance is None:
             cls._instance = super(Clustering, cls).__new__(cls)
             cls._instance._initialized = False
         return cls._instance
 
     def __init__(self, config, logger):
+        """
+        Initializes the Clustering singleton with config and logger.
+
+        Args:
+            config (dict): Configuration dictionary with the needed clustering configurations.
+            logger (Logger): Logger instance for logging info and warnings.
+        """
         if self._initialized:
             return  # Avoid reinitialization
         self._initialized = True
@@ -42,14 +62,11 @@ class Clustering:
 
     def update_state_from_result(self, result):
         """
-        Update internal clustering state from a clustering result dict.
+        Update internal state with clustering result.
 
         Args:
-            result (dict): A dictionary containing keys:
-                - 'score_matrix'
-                - 'cluster_labels'
-                - 'medoid_indices'
-                - (optional) 'text_names' - if you want to override text_names too
+            result (dict): Contains 'score_matrix', 'cluster_labels', 'medoid_indices',
+                           and optionally 'text_names'.
         """
         self.score_matrix = result.get("score_matrix")
         self.cluster_labels = result.get("cluster_labels")
@@ -60,6 +77,15 @@ class Clustering:
 
 
     def cluster_results(self, increment=None):
+        """
+        Run clustering on the loaded model scores.
+
+        Args:
+            increment (int, optional): If set, performs incremental clustering using top-N models.
+
+        Returns:
+            list: List of clustering result dictionaries.
+        """
         all_scores_dict = self.data_loader.get_isolation_forest_results()
         model_names = sorted(all_scores_dict.keys())
 
@@ -106,6 +132,16 @@ class Clustering:
 
 
     def __run_clustering(self, model_names, suffix=""):
+        """
+        Internal method to perform K-Medoids clustering.
+
+        Args:
+            model_names (list): Model names used as features.
+            suffix (str): Filename suffix for saving results.
+
+        Returns:
+            dict: Clustering result data.
+        """
         if self.clustering_algorithm == 'k-medoids':
             clustering_model = KMedoids(
                 n_clusters=self.n_clusters,
@@ -131,6 +167,13 @@ class Clustering:
 
 
     def __save_results_to_file(self, model_names, suffix=""):
+        """
+        Save clustering results to a JSON file.
+
+        Args:
+            model_names (list): Model names used in clustering.
+            suffix (str): Suffix for the result file.
+        """
         results = {
             "algorithm": self.clustering_algorithm,
             "n_clusters": self.n_clusters,
@@ -154,7 +197,10 @@ class Clustering:
 
     def __save_core_vs_outside_to_file(self, suffix):
         """
-        Saves the CORE and Suspicious text names to a JSON file.
+        Save CORE and suspicious text names to a JSON file.
+
+        Args:
+            suffix (str): Suffix for the result file.
         """
         results = {
             "core_texts": self.core_names,
@@ -171,6 +217,12 @@ class Clustering:
 
 
     def plot_clustering_results(self, suffix=""):
+        """
+        Visualize clustering results using t-SNE.
+
+        Args:
+            suffix (str): Optional label for plot title.
+        """
         self.logger.info("📊 Plotting cluster...")
         try:
             title = "Clusters on Anomaly Score Space"
@@ -190,7 +242,7 @@ class Clustering:
 
     def print_full_clustering_summary(self):
         """
-        Print K-Medoids cluster assignments and highlight medoids, as well as CORE vs Suspicious texts.
+        Print clustering results and highlight medoids, core, and suspicious texts.
         """
         self.logger.log("📌 ==================== K-Medoids Clustering Summary ====================")
 
@@ -228,6 +280,12 @@ class Clustering:
 
 
     def plot_core_vs_outside(self, suffix):
+        """
+        Visualize and store CORE vs suspicious texts using DBSCAN on t-SNE embedding.
+
+        Args:
+            suffix (str): Suffix for file and plot title.
+        """
         title = "Detected CORE vs Outside using DBSCAN on t-SNE Embedding"
         if suffix:
             title += f" ({suffix})"

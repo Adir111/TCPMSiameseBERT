@@ -1,3 +1,7 @@
+"""
+Main CLI script to run various phases of the Siamese BERT authorship verification pipeline.
+"""
+
 import gc
 
 from PhaseB.bert_siamese_authorship_verification.utilities import BertFineTuner
@@ -5,12 +9,12 @@ from utilities import get_config, get_logger, convert_texts_to_json, convert_all
 from src.data_loader import DataLoader
 from src.procedure import Procedure
 
-# Load config
+# Load configuration and initialize logger and procedure
 config = get_config()
 logger = get_logger(config)
 procedure = Procedure(config, logger)
 
-# Paths
+# Load configuration and initialize logger and procedure
 TESTED_COLLECTION_PATH = config['data']['shakespeare_path']
 IMPOSTORS_PATH = config['data']['impostors_path']
 
@@ -18,7 +22,15 @@ IMPOSTORS_PATH = config['data']['impostors_path']
 def __handle_selection(func, selection='selection', extra_verification=False):
     """
     Confirm selection before running the provided function.
-    If the user types 'yes', the function is executed.
+    Executes func() only if user confirms.
+
+    Args:
+        func (callable): Function to execute.
+        selection (str): Description for prompt.
+        extra_verification (bool): If True, requires additional user input 'verify'.
+
+    Returns:
+        Return value of func() or None.
     """
     confirm = input(f"Are you sure you want to run '{selection}'? (yes/no): ").strip().lower()
     if confirm == "yes" or confirm == "y":
@@ -34,7 +46,7 @@ def __handle_selection(func, selection='selection', extra_verification=False):
 
 
 def __create_dataset():
-    """ Converts raw text files into a structured dataset in JSON format. """
+    """Convert raw text files into JSON datasets for training and impostors."""
     logger.log("Create full dataset? (y/n)")
     full_dataset = input().strip().lower() == "y"
     impostor_size = None
@@ -62,7 +74,7 @@ def __create_dataset():
 
 
 def __training():
-    """ Triggers the training script. """
+    """Run the training procedure."""
     try:
         logger.log("🚀 Starting Training Procedure...")
         procedure.run_training_procedure()
@@ -74,7 +86,7 @@ def __training():
 
 
 def __signal_generation():
-    """ Triggers the signal generation procedure. """
+    """Run the signal generation procedure."""
     try:
         logger.log("🚀 Starting Signal Generation Procedure...")
         procedure.run_signal_generation_procedure()
@@ -86,7 +98,7 @@ def __signal_generation():
 
 
 def __dtw():
-    """ Triggers the DTW procedure. """
+    """Run the DTW procedure."""
     try:
         logger.log("🚀 Starting DTW Procedure...")
         procedure.run_distance_matrix_generation()
@@ -98,7 +110,7 @@ def __dtw():
 
 
 def __isolation_forest():
-    """ Triggers the Isolation Forest procedure. """
+    """Run the Isolation Forest procedure."""
     try:
         logger.log("🚀 Starting Isolation Forest Procedure...")
         procedure.run_isolation_forest_procedure()
@@ -110,7 +122,7 @@ def __isolation_forest():
 
 
 def __clustering():
-    """ Triggers the clustering procedure. """
+    """Run the clustering procedure."""
     try:
         logger.log("🚀 Starting Clustering Procedure...")
         procedure.run_clustering_procedure()
@@ -122,7 +134,7 @@ def __clustering():
 
 
 def __fine_tune_berts():
-    """ Fine-tunes BERT models for the Siamese architecture. """
+    """Fine-tune BERT models for all impostors."""
     try:
         data_loader = DataLoader(config)
         all_impostors = data_loader.get_all_impostors_data()
@@ -141,7 +153,7 @@ def __fine_tune_berts():
 
 
 def main():
-    """ Displays the menu and executes the selected action. """
+    """Menu-driven CLI main loop."""
     selections = [
         ("Exit", None, False),
         ("Create Dataset", __create_dataset, False),
