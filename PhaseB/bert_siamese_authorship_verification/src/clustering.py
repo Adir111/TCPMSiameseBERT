@@ -33,6 +33,8 @@ class Clustering:
         self.text_names = None
         self.cluster_labels = None
         self.medoid_indices = None
+        self.core_names = []
+        self.outside_names = []
 
         self.output_folder_path = Path(config['data']['organised_data_folder_path']) / config['data']['clustering_folder_name']
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
@@ -149,13 +151,14 @@ class Clustering:
 
         save_to_json(results, file_path, f"Clustering Results {suffix or ''}")
 
-    def save_core_vs_outside_to_file(self, core_names, outside_names, suffix):
+
+    def __save_core_vs_outside_to_file(self, suffix):
         """
         Saves the CORE and Suspicious text names to a JSON file.
         """
         results = {
-            "core_texts": core_names,
-            "suspicious_texts": outside_names,
+            "core_texts": self.core_names,
+            "suspicious_texts": self.outside_names,
         }
 
         safe_suffix = suffix or "all"
@@ -185,10 +188,16 @@ class Clustering:
             self.logger.warn(f"⚠️ Failed to visualize t-SNE: {e}")
 
 
-    def print_cluster_assignments(self):
+    def print_full_clustering_summary(self):
         """
-        Print which texts are in each cluster, marking medoids for inspection/debugging.
+        Print K-Medoids cluster assignments and highlight medoids, as well as CORE vs Suspicious texts.
         """
+        self.logger.log("📌 ==================== K-Medoids Clustering Summary ====================")
+
+        if self.cluster_labels is None or self.text_names is None: # Not supposed to happen, unless procedure changed, but it's for safety
+            self.logger.warn("⚠️ No clustering results found. Please run clustering first.")
+            return
+
         medoid_indices = set(self.medoid_indices.tolist()) if self.medoid_indices is not None else set()
         clusters = defaultdict(list)
 
@@ -198,14 +207,32 @@ class Clustering:
 
         self.logger.info("📦 Cluster Assignments (⭐ Stars are medoids):")
         for label in sorted(clusters):
-            self.logger.info(f"\n🟩 Cluster {label} ({len(clusters[label])} texts):")
+            self.logger.info(f"🟩 Cluster {label} ({len(clusters[label])} texts):")
             for text, is_medoid in clusters[label]:
                 marker = " ⭐" if is_medoid else ""
-                self.logger.info(f"   - {text}{marker}")
+                self.logger.log(f"   - {text}{marker}")
+
+        self.logger.log("📌 ==================== Core vs Suspicious Summary ====================")
+
+        if not self.core_names and not self.outside_names: # For safety.
+            self.logger.warn("⚠️ No CORE vs Outside data found. Did you run `plot_core_vs_outside()`?")
+            return
+
+        self.logger.info(f"✅ CORE Texts (Total: {len(self.core_names)}):")
+        for text in self.core_names:
+            self.logger.log(f"   - {text}")
+
+        self.logger.info(f"⚠️ Suspicious Texts (Total: {len(self.outside_names)}):")
+        for text in self.outside_names:
+            self.logger.log(f"   - {text}")
 
 
-    def plot_core_vs_outside(self):
-        core_indices, outside_indices = self.data_visualizer.plot_core_vs_outside_from_score_matrix(self.score_matrix)
-        core_names = [self.text_names[i] for i in core_indices]
-        outside_names = [self.text_names[i] for i in outside_indices]
-        return core_names, outside_names
+    def plot_core_vs_outside(self, suffix):
+        title = "Detected CORE vs Outside using DBSCAN on t-SNE Embedding"
+        if suffix:
+            title += f" ({suffix})"
+        core_indices, outside_indices = self.data_visualizer.plot_core_vs_outside_from_score_matrix(self.score_matrix, title)
+        self.core_names = [self.text_names[i] for i in core_indices]
+        self.outside_names = [self.text_names[i] for i in outside_indices]
+
+        self.__save_core_vs_outside_to_file(suffix)
