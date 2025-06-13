@@ -319,7 +319,7 @@ class Procedure:
         Runs distance matrix generation for all models that have signals generated.
         """
         self.logger.info("Starting distance matrix generation procedure...")
-        signal_p0ocessor = SignalDistanceManager(config=self.config, logger=self.logger)
+        signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
         total_pairs = len(impostor_pairs)
