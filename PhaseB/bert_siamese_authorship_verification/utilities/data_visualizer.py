@@ -162,6 +162,7 @@ class DataVisualizer:
         plt.tight_layout()
         self._finalize_plot(title)
 
+
     def tsne(self, embeddings, labels, *, perplexity: int = 30, n_iter: int = 1000,
              random_state: int = 42, title: str | None = None, medoid_indices=None):
         """Compute **t‑SNE** projection and display it."""
@@ -175,6 +176,7 @@ class DataVisualizer:
             medoid_indices=medoid_indices
         )
 
+
     def umap(self, embeddings, labels, *, n_neighbors: int = 15, min_dist: float = 0.1,
              metric: str = "euclidean", random_state: int = 42, title: str | None = None):
         """Compute **UMAP** projection and display it (if `umap-learn` installed)."""
@@ -185,6 +187,7 @@ class DataVisualizer:
                             metric=metric, random_state=random_state)
         embedded = reducer.fit_transform(embeddings)
         self._scatter_embeddings(embedded, labels, title or "UMAP Projection")
+
 
     # unified wrapper --------------------------------------------------- #
     def plot_embedding(self, embeddings, labels, *, method: str = "tsne", title: str | None = None, **kwargs):
@@ -202,3 +205,36 @@ class DataVisualizer:
             self.umap(embeddings, labels, title=title, **kwargs)
         else:
             raise ValueError(f"Unknown embedding method '{method}'. Use 'tsne' or 'umap'.")
+
+
+    def display_core_vs_outside_plot(self, embeddings_2d, core_indices, outside_indices):
+        """
+        Display a 2D scatter plot showing CORE (green) vs Outside (orange).
+        """
+        plt.figure(figsize=(10, 6))
+        plt.title("Detected CORE vs Outside using DBSCAN on t-SNE Embedding")
+
+        # Plot outside (suspicious) in orange
+        plt.scatter(
+            embeddings_2d[outside_indices, 0],
+            embeddings_2d[outside_indices, 1],
+            c="orange",
+            label="Suspicious",
+            edgecolors="k"
+        )
+
+        # Plot core in green
+        plt.scatter(
+            embeddings_2d[core_indices, 0],
+            embeddings_2d[core_indices, 1],
+            c="green",
+            label="Shakespeare (CORE)",
+            edgecolors="k"
+        )
+
+        plt.xlabel("Dim‑1")
+        plt.ylabel("Dim‑2")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        self._finalize_plot("CORE vs Outside")

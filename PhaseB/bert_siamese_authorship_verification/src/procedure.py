@@ -379,14 +379,13 @@ class Procedure:
             self.logger.info(f"📈 Visualizing result for: {suffix}")
 
             clustering.update_state_from_result(result)
-            core_names, outside_names = clustering.plot_core_vs_outside(
-                clustering.score_matrix,
-                clustering.text_names
-            )
-            clustering.save_core_vs_outside_to_file(core_names, outside_names, suffix)
 
             clustering.plot_clustering_results(suffix=suffix)
             clustering.print_cluster_assignments()
+
+            core_names, outside_names = clustering.plot_core_vs_outside()
+            clustering.save_core_vs_outside_to_file(core_names, outside_names, suffix)
+
 
         self.logger.info("🎯 Clustering procedure completed.")
 

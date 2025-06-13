@@ -209,10 +209,10 @@ class Clustering:
                 self.logger.info(f"   - {text}{marker}")
 
 
-    def plot_core_vs_outside(self, score_matrix, text_names):
+    def plot_core_vs_outside(self):
         # Step 1: t-SNE
         tsne = TSNE(n_components=2, random_state=42)
-        embeddings = tsne.fit_transform(score_matrix)
+        embeddings = tsne.fit_transform(self.score_matrix)
 
         # Step 2: Normalize for better clustering
         scaled = StandardScaler().fit_transform(embeddings)
@@ -221,7 +221,7 @@ class Clustering:
         dbscan = DBSCAN(eps=0.5, min_samples=5)
         labels = dbscan.fit_predict(scaled)
 
-        # Step 4: Assume largest cluster is CORE
+        # Step 4: Assume the largest cluster is CORE
         unique_labels, counts = np.unique(labels[labels != -1], return_counts=True)
         core_label = unique_labels[np.argmax(counts)]
 
@@ -229,22 +229,6 @@ class Clustering:
         outside_indices = np.where(labels != core_label)[0]
 
         # Step 5: Plot
-        plt.figure(figsize=(10, 6))
-        plt.scatter(embeddings[outside_indices, 0], embeddings[outside_indices, 1], c='orange', label='Suspicious')
-        plt.scatter(embeddings[core_indices, 0], embeddings[core_indices, 1], c='green', label='Shakespeare (CORE)')
-        plt.title('Detected CORE vs Outside using DBSCAN on t-SNE Embedding')
-        plt.xlabel('Dim-1')
-        plt.ylabel('Dim-2')
-        plt.legend()
-        plt.grid(True)
-        plt.show()
+        self.data_visualizer.display_core_vs_outside_plot(embeddings, core_indices, outside_indices)
 
-        # NEW: Save plot
-        plot_path = Path("plots") / "core_vs_outside.png"
-        plot_path.parent.mkdir(parents=True, exist_ok=True)
-        plt.savefig(plot_path)
-        plt.close()
-
-        self.logger.info(f"🖼️ CORE vs Outside plot saved to: {plot_path}")
-
-        return [text_names[i] for i in core_indices], [text_names[i] for i in outside_indices]
+        return [self.text_names[i] for i in core_indices], [self.text_names[i] for i in outside_indices]
