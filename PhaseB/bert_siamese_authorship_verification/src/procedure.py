@@ -50,6 +50,8 @@ class Procedure:
         self.trained_networks = {}
         self.model_creator = None
         self.clustering_increment = config['clustering']['increment']
+        self.should_skip_generated_signals = config['procedure']['should_skip_generated_signals']
+        self.should_skip_generated_dtw = config['procedure']['should_skip_generated_dtw']
 
         self._initialized = True
 
@@ -58,6 +60,7 @@ class Procedure:
     # ============================================ Utils ============================================
 
     def __get_pairs_info(self, should_filter=True):
+        self.logger.info("==================== Pairs Info ====================")
         impostor_pairs_data = self.data_loader.get_pairs()
         impostor_pairs = impostor_pairs_data["pairs"]
         models_to_skip_raw = impostor_pairs_data.get("models_to_skip", [])
@@ -78,8 +81,10 @@ class Procedure:
             self.logger.info(f"Total pairs before filtering: {len(impostor_pairs)}")
             self.logger.info(f"Total pairs after filtering: {len(filtered_pairs)}")
         else:
+            self.logger.info("==================== Finished Pairs Info ====================")
             return impostor_pairs, last_iteration_training, last_iteration_signal
 
+        self.logger.info("==================== Finished Pairs Info ====================")
         return filtered_pairs, last_iteration_training, last_iteration_signal
 
 
@@ -285,13 +290,17 @@ class Procedure:
 
         for idx, (impostor_1, impostor_2) in enumerate(impostor_pairs[starting_iteration:], start=starting_iteration):
             self.logger.log("__________________________________________________________________________________________________")
+            model_name = f"{impostor_1}_{impostor_2}"
+            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            if self.should_skip_generated_signals and signal_generator.signal_already_exists(sanitized_model_name):
+                self.logger.info(f"Signal for model '{sanitized_model_name}' already exists. Skipping signal generation for {idx + 1}/{total_pairs}.")
+                continue
+
             self.logger.info(f"Generating signal index {idx + 1}/{total_pairs} for impostor pair: {impostor_1} and {impostor_2}")
 
             loaded_model = self.__load_trained_network(impostor_1, impostor_2)
             if loaded_model is None:
                 continue
-            model_name = loaded_model.model_name
-            sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             classifier = loaded_model.get_encoder_classifier()
 
             self.logger.info(f"Generating signals from model: {sanitized_model_name}...")
@@ -310,7 +319,7 @@ class Procedure:
         Runs distance matrix generation for all models that have signals generated.
         """
         self.logger.info("Starting distance matrix generation procedure...")
-        signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
+        signal_p0ocessor = SignalDistanceManager(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
         total_pairs = len(impostor_pairs)
@@ -318,6 +327,10 @@ class Procedure:
         for index, (impostor_1, impostor_2) in enumerate(impostor_pairs):
             model_name = f"{impostor_1}_{impostor_2}"
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
+            if self.should_skip_generated_dtw and signal_processor.dtw_results_already_exist(sanitized_model_name):
+                self.logger.info(f"DTW results for model '{sanitized_model_name}' already exist. Skipping computation for {index + 1}/{total_pairs}.")
+                continue
+
             self.logger.info(f"Processing distance matrix for model: {sanitized_model_name} - {index + 1}/{total_pairs}")
             signal_processor.compute_distance_matrix_for_model(sanitized_model_name)
             self.logger.info(f"✓ Distance matrix for {sanitized_model_name} completed and saved.")
