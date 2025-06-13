@@ -1,11 +1,16 @@
+import numpy as np
 from pathlib import Path
 from collections import defaultdict
 
-import numpy as np
 from sklearn_extra.cluster import KMedoids
 
 from .data_loader import DataLoader
 from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json, DataVisualizer
+
+import matplotlib.pyplot as plt
+from sklearn.manifold import TSNE
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
 
 
 class Clustering:
@@ -63,6 +68,7 @@ class Clustering:
 
         self.logger.info(f"Running clustering algorithm: {self.clustering_algorithm}")
         self.logger.info(f"Total models: {len(model_names)}")
+        self.logger.info(f"Increment: {increment if increment is not None else 'Not Used'}")
 
         # Get common text entries across all models
         self.text_names = sorted(
@@ -148,6 +154,23 @@ class Clustering:
 
         save_to_json(results, file_path, f"Clustering Results {suffix or ''}")
 
+    def save_core_vs_outside_to_file(self, core_names, outside_names, suffix):
+        """
+        Saves the CORE and Suspicious text names to a JSON file.
+        """
+        results = {
+            "core_texts": core_names,
+            "suspicious_texts": outside_names,
+        }
+
+        safe_suffix = suffix or "all"
+        file_name = f"core_vs_outside_{safe_suffix}.json"
+        file_path = self.output_folder_path / file_name
+
+        save_to_json(results, file_path, f"CORE vs Outside Results {suffix or ''}")
+
+        self.logger.info(f"🟢 Saved CORE vs Outside results to {file_path}")
+
 
     def plot_clustering_results(self, suffix=""):
         self.logger.info("📊 Plotting cluster...")
@@ -184,3 +207,44 @@ class Clustering:
             for text, is_medoid in clusters[label]:
                 marker = " ⭐" if is_medoid else ""
                 self.logger.info(f"   - {text}{marker}")
+
+
+    def plot_core_vs_outside(self, score_matrix, text_names):
+        # Step 1: t-SNE
+        tsne = TSNE(n_components=2, random_state=42)
+        embeddings = tsne.fit_transform(score_matrix)
+
+        # Step 2: Normalize for better clustering
+        scaled = StandardScaler().fit_transform(embeddings)
+
+        # Step 3: DBSCAN to find dense core
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        labels = dbscan.fit_predict(scaled)
+
+        # Step 4: Assume largest cluster is CORE
+        unique_labels, counts = np.unique(labels[labels != -1], return_counts=True)
+        core_label = unique_labels[np.argmax(counts)]
+
+        core_indices = np.where(labels == core_label)[0]
+        outside_indices = np.where(labels != core_label)[0]
+
+        # Step 5: Plot
+        plt.figure(figsize=(10, 6))
+        plt.scatter(embeddings[outside_indices, 0], embeddings[outside_indices, 1], c='orange', label='Suspicious')
+        plt.scatter(embeddings[core_indices, 0], embeddings[core_indices, 1], c='green', label='Shakespeare (CORE)')
+        plt.title('Detected CORE vs Outside using DBSCAN on t-SNE Embedding')
+        plt.xlabel('Dim-1')
+        plt.ylabel('Dim-2')
+        plt.legend()
+        plt.grid(True)
+        plt.show()
+
+        # NEW: Save plot
+        plot_path = Path("plots") / "core_vs_outside.png"
+        plot_path.parent.mkdir(parents=True, exist_ok=True)
+        plt.savefig(plot_path)
+        plt.close()
+
+        self.logger.info(f"🖼️ CORE vs Outside plot saved to: {plot_path}")
+
+        return [text_names[i] for i in core_indices], [text_names[i] for i in outside_indices]

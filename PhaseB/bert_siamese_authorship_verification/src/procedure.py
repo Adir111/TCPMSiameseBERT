@@ -372,7 +372,6 @@ class Procedure:
         self.logger.info("🔍 Starting clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
-
         results = clustering.cluster_results(self.clustering_increment)
 
         for step_idx, result in enumerate(results):
@@ -380,6 +379,11 @@ class Procedure:
             self.logger.info(f"📈 Visualizing result for: {suffix}")
 
             clustering.update_state_from_result(result)
+            core_names, outside_names = clustering.plot_core_vs_outside(
+                clustering.score_matrix,
+                clustering.text_names
+            )
+            clustering.save_core_vs_outside_to_file(core_names, outside_names, suffix)
 
             clustering.plot_clustering_results(suffix=suffix)
             clustering.print_cluster_assignments()

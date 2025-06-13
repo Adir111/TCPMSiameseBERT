@@ -57,7 +57,7 @@ isolation_forest:
 
 clustering:
   algorithm: "k-medoids"
-  increment: 10 # Leave empty to ignore this, and just do all models at once.
+  increment: # Leave empty to ignore this, and just do all models at once.
   k-medoids:
     n_clusters: 2
     random_state: 0
