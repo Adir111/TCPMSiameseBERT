@@ -319,7 +319,7 @@ class Procedure:
         Runs distance matrix generation for all models that have signals generated.
         """
         self.logger.info("Starting distance matrix generation procedure...")
-        signal_p0ocessor = SignalDistanceManager(config=self.config, logger=self.logger)
+        signal_processor = SignalDistanceManager(config=self.config, logger=self.logger)
 
         impostor_pairs, _, _ = self.__get_pairs_info()
         total_pairs = len(impostor_pairs)
@@ -362,7 +362,7 @@ class Procedure:
             self.logger.info(f"   → Total anomalies detected: {np.array(y_pred_train == -1).sum()}")
 
         anomaly_detector.save_all_models_scores()
-        self.logger.info("🎯 Isolation Forest detection completed for all models.")
+
 
     def run_clustering_procedure(self):
         """
@@ -372,17 +372,15 @@ class Procedure:
         self.logger.info("🔍 Starting clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
-
         results = clustering.cluster_results(self.clustering_increment)
 
         for step_idx, result in enumerate(results):
             suffix = result["suffix"].lstrip("_") or "all_models"
             self.logger.info(f"📈 Visualizing result for: {suffix}")
-
             clustering.update_state_from_result(result)
 
             clustering.plot_clustering_results(suffix=suffix)
-            clustering.print_cluster_assignments()
+            clustering.plot_core_vs_outside(suffix=suffix)
 
-        self.logger.info("🎯 Clustering procedure completed.")
-
+        self.logger.info("Printing the clustering summary for all scores")
+        clustering.print_full_clustering_summary() # should only print once all is done.

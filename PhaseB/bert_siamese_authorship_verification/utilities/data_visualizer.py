@@ -1,3 +1,4 @@
+import numpy as np
 import matplotlib
 from pathlib import Path
 from datetime import datetime
@@ -7,6 +8,8 @@ matplotlib.use("Agg")
 
 import matplotlib.pyplot as plt
 from sklearn.manifold import TSNE
+from sklearn.cluster import DBSCAN
+from sklearn.preprocessing import StandardScaler
 
 # UMAP is optional; only import if available so the rest of the library still works if it isn't
 try:
@@ -162,6 +165,7 @@ class DataVisualizer:
         plt.tight_layout()
         self._finalize_plot(title)
 
+
     def tsne(self, embeddings, labels, *, perplexity: int = 30, n_iter: int = 1000,
              random_state: int = 42, title: str | None = None, medoid_indices=None):
         """Compute **t‑SNE** projection and display it."""
@@ -175,6 +179,7 @@ class DataVisualizer:
             medoid_indices=medoid_indices
         )
 
+
     def umap(self, embeddings, labels, *, n_neighbors: int = 15, min_dist: float = 0.1,
              metric: str = "euclidean", random_state: int = 42, title: str | None = None):
         """Compute **UMAP** projection and display it (if `umap-learn` installed)."""
@@ -185,6 +190,7 @@ class DataVisualizer:
                             metric=metric, random_state=random_state)
         embedded = reducer.fit_transform(embeddings)
         self._scatter_embeddings(embedded, labels, title or "UMAP Projection")
+
 
     # unified wrapper --------------------------------------------------- #
     def plot_embedding(self, embeddings, labels, *, method: str = "tsne", title: str | None = None, **kwargs):
@@ -202,3 +208,72 @@ class DataVisualizer:
             self.umap(embeddings, labels, title=title, **kwargs)
         else:
             raise ValueError(f"Unknown embedding method '{method}'. Use 'tsne' or 'umap'.")
+
+    def plot_core_vs_outside_from_score_matrix(self, score_matrix, title):
+        """
+        Runs t-SNE, DBSCAN, and plots CORE vs suspicious points.
+
+        Args:
+            score_matrix (ndarray): Anomaly scores matrix (n_samples x n_features).
+            title: The title of the plot
+
+        Returns:
+            core_indices (List[int]), outside_indices (List[int])
+        """
+        # Step 1: t-SNE
+        tsne = TSNE(n_components=2, random_state=42)
+        embeddings = tsne.fit_transform(score_matrix)
+
+        # Step 2: Normalize for better clustering
+        scaled = StandardScaler().fit_transform(embeddings)
+
+        # Step 3: DBSCAN
+        dbscan = DBSCAN(eps=0.5, min_samples=5)
+        labels = dbscan.fit_predict(scaled)
+
+        # Step 4: Largest cluster is CORE
+        unique_labels, counts = np.unique(labels[labels != -1], return_counts=True)
+        if len(unique_labels) == 0:
+            self.logger.warn("⚠️ DBSCAN failed to find any CORE cluster.")
+            return [], []
+
+        core_label = unique_labels[np.argmax(counts)]
+        core_indices = np.where(labels == core_label)[0]
+        outside_indices = np.where(labels != core_label)[0]
+
+        # Step 5: Plot
+        self.__display_core_vs_outside_plot(embeddings, core_indices, outside_indices, title)
+        return core_indices, outside_indices
+
+
+    def __display_core_vs_outside_plot(self, embeddings_2d, core_indices, outside_indices, title):
+        """
+        Display a 2D scatter plot showing CORE (green) vs Outside (orange).
+        """
+        plt.figure(figsize=(10, 6))
+        plt.title(title)
+
+        # Plot outside (suspicious) in orange
+        plt.scatter(
+            embeddings_2d[outside_indices, 0],
+            embeddings_2d[outside_indices, 1],
+            c="orange",
+            label="Suspicious",
+            edgecolors="k"
+        )
+
+        # Plot core in green
+        plt.scatter(
+            embeddings_2d[core_indices, 0],
+            embeddings_2d[core_indices, 1],
+            c="green",
+            label="Shakespeare (CORE)",
+            edgecolors="k"
+        )
+
+        plt.xlabel("Dim‑1")
+        plt.ylabel("Dim‑2")
+        plt.legend()
+        plt.grid(True)
+        plt.tight_layout()
+        self._finalize_plot(title)
