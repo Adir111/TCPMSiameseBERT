@@ -1,3 +1,15 @@
+"""
+Provides the BertFineTuner class to fine-tune a pretrained BERT masked language model
+using impostor text data. Supports tokenization, dataset preparation, model training,
+saving the fine-tuned model locally, and uploading it to the Hugging Face Hub.
+
+Dependencies:
+- TensorFlow
+- transformers (Hugging Face)
+- datasets (Hugging Face)
+- huggingface_hub
+"""
+
 import tensorflow as tf
 from transformers import TFAutoModelForMaskedLM, BertTokenizer, DataCollatorForLanguageModeling
 from huggingface_hub import HfApi, login
@@ -7,12 +19,26 @@ from pathlib import Path
 
 class BertFineTuner:
     def __init__(self, config, logger):
+        """
+        Initialize BertFineTuner with configuration and logger.
+
+        Args:
+            config (dict): Configuration dictionary with BERT and training parameters.
+            logger (Logger): Logger instance for logging messages.
+        """
         self._config = config
         self._logger = logger
         self.tokenizer = BertTokenizer.from_pretrained(config['bert']['model'])
         self.model = TFAutoModelForMaskedLM.from_pretrained(config['bert']['model'])
 
     def finetune(self, impostor):
+        """
+        Fine-tune the BERT masked language model on impostor texts,
+        save the fine-tuned model locally and upload to Hugging Face Hub.
+
+        Args:
+            impostor (dict): Dictionary containing 'author' name and 'texts' list.
+        """
         impostor_name = impostor['author']
         impostor_texts = impostor['texts']
         save_path = Path(self._config['data']['fine_tuned_bert_model_path']) / f"{impostor_name}/"

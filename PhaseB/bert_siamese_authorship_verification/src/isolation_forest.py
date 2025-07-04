@@ -1,3 +1,8 @@
+"""
+Runs Isolation Forest anomaly detection on DTW distance matrices.
+Handles analysis, reporting, and saving anomaly scores for multiple models.
+"""
+
 import numpy as np
 from pathlib import Path
 from sklearn.ensemble import IsolationForest
@@ -7,14 +12,36 @@ from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json
 
 
 class DTWIsolationForest:
+    """
+    Singleton class to perform Isolation Forest anomaly detection on DTW matrices.
+    Loads DTW data, computes anomaly scores, identifies outliers, and saves reports.
+    """
+
     _instance = None  # Singleton instance
 
     def __new__(cls, config, logger):
+        """
+        Implements the singleton pattern to ensure only one instance of DTWIsolationForest.
+
+        Args:
+            config (dict): Configuration dictionary (not used in __new__).
+            logger (Logger): Logger instance (not used in __new__).
+
+        Returns:
+            DTWIsolationForest: Singleton instance of the class.
+        """
         if cls._instance is None:
             cls._instance = super(DTWIsolationForest, cls).__new__(cls)
         return cls._instance
 
     def __init__(self, config, logger):
+        """
+        Initializes the DTWIsolationForest singleton with configuration and logger.
+
+        Args:
+            config (dict): Configuration containing Isolation Forest parameters and paths.
+            logger (Logger): Logger instance for logging info and warnings.
+        """
         # Prevent reinitialization in singleton pattern
         if hasattr(self, "_initialized") and self._initialized:
             return
@@ -34,12 +61,30 @@ class DTWIsolationForest:
 
     @staticmethod
     def __intersection(list1, list2):
-        # Utility: intersection of two lists
+        """
+        Returns the intersection of two lists.
+
+        Args:
+            list1 (list): First list.
+            list2 (list): Second list.
+
+        Returns:
+            list: Intersection of both lists.
+        """
         return list(set(list1) & set(list2))
 
-    import json
 
     def __save_results_to_file(self, model_name, scores, shakespeare_texts_names, anomaly_indices, summa_indices):
+        """
+        Saves anomaly analysis results to text and JSON files for the specified model.
+
+        Args:
+            model_name (str): Name of the model.
+            scores (np.ndarray): Anomaly scores from Isolation Forest.
+            shakespeare_texts_names (list): Names of texts analyzed.
+            anomaly_indices (np.ndarray): Indices identified as anomalies by score threshold.
+            summa_indices (np.ndarray): Indices identified as anomalies by summation percentile.
+        """
         # Create subdirectory for model
         model_output_dir = self.output_path / model_name
         model_output_dir.mkdir(parents=True, exist_ok=True)
@@ -73,13 +118,17 @@ class DTWIsolationForest:
 
     def analyze(self, model_name):
         """
-        Runs Isolation Forest on the DTW distance matrix and analyzes anomalies.
+        Run Isolation Forest anomaly detection on the DTW matrix for the specified model.
 
         Args:
-            model_name : Model name
+            model_name (str): Name of the model.
 
         Returns:
             tuple: (summa, scores, predictions, rank)
+                summa (np.ndarray): Normalized summation of DTW distances.
+                scores (np.ndarray): Isolation Forest anomaly scores.
+                predictions (np.ndarray): Isolation Forest predictions.
+                rank (int): Count of anomalies intersecting with texts to classify.
         """
         dtw_matrix = np.array(self.data_loader.get_dtw(model_name))
         shakespeare_texts_names = self.data_loader.get_shakespeare_included_text_names(model_name)
@@ -121,6 +170,6 @@ class DTWIsolationForest:
 
     def save_all_models_scores(self):
         """
-        Saves the complete all_models_scores dictionary to a JSON file using the provided save_to_json method.
+        Save all models' anomaly scores dictionary to a JSON file.
         """
         save_to_json(self.all_models_scores, self.all_models_scores_path, "All models anomaly scores")

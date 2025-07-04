@@ -63,6 +63,7 @@ clustering:
     random_state: 0
 
 
+
 bert:
   model: "bert-base-uncased"
   repository: "ElyMK1/bert-shakespeare-english-mlm"
@@ -83,3 +84,7 @@ wandb:
   project: "siamese-authorship-verification"
   artifact_name: "siamese-authorship-verification-branches"
   api_key: 8dc3df6ba5ef5bae0ad60917973e82163f35bdf8
+
+procedure:
+  should_skip_generated_signals: True
+  should_skip_generated_dtw: True

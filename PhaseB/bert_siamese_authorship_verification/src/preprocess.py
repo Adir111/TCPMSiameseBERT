@@ -1,17 +1,53 @@
+"""
+Provides the Preprocessor class for preparing text data for Siamese BERT models.
+
+Features include:
+- Downloading necessary NLTK resources silently
+- Tokenizing and chunking long texts into fixed-size chunks suitable for BERT
+- Balancing and equalizing chunk lists between impostor datasets
+- Creating paired input arrays (X) and labels (y) for training/testing Siamese models
+- Supports singleton pattern to reuse tokenizer instances efficiently
+
+Designed for use in text similarity and verification tasks with BERT-based Siamese networks.
+"""
+
 import nltk
+import contextlib
+import os
 from sklearn.model_selection import train_test_split
 from transformers import BertTokenizer
 import numpy as np
 import random
 
-nltk.download('wordnet')
-nltk.download('omw-1.4')
-nltk.download('stopwords')
+with contextlib.redirect_stdout(open(os.devnull, 'w')), contextlib.redirect_stderr(open(os.devnull, 'w')):
+    nltk.download('wordnet', quiet=True)
+    nltk.download('omw-1.4', quiet=True)
+    nltk.download('stopwords', quiet=True)
 
 class Preprocessor:
+    """
+    Preprocessor class for preparing text data for Siamese BERT models.
+
+    Supports tokenization, chunking long texts, balancing chunk lists,
+    and creating paired input data for model training/testing.
+
+    Implements a singleton pattern when no tokenizer is provided,
+    otherwise creates a fresh instance.
+    """
+
     _singleton_instance = None
 
     def __new__(cls, config, tokenizer=None):
+        """
+        Creates a singleton instance unless a tokenizer is explicitly provided.
+
+        Parameters:
+        - config (dict): Configuration dictionary
+        - tokenizer (BertTokenizer or None): Optional tokenizer to use
+
+        Returns:
+        - instance (Preprocessor): Preprocessor instance
+        """
         if tokenizer is None:
             if cls._singleton_instance is None:
                 cls._singleton_instance = super(Preprocessor, cls).__new__(cls)
@@ -23,7 +59,15 @@ class Preprocessor:
             instance._initialized = False
             return instance
 
+
     def __init__(self, config, tokenizer=None):
+        """
+        Initializes the Preprocessor.
+
+        Parameters:
+        - config (dict): Configuration dictionary
+        - tokenizer (BertTokenizer or None): Optional tokenizer to use
+        """
         if self._initialized:
             return
 
@@ -38,15 +82,16 @@ class Preprocessor:
 
         self._initialized = True
 
+
     def __tokenize_text(self, text):
         """
-        Tokenize text into BERT's format (input_ids, attention_mask).
+        Tokenize text into BERT input format.
 
         Parameters:
         - text (str): Input text
 
         Returns:
-        - dict: Tokenized input with input_ids, attention_mask
+        - dict: Tokenized input with 'input_ids', 'attention_mask', 'token_type_ids'
         """
         encoded_input = self.tokenizer(
             text,
@@ -57,24 +102,38 @@ class Preprocessor:
         )
         return encoded_input
 
+
     def __handle_chunk(self, chunk_text, preprocessed_collection):
+        """
+        Tokenize a chunk of text and append it to the collection.
+
+        Parameters:
+        - chunk_text (str): Text chunk to tokenize
+        - preprocessed_collection (list): List to append tokenized outputs to
+
+        Returns:
+        - int: Number of tokens in the chunk
+        """
         tokenized = self.__tokenize_text(chunk_text)
         tokens_count = tokenized.data['input_ids'].shape[1]
         preprocessed_collection.append(tokenized)
         return tokens_count
 
+
     def preprocess(self, collection):
         """
-        Preprocess the collection of text data:
-        - Tokenize the text
-        - Handle chunking if text is too long
-        - Prepare BERT input format
+        Preprocess a collection of text data.
+
+        Tokenizes text data into BERT format. Splits text into chunks if longer
+        than configured chunk size. Returns tokenized chunks and total token count.
 
         Parameters:
-        - collection (list): List of text data (each is a long text in your case)
+        - collection (list of str): List of input text strings
 
         Returns:
-        - preprocessed_collection (list): List of dictionaries containing tokenized text data
+        - tuple:
+          - preprocessed_collection (list): List of tokenized text dicts
+          - tokens_count (int): Total number of tokens processed
         """
         preprocessed_collection = []
         tokens_count = 0
@@ -98,9 +157,19 @@ class Preprocessor:
                 tokens_count += self.__handle_chunk(text, preprocessed_collection)
         return preprocessed_collection, tokens_count
 
+
     def equalize_chunks(self, chunks_list):
         """
-        Helper to balance two lists of chunks to the same length.
+        Equalize the lengths of two chunk lists by repeating and sampling.
+
+        This helps to balance the number of chunks between two impostor datasets
+        based on a configured chunk ratio.
+
+        Parameters:
+        - chunks_list (list of lists): Two lists of tokenized chunks
+
+        Returns:
+        - list of lists: Balanced chunk lists of equal length
         """
         chunk_ratio = self.config['training']['impostor_chunk_ratio']
 
@@ -123,7 +192,27 @@ class Preprocessor:
 
         return chunks_list
 
+
     def create_xy(self, impostor_1_chunks, impostor_2_chunks, num_pairs=None):
+        """
+        Create paired input data (X) and labels (y) for training/testing.
+
+        Generates positive pairs from chunks of the same impostor and
+        negative pairs from chunks of different impostors. Splits data into
+        train and test sets based on configuration.
+
+        Parameters:
+        - impostor_1_chunks (list): List of tokenized chunks for impostor 1
+        - impostor_2_chunks (list): List of tokenized chunks for impostor 2
+        - num_pairs (int or None): Optional limit on number of positive pairs to generate
+
+        Returns:
+        - tuple:
+          - x_train (dict): Training inputs dict with keys for each BERT input
+          - y_train (np.ndarray): Training labels (float32, shape [-1,1])
+          - x_test (dict): Testing inputs dict
+          - y_test (np.ndarray): Testing labels (float32, shape [-1,1])
+        """
         if len(impostor_1_chunks) != len(impostor_2_chunks):
             raise ValueError("Chunk lists must be equal length for pairing.")
 

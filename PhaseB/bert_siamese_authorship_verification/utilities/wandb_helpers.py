@@ -1,3 +1,7 @@
+"""
+Helper functions for interacting with Weights & Biases (W&B) artifacts.
+"""
+
 import wandb
 
 
@@ -5,10 +9,13 @@ def artifact_file_exists(project_name, artifact_name, file_path):
     """
     Check if a specific file exists within a W&B artifact.
 
-    :param project_name: e.g. "username/project"
-    :param artifact_name: e.g. "artifact-name:version" or "artifact-name:latest"
-    :param file_path: path within the artifact (e.g., "branch_weights.h5")
-    :return: True if the file exists, else False
+    Parameters:
+    - project_name: str, e.g. "username/project"
+    - artifact_name: str, e.g. "artifact-name:version" or "artifact-name:latest"
+    - file_path: str, path within the artifact (e.g., "branch_weights.h5")
+
+    Returns:
+    - bool: True if the file exists in the artifact, False otherwise
     """
     api = wandb.Api()
     try:
