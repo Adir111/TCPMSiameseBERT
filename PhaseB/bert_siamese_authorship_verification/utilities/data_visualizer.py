@@ -73,18 +73,28 @@ class DataVisualizer:
         self._initialized = True
 
 
-    def _finalize_plot(self, label):
+    def _finalize_plot(self, label, save_path=None, add_date=True):
         """
         Save current matplotlib figure to file and optionally log to W&B.
 
         Args:
-            label (str): Label or title used for the filename and logging.
+            label: Label or title used for the filename and logging.
+            save_path: Optional directory path to save the figure. Defaults to 'plots/'.
+            add_date: Whether to append the current datetime to the filename. Default is True.
         """
         fig = plt.gcf()
-        plots_dir = Path("plots")
+        if save_path is None:
+            plots_dir = Path("plots")
+        else:
+            plots_dir = Path(save_path)
         plots_dir.mkdir(parents=True, exist_ok=True)
-        current_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = plots_dir / f"{label}_{current_date}.png"
+
+        if add_date:
+            current_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = plots_dir / f"{label}_{current_date}.png"
+        else:
+            filename = plots_dir / f"{label}.png"
+
         fig.savefig(filename)
 
         if self._is_wandb:
@@ -97,6 +107,7 @@ class DataVisualizer:
 
         plt.close(fig)
 
+
     def plot_metric(self, y_series=None, title="", x_label="", y_label="", legend_labels=None):
         """
         Plot one or more series of y-values against their indices.
@@ -108,7 +119,6 @@ class DataVisualizer:
             y_label (str): Y-axis label.
             legend_labels (list of str): Labels for the legend.
         """
-
         width = max(6, int(len(title) * 0.1))
         height = 0.75 * width
 
@@ -403,3 +413,25 @@ class DataVisualizer:
         plt.grid(True)
         plt.tight_layout()
         self._finalize_plot(title)
+
+
+    def display_dtw_heatmap(self, reordered_matrix, model_name, is_sorted, save_path=None):
+        """
+        Displays and saves a DTW heatmap plot using the reordered distance matrix.
+
+        Args:
+            reordered_matrix: The reordered DTW distance matrix.
+            model_name: Name of the model (used for naming the saved file).
+            is_sorted: Whether the matrix was sorted within clusters.
+            save_path: Optional path to save the plot. Defaults to None.
+        """
+        title = f"DTW Clustered Heatmap for {model_name} ({'Sorted' if is_sorted else 'Unsorted'})"
+
+        plt.figure(figsize=(8, 7))
+        plt.imshow(reordered_matrix, interpolation='nearest', cmap='viridis')
+        plt.colorbar()
+        plt.title(title)
+        plt.tight_layout()
+
+        label = f"dtw_clustered_heatmap_{'sorted' if is_sorted else 'unsorted'}"
+        self._finalize_plot(label, save_path=save_path, add_date=False)
