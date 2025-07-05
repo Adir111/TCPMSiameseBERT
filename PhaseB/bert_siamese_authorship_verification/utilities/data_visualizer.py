@@ -73,18 +73,28 @@ class DataVisualizer:
         self._initialized = True
 
 
-    def _finalize_plot(self, label):
+    def _finalize_plot(self, label, save_path=None, add_date=True):
         """
         Save current matplotlib figure to file and optionally log to W&B.
 
         Args:
-            label (str): Label or title used for the filename and logging.
+            label: Label or title used for the filename and logging.
+            save_path: Optional directory path to save the figure. Defaults to 'plots/'.
+            add_date: Whether to append the current datetime to the filename. Default is True.
         """
         fig = plt.gcf()
-        plots_dir = Path("plots")
+        if save_path is None:
+            plots_dir = Path("plots")
+        else:
+            plots_dir = Path(save_path)
         plots_dir.mkdir(parents=True, exist_ok=True)
-        current_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-        filename = plots_dir / f"{label}_{current_date}.png"
+
+        if add_date:
+            current_date = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            filename = plots_dir / f"{label}_{current_date}.png"
+        else:
+            filename = plots_dir / f"{label}.png"
+
         fig.savefig(filename)
 
         if self._is_wandb:
