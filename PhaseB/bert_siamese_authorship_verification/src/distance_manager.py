@@ -6,10 +6,13 @@ between model signal data. Handles filtering, distance calculation, and saving r
 import numpy as np
 from pathlib import Path
 from dtaidistance import dtw
+from scipy.cluster.hierarchy import linkage, leaves_list
+from scipy.spatial.distance import squareform
 
 from .data_loader import DataLoader
 
-from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json
+from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json, DataVisualizer
+from sklearn_extra.cluster import KMedoids
 
 
 class SignalDistanceManager:
@@ -45,6 +48,7 @@ class SignalDistanceManager:
 
         self.logger = logger
         self.data_loader = DataLoader(config)
+        self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
         self.output_path = Path(config['data']['organised_data_folder_path']) / config['data']['dtw']['output_distance_folder']
         self.dtw_file_name = config['data']['dtw']['dtw_file_name']
         self.included_text_names_file_name = config['data']['dtw']['included_text_names_file_name']
@@ -74,6 +78,8 @@ class SignalDistanceManager:
 
         # Create distance matrix
         distance_matrix = self.__create_dtw_distance_matrix(signals)
+        self.visualize_clustered_dtw_matrix(distance_matrix, model_name)
+        self.visualize_clustered_dtw_matrix(distance_matrix, model_name, False)
 
         # Save results
         self.__save_results(distance_matrix, included_text_names, model_name)
@@ -170,3 +176,43 @@ class SignalDistanceManager:
 
         save_to_json(distance_matrix.tolist(), matrix_file_path, f"DTW ({model_name})")
         save_to_json(included_text_names, names_file_path, f"Included Text Names ({model_name})")
+
+
+    def visualize_clustered_dtw_matrix(self, distance_matrix, model_name, sort_within_clusters=True):
+        """
+        Perform clustering and reorder the DTW distance matrix, then visualize and save the heatmap.
+
+        Args:
+            distance_matrix (np.ndarray): Precomputed DTW distance matrix.
+            model_name (str): Name of the model (used to determine the save directory).
+            sort_within_clusters (bool): If True, sort samples within each cluster using hierarchical clustering.
+        """
+        # Step 1: Cluster with KMedoids
+        kmedoids = KMedoids(n_clusters=2, metric='precomputed', random_state=42)
+        cluster_labels = kmedoids.fit_predict(distance_matrix)
+
+        # Step 2: Reorder matrix by cluster labels (and optionally within clusters)
+        sorted_indices = []
+        for cluster_id in np.unique(cluster_labels):
+            cluster_indices = np.where(cluster_labels == cluster_id)[0]
+
+            if sort_within_clusters and len(cluster_indices) > 1:
+                # Sort within the cluster using hierarchical clustering
+                sub_dtw = distance_matrix[np.ix_(cluster_indices, cluster_indices)]
+                linkage_matrix = linkage(squareform(sub_dtw), method='average')
+                order = leaves_list(linkage_matrix)
+                cluster_sorted = cluster_indices[order]
+            else:
+                # Keep original order
+                cluster_sorted = cluster_indices
+
+            sorted_indices.extend(cluster_sorted)
+
+        # Step 3: Reorder the DTW matrix
+        reordered_matrix = distance_matrix[np.ix_(sorted_indices, sorted_indices)]
+
+        # Step 4: Prepare output directory and delegate visualization to DataVisualizer
+        model_output_dir, _, _ = self.__get_dtw_file_paths(model_name)
+        model_output_dir.mkdir(parents=True, exist_ok=True)
+        self.data_visualizer.display_dtw_heatmap(reordered_matrix, model_name, is_sorted=sort_within_clusters,
+                                            save_path=model_output_dir)
