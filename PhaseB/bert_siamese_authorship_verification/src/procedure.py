@@ -389,6 +389,7 @@ class Procedure:
                     f"Skipping training."
                 )
                 self.trained_networks[model_name] = model_creator
+                increment_last_iteration(self.config)
                 continue
 
             self.logger.info(
@@ -436,6 +437,7 @@ class Procedure:
             sanitized_model_name = SiameseBertModel.sanitize_artifact_name(model_name)
             if self.should_skip_generated_signals and signal_generator.signal_already_exists(sanitized_model_name):
                 self.logger.info(f"Signal for model '{sanitized_model_name}' already exists. Skipping signal generation for {idx + 1}/{total_pairs}.")
+                increment_last_iteration(self.config, False)
                 continue
 
             self.logger.info(f"Generating signal index {idx + 1}/{total_pairs} for impostor pair: {impostor_1} and {impostor_2}")
