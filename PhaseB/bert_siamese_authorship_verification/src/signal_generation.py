@@ -203,15 +203,18 @@ class SignalGeneration:
     def __get_signal_file_path(self, model_name):
         """
         Constructs the full file path for the signal JSON file of a given model.
+        Signals are saved under a folder named after the model.
 
         Args:
-            model_name (str): The model name used in the file name.
+            model_name (str): The model name used in the file path.
 
         Returns:
             pathlib.Path: Full path to the signal JSON file.
         """
-        file_name = f"{model_name}-signals.json"
-        path = self.data_path / self.signals_folder / file_name
+        model_dir = self.data_path / self.signals_folder / model_name
+        model_dir.mkdir(parents=True, exist_ok=True)
+        path = model_dir / "signals.json"
+
         return path
 
 
@@ -234,14 +237,14 @@ class SignalGeneration:
         Saves the signal data of a model into both JSON and NumPy (.npy) files.
 
         Args:
-            model_name (str): The model name to use in the file name.
+            model_name (str): The model name to use for the subfolder and file names.
             signal (dict): The signal data to save.
         """
-        # Save as JSON
+        # Save JSON
         json_path = self.__get_signal_file_path(model_name)
         save_to_json(signal, json_path, f"{model_name} Signal data")
 
-        # Save as NumPy file (same base path, but .npy extension)
+        # Save NumPy version next to it
         npy_path = json_path.with_suffix('.npy')
         np.save(npy_path, signal)
 
