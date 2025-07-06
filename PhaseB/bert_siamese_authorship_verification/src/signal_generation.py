@@ -159,6 +159,7 @@ class SignalGeneration:
         for text_object in self.shakespeare_preprocessed_texts:
             text_name = text_object['text_name']
             text_chunks = text_object["text_chunks"]
+
             predictions = np.asarray(classifier.predict({
                 "input_ids": text_chunks['input_ids'],
                 "attention_mask": text_chunks['attention_mask'],
@@ -173,10 +174,12 @@ class SignalGeneration:
                 np.mean(binary_outputs[i:i + self.chunks_per_batch])
                 for i in range(0, len(binary_outputs), self.chunks_per_batch)
             ]
-            self.logger.log(f"[INFO] Signal representation: {signal}")
 
+            self.logger.log(f"[INFO] Signal representation: {signal}")
             self.logger.info(f"Signal generated for text: {text_name} by model: {model_name}")
-            self.data_visualizer.display_signal_plot(signal, text_name, model_name)
+
+            plot_dir = self.__get_signal_file_path(model_name).parent / "plots"
+            self.data_visualizer.display_signal_plot(signal, text_name, model_name, save_path=plot_dir)
 
             model_signals[text_name] = signal
 
