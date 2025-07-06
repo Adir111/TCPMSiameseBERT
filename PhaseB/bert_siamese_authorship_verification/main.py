@@ -176,6 +176,7 @@ def main():
             logger.log("❌ Please enter a valid number.")
             continue
 
+        # noinspection PyUnboundLocalVariable
         if option < 0 or option >= len(selections):
             logger.log("❌ Invalid option. Please try again.")
             continue
