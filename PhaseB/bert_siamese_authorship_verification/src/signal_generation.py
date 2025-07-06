@@ -231,11 +231,19 @@ class SignalGeneration:
 
     def __save_model_signal(self, model_name, signal):
         """
-        Saves the signal data of a model into a JSON file.
+        Saves the signal data of a model into both JSON and NumPy (.npy) files.
 
         Args:
             model_name (str): The model name to use in the file name.
             signal (dict): The signal data to save.
         """
-        path = self.__get_signal_file_path(model_name)
-        save_to_json(signal, path, f"{model_name} Signal data")
+        # Save as JSON
+        json_path = self.__get_signal_file_path(model_name)
+        save_to_json(signal, json_path, f"{model_name} Signal data")
+
+        # Save as NumPy file (same base path, but .npy extension)
+        npy_path = json_path.with_suffix('.npy')
+        np.save(npy_path, signal)
+
+        self.logger.info(f"Saved signal as JSON to {json_path}")
+        self.logger.info(f"Saved signal as NumPy (.npy) to {npy_path}")
