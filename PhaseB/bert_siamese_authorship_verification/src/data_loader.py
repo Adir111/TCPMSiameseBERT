@@ -167,10 +167,10 @@ class DataLoader:
         Returns:
             dict: Signal data loaded from the model's file.
         """
-        file_name = f"{model_name}-signals.json"
-        path = self.data_path / self.signals_folder
+        model_folder = self.data_path / self.signals_folder / model_name
+        file_name = "signals.json"
 
-        data = load_json_data(path, file_name)
+        data = load_json_data(model_folder, file_name)
         return data
 
     def get_shakespeare_included_text_names(self, model_name):
