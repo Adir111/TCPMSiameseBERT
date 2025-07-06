@@ -75,36 +75,72 @@ class SignalGeneration:
 
     def load_shakespeare_preprocessed_texts(self, reload=False):
         """
-        Loads and preprocesses Shakespeare texts for classification.
-        Preprocesses texts into chunks and token IDs for model input.
-        Caches preprocessed texts unless `reload` is True.
+        Loads, preprocesses, and equalizes Shakespeare texts for classification.
+
+        This method:
+          - Loads all Shakespeare texts.
+          - Preprocesses them into chunked token IDs suitable for model input.
+          - Tracks the text with the highest number of chunks.
+          - Equalizes all other texts to match the longest one using chunk duplication and sampling.
+          - Converts chunk data to NumPy arrays for efficient input handling.
+          - Caches the result unless `reload=True`.
 
         Args:
-            reload (bool): If True, forces reloading and preprocessing.
+            reload (bool): If True, forces reloading and reprocessing even if data is cached.
         """
         if reload or self.shakespeare_preprocessed_texts is None:
             self.logger.info("Loading shakespeare texts and preprocessing...")
             self.shakespeare_preprocessed_texts = []
-            tested_collection_texts = self.data_loader.get_shakespeare_data()
-            for text_object in tested_collection_texts:
+
+            raw_texts = self.data_loader.get_shakespeare_data()
+            preprocessed_data = []
+            max_chunks = []
+            max_name = "NOT FOUND"
+
+            # Step 1: Preprocess texts and track the max-length chunk list
+            for text_object in raw_texts:
                 text_name = text_object['text_name']
                 text = text_object['text']
                 self.logger.info(f"Processing text: {text_name}")
+
                 chunks_list, chunks_tokens_count = self.general_preprocessor.preprocess([text])
+
+                chunk_len = len(chunks_list)
+                if chunk_len > len(max_chunks):
+                    max_chunks = chunks_list
+                    max_name = text_name
+
+                preprocessed_data.append({
+                    "text_name": text_name,
+                    "original_chunks": chunks_list
+                })
+
+                self.logger.info(
+                    f"Text '{text_name}' processed into {chunk_len} chunks ({chunks_tokens_count} tokens).")
+
+            self.logger.info(f"Maximum number of chunks (Longest text) found: {len(max_chunks)}, text name is {max_name}.")
+
+            # Step 2: Equalize chunks for all texts based on max_chunks
+            for item in preprocessed_data:
+                text_name = item["text_name"]
+                chunks_list = item["original_chunks"]
+
+                if len(chunks_list) != len(max_chunks):
+                    self.logger.info(
+                        f"Equalizing text '{text_name}' from {len(chunks_list)} to {len(max_chunks)} chunks.")
+                    chunks_list = self.general_preprocessor.equalize_chunks([chunks_list, max_chunks], False)[0]
+
+                # Convert chunk dicts to numpy arrays
                 text_chunks = {
                     "input_ids": np.stack([c["input_ids"].numpy().squeeze(0) for c in chunks_list]),
                     "attention_mask": np.stack([c["attention_mask"].numpy().squeeze(0) for c in chunks_list]),
                     "token_type_ids": np.stack([c["token_type_ids"].numpy().squeeze(0) for c in chunks_list]),
                 }
-                self.logger.info(f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
-                text_object = {
+
+                self.shakespeare_preprocessed_texts.append({
                     "text_name": text_name,
                     "text_chunks": text_chunks
-                }
-                self.shakespeare_preprocessed_texts.append(text_object)
-
-        else:
-            self.logger.warn(f"Shakespeare preprocessed texts already loaded.")
+                })
 
         self.logger.info(f"Total of {len(self.shakespeare_preprocessed_texts)} shakespeare texts ready for classification.")
 
