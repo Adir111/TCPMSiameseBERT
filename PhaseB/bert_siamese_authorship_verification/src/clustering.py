@@ -57,9 +57,13 @@ class Clustering:
         self.outside_names = []
 
         self.medoid_indices = None # K-Medoids Clustering - Results Related
-        self.gamma = config['clustering']['kmeans']['gamma']  # K-Means Variable
+        self.gamma = config['clustering']['gamma']  # K-Means Variable
 
-        self.output_folder_path = Path(config['data']['organised_data_folder_path']) / config['data']['clustering_folder_name']
+        self.output_folder_path = (
+                Path(config['data']['organised_data_folder_path']) /
+                config['data']['clustering_folder_name'] /
+                self.clustering_algorithm.lower()
+        )
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
 
 
