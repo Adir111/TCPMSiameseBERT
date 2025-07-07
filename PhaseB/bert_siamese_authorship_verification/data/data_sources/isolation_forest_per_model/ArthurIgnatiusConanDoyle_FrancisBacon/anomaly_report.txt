@@ -4,6 +4,7 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
+10 - KING HENRY VI part I.txt - Score: -0.016007
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -18,7 +19,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 10 - KING HENRY VI part I.txt
 11 - KING HENRY VI Part II.txt
 12 - KING HENRY VI Part III.txt
-13 - KING HENRY VIII.txt
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
 16 - KING RICHARD III.txt
@@ -27,6 +27,7 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 19 - MEASURE FOR MEASURE.txt
 20 - Merchant of Venice.txt
 21 - MUCH ADO ABOUT NOTHING.txt
+22 - PERICLES PRINCE OF TYRE.txt
 23 - Sir John Oldcastle by Shakespeare.txt
 24 - Sir Thomas More by Shakespeare.txt
 25 - Taming of the Shrew.txt
@@ -37,11 +38,11 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 30 - The London Prodigal.txt
 31 - The Merry Devill of Edmonton by Shakespeare.txt
 32 - THE MERRY WIVES OF WINDSOR.txt
+33 - The Puritaine Widdow by Shakespeare.txt
 34 - THE RAPE OF LUCRECE.txt
 35 - THE TAMING OF THE SHREW.txt
 36 - THE TEMPEST.txt
 37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
-38 - THE TRAGEDY OF CORIOLANUS.txt
 39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
 40 - THE TRAGEDY OF JULIUS CAESAR.txt
 41 - THE TRAGEDY OF KING LEAR.txt

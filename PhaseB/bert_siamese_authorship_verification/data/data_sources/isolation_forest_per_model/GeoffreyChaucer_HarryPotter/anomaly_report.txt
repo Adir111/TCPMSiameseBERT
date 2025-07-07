@@ -4,11 +4,11 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.051408
-10 - KING HENRY VI part I.txt - Score: -0.083438
-12 - KING HENRY VI Part III.txt - Score: -0.199071
-25 - Taming of the Shrew.txt - Score: -0.028564
-36 - THE TEMPEST.txt - Score: -0.066241
+10 - KING HENRY VI part I.txt - Score: -0.164656
+25 - Taming of the Shrew.txt - Score: -0.025936
+35 - THE TAMING OF THE SHREW.txt - Score: -0.006981
+36 - THE TEMPEST.txt - Score: -0.053456
+42 - THE TRAGEDY OF MACBETH.txt - Score: -0.104725
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -18,12 +18,11 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 4 - AS YOU LIKE IT.txt
 5 - CYMBELINE.txt
 6 - Fair Em by Shakespeare.txt
+7 - KING EDWARD III by Shakespeare.txt
 8 - King Henry IV, Part 1.txt
 9 - KING HENRY V.txt
 10 - KING HENRY VI part I.txt
 11 - KING HENRY VI Part II.txt
-12 - KING HENRY VI Part III.txt
-13 - KING HENRY VIII.txt
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
 16 - KING RICHARD III.txt
@@ -32,7 +31,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 19 - MEASURE FOR MEASURE.txt
 20 - Merchant of Venice.txt
 21 - MUCH ADO ABOUT NOTHING.txt
-22 - PERICLES PRINCE OF TYRE.txt
 23 - Sir John Oldcastle by Shakespeare.txt
 24 - Sir Thomas More by Shakespeare.txt
 25 - Taming of the Shrew.txt
@@ -55,6 +53,8 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 42 - THE TRAGEDY OF MACBETH.txt
 43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
 44 - THE TRAGEDY OF ROMEO AND JULIET.txt
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
+46 - THE TWO GENTLEMEN OF VERONA.txt
 47 - The Two Noble Kinsmen by Shakespeare.txt
 48 - THE WINTERS TALE.txt
 49 - Venus and Adonis.txt

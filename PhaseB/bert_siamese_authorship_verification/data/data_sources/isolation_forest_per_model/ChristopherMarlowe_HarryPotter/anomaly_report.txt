@@ -4,10 +4,11 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-3 - Arden of Feversham.txt - Score: -0.323089
-14 - KING JOHN.txt - Score: -0.034516
-23 - Sir John Oldcastle by Shakespeare.txt - Score: -0.017424
-36 - THE TEMPEST.txt - Score: -0.010271
+0 - A LOVERS COMPLAINT.txt - Score: -0.060047
+3 - Arden of Feversham.txt - Score: -0.323907
+10 - KING HENRY VI part I.txt - Score: -0.002919
+14 - KING JOHN.txt - Score: -0.015422
+26 - The Comedy of Errors.txt - Score: -0.013400
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -15,7 +16,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 2 - A Yorkshire Tragedy by Shakespeare.txt
 3 - Arden of Feversham.txt
 4 - AS YOU LIKE IT.txt
-5 - CYMBELINE.txt
 6 - Fair Em by Shakespeare.txt
 7 - KING EDWARD III by Shakespeare.txt
 8 - King Henry IV, Part 1.txt
@@ -29,10 +29,8 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 16 - KING RICHARD III.txt
 17 - Locrine Mucedorus by Shakespeare.txt
 18 - Love_s Labour_s Lost.txt
-19 - MEASURE FOR MEASURE.txt
 20 - Merchant of Venice.txt
 21 - MUCH ADO ABOUT NOTHING.txt
-22 - PERICLES PRINCE OF TYRE.txt
 23 - Sir John Oldcastle by Shakespeare.txt
 24 - Sir Thomas More by Shakespeare.txt
 25 - Taming of the Shrew.txt
@@ -47,12 +45,15 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 34 - THE RAPE OF LUCRECE.txt
 35 - THE TAMING OF THE SHREW.txt
 36 - THE TEMPEST.txt
+37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
 38 - THE TRAGEDY OF CORIOLANUS.txt
 39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
 40 - THE TRAGEDY OF JULIUS CAESAR.txt
 41 - THE TRAGEDY OF KING LEAR.txt
 42 - THE TRAGEDY OF MACBETH.txt
 43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
+44 - THE TRAGEDY OF ROMEO AND JULIET.txt
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
 46 - THE TWO GENTLEMEN OF VERONA.txt
 47 - The Two Noble Kinsmen by Shakespeare.txt
 48 - THE WINTERS TALE.txt

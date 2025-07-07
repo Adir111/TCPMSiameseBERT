@@ -4,9 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.102506
-9 - KING HENRY V.txt - Score: -0.078714
-10 - KING HENRY VI part I.txt - Score: -0.031420
+0 - A LOVERS COMPLAINT.txt - Score: -0.172460
+9 - KING HENRY V.txt - Score: -0.036150
+10 - KING HENRY VI part I.txt - Score: -0.071156
+42 - THE TRAGEDY OF MACBETH.txt - Score: -0.042888
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -24,6 +25,7 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
 16 - KING RICHARD III.txt
+17 - Locrine Mucedorus by Shakespeare.txt
 18 - Love_s Labour_s Lost.txt
 19 - MEASURE FOR MEASURE.txt
 20 - Merchant of Venice.txt
@@ -49,7 +51,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 40 - THE TRAGEDY OF JULIUS CAESAR.txt
 41 - THE TRAGEDY OF KING LEAR.txt
 42 - THE TRAGEDY OF MACBETH.txt
-43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
 44 - THE TRAGEDY OF ROMEO AND JULIET.txt
 45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
 46 - THE TWO GENTLEMEN OF VERONA.txt

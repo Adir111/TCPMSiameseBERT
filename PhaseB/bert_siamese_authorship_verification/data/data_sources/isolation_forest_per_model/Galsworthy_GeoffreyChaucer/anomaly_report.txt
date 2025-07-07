@@ -4,6 +4,7 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
+32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.013413
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -42,10 +43,10 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 35 - THE TAMING OF THE SHREW.txt
 36 - THE TEMPEST.txt
 37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
-38 - THE TRAGEDY OF CORIOLANUS.txt
 39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
 40 - THE TRAGEDY OF JULIUS CAESAR.txt
 41 - THE TRAGEDY OF KING LEAR.txt
+42 - THE TRAGEDY OF MACBETH.txt
 43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
 44 - THE TRAGEDY OF ROMEO AND JULIET.txt
 45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
