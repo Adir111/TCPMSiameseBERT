@@ -75,36 +75,72 @@ class SignalGeneration:
 
     def load_shakespeare_preprocessed_texts(self, reload=False):
         """
-        Loads and preprocesses Shakespeare texts for classification.
-        Preprocesses texts into chunks and token IDs for model input.
-        Caches preprocessed texts unless `reload` is True.
+        Loads, preprocesses, and equalizes Shakespeare texts for classification.
+
+        This method:
+          - Loads all Shakespeare texts.
+          - Preprocesses them into chunked token IDs suitable for model input.
+          - Tracks the text with the highest number of chunks.
+          - Equalizes all other texts to match the longest one using chunk duplication and sampling.
+          - Converts chunk data to NumPy arrays for efficient input handling.
+          - Caches the result unless `reload=True`.
 
         Args:
-            reload (bool): If True, forces reloading and preprocessing.
+            reload (bool): If True, forces reloading and reprocessing even if data is cached.
         """
         if reload or self.shakespeare_preprocessed_texts is None:
             self.logger.info("Loading shakespeare texts and preprocessing...")
             self.shakespeare_preprocessed_texts = []
-            tested_collection_texts = self.data_loader.get_shakespeare_data()
-            for text_object in tested_collection_texts:
+
+            raw_texts = self.data_loader.get_shakespeare_data()
+            preprocessed_data = []
+            max_chunks = []
+            max_name = "NOT FOUND"
+
+            # Step 1: Preprocess texts and track the max-length chunk list
+            for text_object in raw_texts:
                 text_name = text_object['text_name']
                 text = text_object['text']
                 self.logger.info(f"Processing text: {text_name}")
+
                 chunks_list, chunks_tokens_count = self.general_preprocessor.preprocess([text])
+
+                chunk_len = len(chunks_list)
+                if chunk_len > len(max_chunks):
+                    max_chunks = chunks_list
+                    max_name = text_name
+
+                preprocessed_data.append({
+                    "text_name": text_name,
+                    "original_chunks": chunks_list
+                })
+
+                self.logger.info(
+                    f"Text '{text_name}' processed into {chunk_len} chunks ({chunks_tokens_count} tokens).")
+
+            self.logger.info(f"Maximum number of chunks (Longest text) found: {len(max_chunks)}, text name is {max_name}.")
+
+            # Step 2: Equalize chunks for all texts based on max_chunks
+            for item in preprocessed_data:
+                text_name = item["text_name"]
+                chunks_list = item["original_chunks"]
+
+                if len(chunks_list) != len(max_chunks):
+                    self.logger.info(
+                        f"Equalizing text '{text_name}' from {len(chunks_list)} to {len(max_chunks)} chunks.")
+                    chunks_list = self.general_preprocessor.equalize_chunks([chunks_list, max_chunks], False)[0]
+
+                # Convert chunk dicts to numpy arrays
                 text_chunks = {
                     "input_ids": np.stack([c["input_ids"].numpy().squeeze(0) for c in chunks_list]),
                     "attention_mask": np.stack([c["attention_mask"].numpy().squeeze(0) for c in chunks_list]),
                     "token_type_ids": np.stack([c["token_type_ids"].numpy().squeeze(0) for c in chunks_list]),
                 }
-                self.logger.info(f"Text '{text_name}' has been preprocessed into {len(chunks_list)} chunks with {chunks_tokens_count} tokens.")
-                text_object = {
+
+                self.shakespeare_preprocessed_texts.append({
                     "text_name": text_name,
                     "text_chunks": text_chunks
-                }
-                self.shakespeare_preprocessed_texts.append(text_object)
-
-        else:
-            self.logger.warn(f"Shakespeare preprocessed texts already loaded.")
+                })
 
         self.logger.info(f"Total of {len(self.shakespeare_preprocessed_texts)} shakespeare texts ready for classification.")
 
@@ -123,6 +159,7 @@ class SignalGeneration:
         for text_object in self.shakespeare_preprocessed_texts:
             text_name = text_object['text_name']
             text_chunks = text_object["text_chunks"]
+
             predictions = np.asarray(classifier.predict({
                 "input_ids": text_chunks['input_ids'],
                 "attention_mask": text_chunks['attention_mask'],
@@ -137,10 +174,12 @@ class SignalGeneration:
                 np.mean(binary_outputs[i:i + self.chunks_per_batch])
                 for i in range(0, len(binary_outputs), self.chunks_per_batch)
             ]
-            self.logger.log(f"[INFO] Signal representation: {signal}")
 
+            self.logger.log(f"[INFO] Signal representation: {signal}")
             self.logger.info(f"Signal generated for text: {text_name} by model: {model_name}")
-            self.data_visualizer.display_signal_plot(signal, text_name, model_name)
+
+            plot_dir = self.__get_signal_file_path(model_name).parent / "plots"
+            self.data_visualizer.display_signal_plot(signal, text_name, model_name, save_path=plot_dir)
 
             model_signals[text_name] = signal
 
@@ -167,15 +206,18 @@ class SignalGeneration:
     def __get_signal_file_path(self, model_name):
         """
         Constructs the full file path for the signal JSON file of a given model.
+        Signals are saved under a folder named after the model.
 
         Args:
-            model_name (str): The model name used in the file name.
+            model_name (str): The model name used in the file path.
 
         Returns:
             pathlib.Path: Full path to the signal JSON file.
         """
-        file_name = f"{model_name}-signals.json"
-        path = self.data_path / self.signals_folder / file_name
+        model_dir = self.data_path / self.signals_folder / model_name
+        model_dir.mkdir(parents=True, exist_ok=True)
+        path = model_dir / "signals.json"
+
         return path
 
 
@@ -195,11 +237,19 @@ class SignalGeneration:
 
     def __save_model_signal(self, model_name, signal):
         """
-        Saves the signal data of a model into a JSON file.
+        Saves the signal data of a model into both JSON and NumPy (.npy) files.
 
         Args:
-            model_name (str): The model name to use in the file name.
+            model_name (str): The model name to use for the subfolder and file names.
             signal (dict): The signal data to save.
         """
-        path = self.__get_signal_file_path(model_name)
-        save_to_json(signal, path, f"{model_name} Signal data")
+        # Save JSON
+        json_path = self.__get_signal_file_path(model_name)
+        save_to_json(signal, json_path, f"{model_name} Signal data")
+
+        # Save NumPy version next to it
+        npy_path = json_path.with_suffix('.npy')
+        np.save(npy_path, signal)
+
+        self.logger.info(f"Saved signal as JSON to {json_path}")
+        self.logger.info(f"Saved signal as NumPy (.npy) to {npy_path}")

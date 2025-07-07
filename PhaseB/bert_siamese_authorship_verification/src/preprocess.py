@@ -158,18 +158,22 @@ class Preprocessor:
         return preprocessed_collection, tokens_count
 
 
-    def equalize_chunks(self, chunks_list):
+    def equalize_chunks(self, chunks_list, should_multiply_by_chunk_ratio=True):
         """
-        Equalize the lengths of two chunk lists by repeating and sampling.
+        Equalize the lengths of two chunk lists by repeating and random sampling.
 
-        This helps to balance the number of chunks between two impostor datasets
-        based on a configured chunk ratio.
+        This method ensures that both chunk lists are of equal length by expanding
+        the shorter list to match the longer one. It also optionally applies a chunk
+        ratio multiplier to both lists, typically used during training data balancing.
 
         Parameters:
-        - chunks_list (list of lists): Two lists of tokenized chunks
+            chunks_list (list of lists): A list containing exactly two lists of tokenized chunks.
+                                         The shorter list will be expanded to match the longer one.
+            should_multiply_by_chunk_ratio (bool): If True, multiplies both lists by the configured
+                                                   chunk ratio (from training config). Defaults to True.
 
         Returns:
-        - list of lists: Balanced chunk lists of equal length
+            list of lists: A list containing two chunk lists of equal length.
         """
         chunk_ratio = self.config['training']['impostor_chunk_ratio']
 
@@ -187,8 +191,9 @@ class Preprocessor:
 
         chunks_list[i2] = repeated_chunks
 
-        chunks_list[0] *= chunk_ratio
-        chunks_list[1] *= chunk_ratio
+        if should_multiply_by_chunk_ratio:
+            chunks_list[0] *= chunk_ratio
+            chunks_list[1] *= chunk_ratio
 
         return chunks_list
 
