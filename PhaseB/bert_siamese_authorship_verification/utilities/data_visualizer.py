@@ -108,7 +108,8 @@ class DataVisualizer:
         plt.close(fig)
 
 
-    def plot_metric(self, y_series=None, title="", x_label="", y_label="", legend_labels=None):
+    def plot_metric(self, y_series=None, title="", x_label="", y_label="",
+                    legend_labels=None, save_path=None, filename_override=None):
         """
         Plot one or more series of y-values against their indices.
 
@@ -118,6 +119,8 @@ class DataVisualizer:
             x_label (str): X-axis label.
             y_label (str): Y-axis label.
             legend_labels (list of str): Labels for the legend.
+            save_path (str or Path): Optional directory path to save the figure.
+            filename_override (str): Optional filename to override the title-based one.
         """
         width = max(6, int(len(title) * 0.1))
         height = 0.75 * width
@@ -139,7 +142,7 @@ class DataVisualizer:
             plt.legend()
         plt.grid(True)
         plt.tight_layout()
-        self._finalize_plot(title)
+        self._finalize_plot(label=filename_override or title, save_path=save_path, add_date=False)
 
 
     def display_loss_plot(self, history, model_name):
@@ -176,21 +179,24 @@ class DataVisualizer:
         )
 
 
-    def display_signal_plot(self, signal, text_name, model_name):
+    def display_signal_plot(self, signal, text_name, model_name, save_path=None):
         """
-        Plot a single signal series with descriptive title.
+        Plot a single signal series and save it with a descriptive title.
 
         Args:
             signal (list or np.ndarray): Signal values to plot.
             text_name (str): Name of the text source.
             model_name (str): Model name used in the title.
+            save_path (str or Path): Optional path to save the figure.
         """
         self.plot_metric(
             y_series=[signal],
             title=f"Signal Representation for {text_name} using {model_name}",
             x_label="Batch Index",
             y_label="Mean Prediction Value",
-            legend_labels=[model_name]
+            legend_labels=[model_name],
+            save_path=save_path,
+            filename_override=text_name
         )
 
 
