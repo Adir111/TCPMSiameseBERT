@@ -8,6 +8,7 @@ from pathlib import Path
 from collections import defaultdict
 
 from sklearn_extra.cluster import KMedoids
+from sklearn.cluster import KMeans
 
 from .data_loader import DataLoader
 from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json, DataVisualizer
@@ -47,16 +48,22 @@ class Clustering:
         self.data_visualizer = DataVisualizer(config['wandb']['enabled'], logger)
 
         self.clustering_algorithm = config['clustering']['algorithm']
-        self.n_clusters = config['clustering'][self.clustering_algorithm]['n_clusters']
-        self.random_state = config['clustering'][self.clustering_algorithm]['random_state']
+        self.n_clusters = config['clustering']['n_clusters']
+        self.random_state = config['clustering']['random_state']
         self.score_matrix = None
         self.text_names = None
         self.cluster_labels = None
-        self.medoid_indices = None
         self.core_names = []
         self.outside_names = []
 
-        self.output_folder_path = Path(config['data']['organised_data_folder_path']) / config['data']['clustering_folder_name']
+        self.medoid_indices = None # K-Medoids Clustering - Results Related
+        self.gamma = config['clustering']['gamma']  # K-Means Variable
+
+        self.output_folder_path = (
+                Path(config['data']['organised_data_folder_path']) /
+                config['data']['clustering_folder_name'] /
+                self.clustering_algorithm.lower()
+        )
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
 
 
@@ -125,7 +132,7 @@ class Clustering:
                 current_models = model_names
                 self.logger.info(f"\n🔁 Final clustering with all models")
                 self.score_matrix = build_matrix(current_models)
-                clustering_result = self.__run_clustering(current_models, suffix=f"_all")
+                clustering_result = self.__run_clustering(current_models, suffix="_all")
                 results.append(clustering_result)
 
         return results
@@ -133,7 +140,7 @@ class Clustering:
 
     def __run_clustering(self, model_names, suffix=""):
         """
-        Internal method to perform K-Medoids clustering.
+        Internal method to perform K-Medoids or K-Means clustering.
 
         Args:
             model_names (list): Model names used as features.
@@ -152,18 +159,34 @@ class Clustering:
             self.cluster_labels = clustering_model.labels_
             self.medoid_indices = clustering_model.medoid_indices_
 
-            self.__save_results_to_file(model_names, suffix)
-            self.logger.info(f"✅ K-Medoids clustering complete for models: {len(model_names)}")
+        elif self.clustering_algorithm == 'k-means':
+            # Optional Gaussian exponential transformation
+            gamma = self.gamma
+            if gamma is None:
+                raise ValueError("Missing 'gamma' for K-Means clustering.")
+            transformed_matrix = np.exp(-gamma * np.square(self.score_matrix))
 
-            return {
-                "model_names": model_names,
-                "suffix": suffix,
-                "score_matrix": self.score_matrix.copy(),
-                "cluster_labels": self.cluster_labels.copy(),
-                "medoid_indices": self.medoid_indices.copy()
-            }
+            clustering_model = KMeans(
+                n_clusters=self.n_clusters,
+                random_state=self.random_state,
+                n_init='auto'
+            )
+            clustering_model.fit(transformed_matrix)
+            self.cluster_labels = clustering_model.labels_
+
         else:
             raise ValueError(f"Unsupported clustering algorithm: {self.clustering_algorithm}")
+
+        self.__save_results_to_file(model_names, suffix)
+        self.logger.info(f"✅ {self.clustering_algorithm.upper()} clustering complete for models: {len(model_names)}")
+
+        return {
+            "model_names": model_names,
+            "suffix": suffix,
+            "score_matrix": self.score_matrix.copy(),
+            "cluster_labels": self.cluster_labels.copy(),
+            "medoid_indices": self.medoid_indices.copy() if self.medoid_indices is not None else None
+        }
 
 
     def __save_results_to_file(self, model_names, suffix=""):
@@ -181,15 +204,17 @@ class Clustering:
             "cluster_assignments": {
                 text: int(label)
                 for text, label in zip(self.text_names, self.cluster_labels)
-            },
-            "medoid_texts": [
-                self.text_names[i] for i in self.medoid_indices
-            ] if self.medoid_indices is not None else None
+            }
         }
+
+        # Include medoids only if available (when ran k-medoids
+        if self.medoid_indices is not None:
+            results["medoid_texts"] = [
+                self.text_names[i] for i in self.medoid_indices
+            ]
 
         safe_suffix = suffix.lstrip("_") or "all"
         file_name = f"clustering_results_{safe_suffix}.json"
-
         file_path = self.output_folder_path / file_name
 
         save_to_json(results, file_path, f"Clustering Results {suffix or ''}")
@@ -225,7 +250,7 @@ class Clustering:
         """
         self.logger.info("📊 Plotting cluster...")
         try:
-            title = "Clusters on Anomaly Score Space"
+            title = f"Clusters on Anomaly Score Space ({self.clustering_algorithm.upper()})"
             if suffix:
                 title += f" ({suffix})"
 
@@ -234,7 +259,7 @@ class Clustering:
                 self.cluster_labels,
                 method="tsne",
                 title=title,
-                medoid_indices=self.medoid_indices
+                medoid_indices=self.medoid_indices if self.medoid_indices is not None else None
             )
         except Exception as e:
             self.logger.warn(f"⚠️ Failed to visualize t-SNE: {e}")
@@ -244,9 +269,10 @@ class Clustering:
         """
         Print clustering results and highlight medoids, core, and suspicious texts.
         """
-        self.logger.log("📌 ==================== K-Medoids Clustering Summary ====================")
+        algo_name = self.clustering_algorithm.upper()
+        self.logger.log(f"📌 ==================== {algo_name} Clustering Summary ====================")
 
-        if self.cluster_labels is None or self.text_names is None: # Not supposed to happen, unless procedure changed, but it's for safety
+        if self.cluster_labels is None or self.text_names is None:
             self.logger.warn("⚠️ No clustering results found. Please run clustering first.")
             return
 
@@ -257,7 +283,8 @@ class Clustering:
             is_medoid = idx in medoid_indices
             clusters[label].append((text, is_medoid))
 
-        self.logger.info("📦 Cluster Assignments (⭐ Stars are medoids):")
+        self.logger.info("📦 Cluster Assignments{}:".format(
+            " (⭐ Stars are medoids)" if self.clustering_algorithm == 'k-medoids' else ""))
         for label in sorted(clusters):
             self.logger.info(f"🟩 Cluster {label} ({len(clusters[label])} texts):")
             for text, is_medoid in clusters[label]:
@@ -266,7 +293,7 @@ class Clustering:
 
         self.logger.log("📌 ==================== Core vs Suspicious Summary ====================")
 
-        if not self.core_names and not self.outside_names: # For safety.
+        if not self.core_names and not self.outside_names:
             self.logger.warn("⚠️ No CORE vs Outside data found. Did you run `plot_core_vs_outside()`?")
             return
 

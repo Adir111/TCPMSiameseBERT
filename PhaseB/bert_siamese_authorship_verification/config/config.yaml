@@ -56,11 +56,11 @@ isolation_forest:
   anomaly_score_threshold: 0.000025
 
 clustering:
-  algorithm: "k-medoids"
+  algorithm: "k-means"
   increment: 10 # Leave empty to ignore this, and just do all models at once.
-  k-medoids:
-    n_clusters: 2
-    random_state: 0
+  n_clusters: 2
+  random_state: 0
+  gamma: 0.5 # Controls Gaussian transformation at K-Means
 
 
 
