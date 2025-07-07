@@ -1,5 +1,5 @@
 """
-Performs clustering (K-Medoids) on anomaly score data from multiple models.
+Performs clustering (K-Medoids, K-Means and Kernel K-Means) on anomaly score data from multiple models.
 Handles state management, visualization, and saving clustering results.
 """
 
@@ -9,6 +9,7 @@ from collections import defaultdict
 
 from sklearn_extra.cluster import KMedoids
 from sklearn.cluster import KMeans
+from KKMeans import KKMeans
 
 from .data_loader import DataLoader
 from PhaseB.bert_siamese_authorship_verification.utilities import save_to_json, DataVisualizer
@@ -172,6 +173,14 @@ class Clustering:
                 n_init='auto'
             )
             clustering_model.fit(transformed_matrix)
+            self.cluster_labels = clustering_model.labels_
+        elif self.clustering_algorithm == 'kk-means':
+            # Kernel K-Means clustering with RBF Kernel
+            clustering_model = KKMeans(
+                n_clusters=self.n_clusters,
+                kernel='rbf'
+            )
+            clustering_model.fit(self.score_matrix)
             self.cluster_labels = clustering_model.labels_
 
         else:

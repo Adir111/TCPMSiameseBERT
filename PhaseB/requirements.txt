@@ -6,6 +6,7 @@ wandb==0.19.9
 datasets==2.16.1
 dtaidistance
 scikit-learn-extra
+KKMeans==0.1.0
 
 # Install tensorflow-gpu on Local only.
 tensorflow-gpu==2.10.0 ; sys_platform == "win32"
