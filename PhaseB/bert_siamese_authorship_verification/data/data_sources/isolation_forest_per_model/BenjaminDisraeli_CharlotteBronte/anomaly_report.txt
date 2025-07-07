@@ -4,9 +4,11 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.048550
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.091928
-38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.072588
+0 - A LOVERS COMPLAINT.txt - Score: -0.077457
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.031914
+35 - THE TAMING OF THE SHREW.txt - Score: -0.065671
+38 - THE TRAGEDY OF CORIOLANUS.txt - Score: -0.030532
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.163059
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -15,7 +17,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 3 - Arden of Feversham.txt
 4 - AS YOU LIKE IT.txt
 5 - CYMBELINE.txt
-6 - Fair Em by Shakespeare.txt
 8 - King Henry IV, Part 1.txt
 9 - KING HENRY V.txt
 10 - KING HENRY VI part I.txt
@@ -37,7 +38,9 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 26 - The Comedy of Errors.txt
 27 - THE HISTORY OF TROILUS AND CRESSIDA.txt
 28 - The Life and Death of the Lord Cromwell by Shakespeare.txt
+29 - THE LIFE OF TIMON OF ATHENS.txt
 30 - The London Prodigal.txt
+31 - The Merry Devill of Edmonton by Shakespeare.txt
 32 - THE MERRY WIVES OF WINDSOR.txt
 33 - The Puritaine Widdow by Shakespeare.txt
 34 - THE RAPE OF LUCRECE.txt
@@ -47,7 +50,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 38 - THE TRAGEDY OF CORIOLANUS.txt
 39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
 40 - THE TRAGEDY OF JULIUS CAESAR.txt
-41 - THE TRAGEDY OF KING LEAR.txt
 42 - THE TRAGEDY OF MACBETH.txt
 43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
 44 - THE TRAGEDY OF ROMEO AND JULIET.txt

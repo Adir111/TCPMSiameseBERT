@@ -4,12 +4,13 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-14 - KING JOHN.txt - Score: -0.046107
-33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.125361
+2 - A Yorkshire Tragedy by Shakespeare.txt - Score: -0.066070
+10 - KING HENRY VI part I.txt - Score: -0.025808
+30 - The London Prodigal.txt - Score: -0.016614
+33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.157546
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
-1 - A MIDSUMMER NIGHT_S DREAM.txt
 2 - A Yorkshire Tragedy by Shakespeare.txt
 3 - Arden of Feversham.txt
 4 - AS YOU LIKE IT.txt
@@ -24,7 +25,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 13 - KING HENRY VIII.txt
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
-16 - KING RICHARD III.txt
 17 - Locrine Mucedorus by Shakespeare.txt
 18 - Love_s Labour_s Lost.txt
 19 - MEASURE FOR MEASURE.txt
@@ -47,7 +47,9 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt
 38 - THE TRAGEDY OF CORIOLANUS.txt
 39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt
+40 - THE TRAGEDY OF JULIUS CAESAR.txt
 41 - THE TRAGEDY OF KING LEAR.txt
+42 - THE TRAGEDY OF MACBETH.txt
 43 - THE TRAGEDY OF OTHELLO MOOR OF VENICE.txt
 44 - THE TRAGEDY OF ROMEO AND JULIET.txt
 45 - THE TRAGEDY OF TITUS ANDRONICUS.txt

@@ -4,14 +4,16 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.082642
-17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.007045
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.232858
+0 - A LOVERS COMPLAINT.txt - Score: -0.128939
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.010693
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.160544
+29 - THE LIFE OF TIMON OF ATHENS.txt - Score: -0.066301
+35 - THE TAMING OF THE SHREW.txt - Score: -0.054563
+40 - THE TRAGEDY OF JULIUS CAESAR.txt - Score: -0.037416
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
 1 - A MIDSUMMER NIGHT_S DREAM.txt
-2 - A Yorkshire Tragedy by Shakespeare.txt
 3 - Arden of Feversham.txt
 4 - AS YOU LIKE IT.txt
 5 - CYMBELINE.txt
@@ -20,7 +22,7 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 8 - King Henry IV, Part 1.txt
 9 - KING HENRY V.txt
 10 - KING HENRY VI part I.txt
-12 - KING HENRY VI Part III.txt
+11 - KING HENRY VI Part II.txt
 13 - KING HENRY VIII.txt
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
@@ -41,6 +43,7 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 31 - The Merry Devill of Edmonton by Shakespeare.txt
 32 - THE MERRY WIVES OF WINDSOR.txt
 33 - The Puritaine Widdow by Shakespeare.txt
+34 - THE RAPE OF LUCRECE.txt
 35 - THE TAMING OF THE SHREW.txt
 36 - THE TEMPEST.txt
 37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt

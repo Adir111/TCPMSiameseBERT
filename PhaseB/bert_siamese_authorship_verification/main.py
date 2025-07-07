@@ -170,8 +170,7 @@ def main():
             logger.log(f"{index} - {selections[index][0]}")
 
         try:
-            # option = int(input("Select an option above: ").strip())
-            option = 3 # TODO: remove this
+            option = int(input("Select an option above: ").strip())
         except ValueError:
             logger.log("❌ Please enter a valid number.")
             continue
@@ -185,7 +184,6 @@ def main():
             break
         else:
             __handle_selection(selections[option][1], selections[option][0], selections[option][2])
-            break # TODO: remove this
 
 
 if __name__ == "__main__":

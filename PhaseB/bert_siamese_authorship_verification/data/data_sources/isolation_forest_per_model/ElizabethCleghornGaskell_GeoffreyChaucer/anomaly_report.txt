@@ -4,8 +4,9 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-10 - KING HENRY VI part I.txt - Score: -0.071106
-32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.205571
+10 - KING HENRY VI part I.txt - Score: -0.061347
+32 - THE MERRY WIVES OF WINDSOR.txt - Score: -0.213158
+33 - The Puritaine Widdow by Shakespeare.txt - Score: -0.017108
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -19,14 +20,12 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 8 - King Henry IV, Part 1.txt
 9 - KING HENRY V.txt
 10 - KING HENRY VI part I.txt
-11 - KING HENRY VI Part II.txt
 12 - KING HENRY VI Part III.txt
 13 - KING HENRY VIII.txt
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
 16 - KING RICHARD III.txt
 17 - Locrine Mucedorus by Shakespeare.txt
-18 - Love_s Labour_s Lost.txt
 19 - MEASURE FOR MEASURE.txt
 20 - Merchant of Venice.txt
 21 - MUCH ADO ABOUT NOTHING.txt
@@ -37,10 +36,12 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 26 - The Comedy of Errors.txt
 27 - THE HISTORY OF TROILUS AND CRESSIDA.txt
 28 - The Life and Death of the Lord Cromwell by Shakespeare.txt
+29 - THE LIFE OF TIMON OF ATHENS.txt
 30 - The London Prodigal.txt
 31 - The Merry Devill of Edmonton by Shakespeare.txt
 32 - THE MERRY WIVES OF WINDSOR.txt
 33 - The Puritaine Widdow by Shakespeare.txt
+34 - THE RAPE OF LUCRECE.txt
 35 - THE TAMING OF THE SHREW.txt
 36 - THE TEMPEST.txt
 37 - THE TRAGEDY OF ANTONY AND CLEOPATRA.txt

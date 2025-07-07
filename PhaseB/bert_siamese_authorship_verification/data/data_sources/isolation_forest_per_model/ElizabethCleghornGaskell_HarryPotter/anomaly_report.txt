@@ -4,13 +4,10 @@ Number of documents: 50
 Anomaly score threshold: 2.5e-05
 Percentile threshold: 5.0
 Isolation Forest Anomaly Scores (score < threshold [2.5e-05]):
-0 - A LOVERS COMPLAINT.txt - Score: -0.047099
-1 - A MIDSUMMER NIGHT_S DREAM.txt - Score: -0.032336
-8 - King Henry IV, Part 1.txt - Score: -0.003979
-17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.132444
-27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.041635
-39 - THE TRAGEDY OF HAMLET PRINCE OF DENMARK.txt - Score: -0.018466
-49 - Venus and Adonis.txt - Score: -0.124647
+17 - Locrine Mucedorus by Shakespeare.txt - Score: -0.155362
+27 - THE HISTORY OF TROILUS AND CRESSIDA.txt - Score: -0.119958
+35 - THE TAMING OF THE SHREW.txt - Score: -0.006191
+45 - THE TRAGEDY OF TITUS ANDRONICUS.txt - Score: -0.001681
 
 Summation Ranking Anomalies (DTW percentile > 5.0):
 0 - A LOVERS COMPLAINT.txt
@@ -23,13 +20,14 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 8 - King Henry IV, Part 1.txt
 9 - KING HENRY V.txt
 10 - KING HENRY VI part I.txt
+11 - KING HENRY VI Part II.txt
 12 - KING HENRY VI Part III.txt
+13 - KING HENRY VIII.txt
 14 - KING JOHN.txt
 15 - KING RICHARD II.txt
 16 - KING RICHARD III.txt
 17 - Locrine Mucedorus by Shakespeare.txt
 18 - Love_s Labour_s Lost.txt
-19 - MEASURE FOR MEASURE.txt
 20 - Merchant of Venice.txt
 21 - MUCH ADO ABOUT NOTHING.txt
 22 - PERICLES PRINCE OF TYRE.txt
@@ -57,7 +55,6 @@ Summation Ranking Anomalies (DTW percentile > 5.0):
 44 - THE TRAGEDY OF ROMEO AND JULIET.txt
 45 - THE TRAGEDY OF TITUS ANDRONICUS.txt
 46 - THE TWO GENTLEMEN OF VERONA.txt
-47 - The Two Noble Kinsmen by Shakespeare.txt
 48 - THE WINTERS TALE.txt
 49 - Venus and Adonis.txt
 ++++++++++++++++++++++++++++++++++++
