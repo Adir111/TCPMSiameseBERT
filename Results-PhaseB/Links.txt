@@ -1,0 +1,3 @@
+GitHub Repository (Results, User and Maintenance Guide): https://github.com/Adir111/TCPMSiameseBERT
+Source Code: https://github.com/Adir111/TCPMSiameseBERT/tree/main/PhaseB/bert_siamese_authorship_verification
+Requirements for Installation: https://github.com/Adir111/TCPMSiameseBERT/tree/main/PhaseB
