@@ -3,6 +3,7 @@ Performs clustering (K-Medoids, K-Means and Kernel K-Means) on anomaly score dat
 Handles state management, visualization, and saving clustering results.
 """
 
+import json
 import numpy as np
 from pathlib import Path
 from collections import defaultdict
@@ -375,3 +376,64 @@ class Clustering:
 
         # Use the dedicated plotting method
         self._plot_cluster_vs_models(model_counts, cluster_sizes_all)
+
+
+    def get_results(self, increment=None):
+        """
+        Load previously saved clustering results from JSON files.
+
+        Args:
+            increment (int, optional): If incremental clustering was used, load all incremental results.
+                                       If None, load the "all_models" result only.
+
+        Returns:
+            list: List of clustering result dicts matching `cluster_results` structure.
+        """
+        results = []
+
+        # Determine which files to load
+        json_files = sorted(self.output_folder_path.glob("clustering_results_*.json"))
+
+        # If increment is used, include all incremental results
+        for file_path in json_files:
+            try:
+                data = json.load(open(file_path, "r"))
+
+                # Recover the fields expected in cluster_results
+                model_names = data.get("model_features_used")
+                cluster_labels = np.array([v for v in data.get("cluster_assignments", {}).values()])
+                medoid_texts = data.get("medoid_texts", None)
+                medoid_indices = None
+                if medoid_texts is not None and self.text_names is not None:
+                    medoid_indices = [self.text_names.index(t) for t in medoid_texts]
+
+                # Extract suffix from filename
+                suffix = file_path.stem.replace("clustering_results_", "")
+
+                # Build score_matrix if needed
+                score_matrix = None
+                all_scores_dict = self.data_loader.get_isolation_forest_results()
+                if model_names:
+                    self.text_names = sorted(
+                        set.intersection(*(set(scores.keys()) for scores in all_scores_dict.values()))
+                    )
+                    score_matrix = np.array([
+                        [all_scores_dict[model][text] for model in model_names]
+                        for text in self.text_names
+                    ])
+
+                results.append({
+                    "model_names": model_names,
+                    "suffix": suffix,
+                    "score_matrix": score_matrix,
+                    "cluster_labels": cluster_labels,
+                    "medoid_indices": medoid_indices
+                })
+            except Exception as e:
+                self.logger.warning(f"⚠️ Failed to load clustering results from {file_path}: {e}")
+
+        # If increment is None, filter for the final "all" result only
+        if increment is None:
+            results = [r for r in results if r["suffix"].lstrip("_") in ("all", "all_models")]
+
+        return results

@@ -523,7 +523,8 @@ class Procedure:
         self.logger.info("🔍 Starting clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
-        results = clustering.cluster_results(self.clustering_increment)
+        # results = clustering.cluster_results(self.clustering_increment)
+        results = clustering.get_results(self.clustering_increment)
 
         all_labels = []
         model_counts = []
