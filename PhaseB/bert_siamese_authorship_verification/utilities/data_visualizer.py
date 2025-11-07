@@ -238,31 +238,32 @@ class DataVisualizer:
             title (str): Plot title.
             medoid_indices (list or np.ndarray, optional): Indices of medoid points to highlight.
         """
+        plt.clf()  # Clear any previous figure
         plt.figure(figsize=(10, 6))
-        plt.title(title)
+        # plt.title(title)
         scatter = plt.scatter(
             embedded[:, 0],
             embedded[:, 1],
             c=labels,
             cmap="viridis",
-            s=60,
+            s=120,
             edgecolors="k",
         )
-        if medoid_indices is not None:
-            plt.scatter(
-                embedded[medoid_indices, 0],
-                embedded[medoid_indices, 1],
-                c='red',
-                s=180,
-                edgecolors='white',
-                marker='*',
-                label='Medoids'
-            )
-            plt.legend()
+        # if medoid_indices is not None:
+        #     plt.scatter(
+        #         embedded[medoid_indices, 0],
+        #         embedded[medoid_indices, 1],
+        #         c='red',
+        #         s=180,
+        #         edgecolors='white',
+        #         marker='*',
+        #         label='Medoids'
+        #     )
+        #     plt.legend()
 
         plt.xlabel("Dim‑1")
         plt.ylabel("Dim‑2")
-        plt.colorbar(scatter, label="Label / Cluster")
+        # plt.colorbar(scatter, label="Label / Cluster")
         plt.grid(True)
         plt.tight_layout()
         self._finalize_plot(title)
@@ -401,7 +402,8 @@ class DataVisualizer:
             embeddings_2d[outside_indices, 1],
             c="orange",
             label="Suspicious",
-            edgecolors="k"
+            edgecolors="k",
+            s=120
         )
 
         # Plot core in green
@@ -410,7 +412,8 @@ class DataVisualizer:
             embeddings_2d[core_indices, 1],
             c="green",
             label="Shakespeare (CORE)",
-            edgecolors="k"
+            edgecolors="k",
+            s=120
         )
 
         plt.xlabel("Dim‑1")
@@ -441,3 +444,18 @@ class DataVisualizer:
 
         label = f"dtw_clustered_heatmap_{'sorted' if is_sorted else 'unsorted'}"
         self._finalize_plot(label, save_path=save_path, add_date=False)
+
+
+    def plot_line_graph(self, x_values, y_values, x_label, y_label, output_name):
+        """
+        Plots and saves a simple line graph using the shared finalize method.
+        """
+        plt.figure(figsize=(8, 5))
+        plt.plot(x_values, y_values, marker="o", linestyle="-")
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.grid(True)
+        plt.tight_layout()
+
+        # Use shared finalize method for saving/logging
+        self._finalize_plot(label=output_name)

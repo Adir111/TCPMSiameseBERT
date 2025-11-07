@@ -3,6 +3,8 @@ Performs clustering (K-Medoids, K-Means and Kernel K-Means) on anomaly score dat
 Handles state management, visualization, and saving clustering results.
 """
 
+import re
+import json
 import numpy as np
 from pathlib import Path
 from collections import defaultdict
@@ -285,7 +287,8 @@ class Clustering:
             self.logger.warn("⚠️ No clustering results found. Please run clustering first.")
             return
 
-        medoid_indices = set(self.medoid_indices.tolist()) if self.medoid_indices is not None else set()
+        medoid_indices = set(self.medoid_indices.tolist() if not isinstance(self.medoid_indices,
+                                                                            list) else self.medoid_indices) if self.medoid_indices is not None else set()
         clusters = defaultdict(list)
 
         for idx, (text, label) in enumerate(zip(self.text_names, self.cluster_labels)):
@@ -330,3 +333,118 @@ class Clustering:
         self.outside_names = [self.text_names[i] for i in outside_indices]
 
         self.__save_core_vs_outside_to_file(suffix)
+
+
+    def _plot_cluster_vs_models(self, model_counts, cluster_sizes, cluster_num, algorithm_used):
+        """
+        Uses the DataVisualizer to plot cluster 0 size vs number of models.
+        """
+        x_label = "Number of Models Used"
+        y_label = "Number of fake texts"
+        output_name = f"Fake authors ({algorithm_used})"
+        self.logger.info(f"model_counts: {model_counts},\ncluster_sizes: {cluster_sizes},\ncluster_num: {cluster_num}")
+
+        try:
+            self.data_visualizer.plot_line_graph(
+                x_values=model_counts,
+                y_values=cluster_sizes,
+                x_label=x_label,
+                y_label=y_label,
+                output_name=output_name
+            )
+            self.logger.info(f"📊 Successfully generated Cluster {cluster_num} vs Models plot.")
+        except Exception as e:
+            self.logger.warn(f"⚠️ Failed to generate Cluster {cluster_num} vs Models plot: {e}")
+
+
+    def analyze_cluster_labels(self, all_labels, model_counts, cluster_num):
+        """
+        Analyzes collected cluster labels and plots the size of cluster 0
+        as a function of the number of models used.
+        """
+        if not all_labels or not model_counts:
+            self.logger.warn("⚠️ No cluster labels or model counts available for analysis.")
+            return
+
+        self.logger.info("🧩 Analyzing collected cluster labels across steps...")
+        self.logger.info(f"all labels: {all_labels}, model counts: {model_counts}")
+
+        cluster_sizes_all = []
+
+        for step_idx, labels in enumerate(all_labels):
+            unique, counts = np.unique(labels, return_counts=True)
+            cluster_sizes = dict(zip(unique, counts))
+            cluster_size = cluster_sizes.get(cluster_num, 0)
+            cluster_sizes_all.append(cluster_size)
+            self.logger.info(f"Step {step_idx + 1}: Cluster {cluster_num} size = {cluster_size}")
+
+        # Use the dedicated plotting method
+        self._plot_cluster_vs_models(model_counts, cluster_sizes_all, cluster_num, self.clustering_algorithm)
+
+    import re
+
+    def get_results(self, increment=None):
+        """
+        Load previously saved clustering results from JSON files.
+
+        Args:
+            increment (int, optional): If incremental clustering was used, load all incremental results.
+                                       If None, load the "all_models" result only.
+
+        Returns:
+            list: List of clustering result dicts matching `cluster_results` structure.
+        """
+        results = []
+
+        # Natural sort helper: numbers in filenames are sorted numerically, 'all' comes last
+        def natural_sort_key(file_path):
+            stem = file_path.stem.replace("clustering_results_", "")
+            if stem == "all":
+                return (float('inf'),)
+            nums = re.findall(r'\d+', stem)
+            return tuple(int(n) for n in nums) if nums else (0,)
+
+        json_files = sorted(self.output_folder_path.glob("clustering_results_*.json"),
+                            key=natural_sort_key)
+
+        for file_path in json_files:
+            try:
+                data = json.load(open(file_path, "r"))
+
+                model_names = data.get("model_features_used")
+                cluster_labels = np.array([v for v in data.get("cluster_assignments", {}).values()])
+                medoid_texts = data.get("medoid_texts", None)
+                medoid_indices = None
+                if medoid_texts is not None and self.text_names is not None:
+                    medoid_indices = [self.text_names.index(t) for t in medoid_texts]
+
+                suffix = file_path.stem.replace("clustering_results_", "")
+
+                # Build score_matrix if needed
+                score_matrix = None
+                all_scores_dict = self.data_loader.get_isolation_forest_results()
+                if model_names:
+                    self.text_names = sorted(
+                        set.intersection(*(set(scores.keys()) for scores in all_scores_dict.values()))
+                    )
+                    score_matrix = np.array([
+                        [all_scores_dict[model][text] for model in model_names]
+                        for text in self.text_names
+                    ])
+
+                results.append({
+                    "model_names": model_names,
+                    "suffix": suffix,
+                    "score_matrix": score_matrix,
+                    "cluster_labels": cluster_labels,
+                    "medoid_indices": medoid_indices
+                })
+            except Exception as e:
+                self.logger.warning(f"⚠️ Failed to load clustering results from {file_path}: {e}")
+
+        # If increment is None, filter for the final "all" result only
+        if increment is None:
+            results = [r for r in results if r["suffix"].lstrip("_") == "all"]
+
+        return results
+
