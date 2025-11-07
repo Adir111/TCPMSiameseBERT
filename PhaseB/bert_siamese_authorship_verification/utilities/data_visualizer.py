@@ -239,7 +239,7 @@ class DataVisualizer:
             medoid_indices (list or np.ndarray, optional): Indices of medoid points to highlight.
         """
         plt.figure(figsize=(10, 6))
-        plt.title(title)
+        # plt.title(title)
         scatter = plt.scatter(
             embedded[:, 0],
             embedded[:, 1],
@@ -248,21 +248,21 @@ class DataVisualizer:
             s=60,
             edgecolors="k",
         )
-        if medoid_indices is not None:
-            plt.scatter(
-                embedded[medoid_indices, 0],
-                embedded[medoid_indices, 1],
-                c='red',
-                s=180,
-                edgecolors='white',
-                marker='*',
-                label='Medoids'
-            )
-            plt.legend()
+        # if medoid_indices is not None:
+        #     plt.scatter(
+        #         embedded[medoid_indices, 0],
+        #         embedded[medoid_indices, 1],
+        #         c='red',
+        #         s=180,
+        #         edgecolors='white',
+        #         marker='*',
+        #         label='Medoids'
+        #     )
+        #     plt.legend()
 
         plt.xlabel("Dim‑1")
         plt.ylabel("Dim‑2")
-        plt.colorbar(scatter, label="Label / Cluster")
+        # plt.colorbar(scatter, label="Label / Cluster")
         plt.grid(True)
         plt.tight_layout()
         self._finalize_plot(title)
