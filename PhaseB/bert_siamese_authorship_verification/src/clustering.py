@@ -3,6 +3,7 @@ Performs clustering (K-Medoids, K-Means and Kernel K-Means) on anomaly score dat
 Handles state management, visualization, and saving clustering results.
 """
 
+import re
 import json
 import numpy as np
 from pathlib import Path
@@ -379,6 +380,7 @@ class Clustering:
         # Use the dedicated plotting method
         self._plot_cluster_vs_models(model_counts, cluster_sizes_all, cluster_num)
 
+    import re
 
     def get_results(self, increment=None):
         """
@@ -393,15 +395,21 @@ class Clustering:
         """
         results = []
 
-        # Determine which files to load
-        json_files = sorted(self.output_folder_path.glob("clustering_results_*.json"))
+        # Natural sort helper: numbers in filenames are sorted numerically, 'all' comes last
+        def natural_sort_key(file_path):
+            stem = file_path.stem.replace("clustering_results_", "")
+            if stem == "all":
+                return (float('inf'),)
+            nums = re.findall(r'\d+', stem)
+            return tuple(int(n) for n in nums) if nums else (0,)
 
-        # If increment is used, include all incremental results
+        json_files = sorted(self.output_folder_path.glob("clustering_results_*.json"),
+                            key=natural_sort_key)
+
         for file_path in json_files:
             try:
                 data = json.load(open(file_path, "r"))
 
-                # Recover the fields expected in cluster_results
                 model_names = data.get("model_features_used")
                 cluster_labels = np.array([v for v in data.get("cluster_assignments", {}).values()])
                 medoid_texts = data.get("medoid_texts", None)
@@ -409,7 +417,6 @@ class Clustering:
                 if medoid_texts is not None and self.text_names is not None:
                     medoid_indices = [self.text_names.index(t) for t in medoid_texts]
 
-                # Extract suffix from filename
                 suffix = file_path.stem.replace("clustering_results_", "")
 
                 # Build score_matrix if needed
@@ -436,6 +443,7 @@ class Clustering:
 
         # If increment is None, filter for the final "all" result only
         if increment is None:
-            results = [r for r in results if r["suffix"].lstrip("_") in ("all", "all_models")]
+            results = [r for r in results if r["suffix"].lstrip("_") == "all"]
 
         return results
+
