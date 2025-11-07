@@ -361,7 +361,7 @@ class Clustering:
         as a function of the number of models used.
         """
         if not all_labels or not model_counts:
-            self.logger.warning("⚠️ No cluster labels or model counts available for analysis.")
+            self.logger.warn("⚠️ No cluster labels or model counts available for analysis.")
             return
 
         self.logger.info("🧩 Analyzing collected cluster labels across steps...")
