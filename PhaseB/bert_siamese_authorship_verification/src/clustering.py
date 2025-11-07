@@ -364,14 +364,14 @@ class Clustering:
         self.logger.info("🧩 Analyzing collected cluster labels across steps...")
         self.logger.info(f"all labels: {all_labels}, model counts: {model_counts}")
 
-        cluster_sizes = []
+        cluster_sizes_all = []
 
         for step_idx, labels in enumerate(all_labels):
             unique, counts = np.unique(labels, return_counts=True)
             cluster_sizes = dict(zip(unique, counts))
             cluster_size = cluster_sizes.get(cluster_num, 0)
-            cluster_sizes.append(cluster_size)
+            cluster_sizes_all.append(cluster_size)
             self.logger.info(f"Step {step_idx + 1}: Cluster {cluster_num} size = {cluster_size}")
 
         # Use the dedicated plotting method
-        self._plot_cluster_vs_models(model_counts, cluster_sizes)
+        self._plot_cluster_vs_models(model_counts, cluster_sizes_all)
