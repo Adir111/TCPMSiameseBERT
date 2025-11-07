@@ -332,26 +332,24 @@ class Clustering:
         self.__save_core_vs_outside_to_file(suffix)
 
 
-    def _plot_cluster0_vs_models(self, model_counts, cluster0_sizes):
+    def _plot_cluster1_vs_models(self, model_counts, cluster0_sizes):
         """
         Uses the DataVisualizer to plot cluster 0 size vs number of models.
         """
-        title = "Cluster 0 Size vs. Number of Models"
         x_label = "Number of Models Used"
-        y_label = "Number of Labels in Cluster 0"
+        y_label = "Number of fake texts"
 
         try:
             self.data_visualizer.plot_line_graph(
                 x_values=model_counts,
                 y_values=cluster0_sizes,
-                title=title,
                 x_label=x_label,
                 y_label=y_label,
                 output_name="cluster0_size_vs_models"
             )
-            self.logger.info("📊 Successfully generated Cluster 0 vs Models plot using DataVisualizer.")
+            self.logger.info("📊 Successfully generated Cluster 1 vs Models plot.")
         except Exception as e:
-            self.logger.warn(f"⚠️ Failed to generate Cluster 0 vs Models plot: {e}")
+            self.logger.warn(f"⚠️ Failed to generate Cluster 1 vs Models plot: {e}")
 
 
     def analyze_cluster_labels(self, all_labels, model_counts):
@@ -366,14 +364,14 @@ class Clustering:
         self.logger.info("🧩 Analyzing collected cluster labels across steps...")
         self.logger.info(f"all labels: {all_labels}, model counts: {model_counts}")
 
-        cluster0_sizes = []
+        cluster1_sizes = []
 
         for step_idx, labels in enumerate(all_labels):
             unique, counts = np.unique(labels, return_counts=True)
             cluster_sizes = dict(zip(unique, counts))
-            cluster0_size = cluster_sizes.get(0, 0)
-            cluster0_sizes.append(cluster0_size)
-            self.logger.info(f"Step {step_idx + 1}: Cluster 0 size = {cluster0_size}")
+            cluster1_size = cluster_sizes.get(1, 0)
+            cluster1_sizes.append(cluster1_size)
+            self.logger.info(f"Step {step_idx + 1}: Cluster 1 size = {cluster1_size}")
 
         # Use the dedicated plotting method
-        self._plot_cluster0_vs_models(model_counts, cluster0_sizes)
+        self._plot_cluster1_vs_models(model_counts, cluster1_sizes)

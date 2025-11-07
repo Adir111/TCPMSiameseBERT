@@ -238,6 +238,7 @@ class DataVisualizer:
             title (str): Plot title.
             medoid_indices (list or np.ndarray, optional): Indices of medoid points to highlight.
         """
+        plt.clf()  # Clear any previous figure
         plt.figure(figsize=(10, 6))
         # plt.title(title)
         scatter = plt.scatter(
