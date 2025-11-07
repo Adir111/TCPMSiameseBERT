@@ -333,24 +333,26 @@ class Clustering:
         self.__save_core_vs_outside_to_file(suffix)
 
 
-    def _plot_cluster_vs_models(self, model_counts, cluster0_sizes):
+    def _plot_cluster_vs_models(self, model_counts, cluster_sizes, cluster_num):
         """
         Uses the DataVisualizer to plot cluster 0 size vs number of models.
         """
         x_label = "Number of Models Used"
         y_label = "Number of fake texts"
+        output_name = f"cluster{cluster_num}_size_vs_models"
+        logger.info(f"model_counts: {model_counts},\ncluster_sizes: {cluster_sizes},\ncluster_num: {cluster_num}")
 
         try:
             self.data_visualizer.plot_line_graph(
                 x_values=model_counts,
-                y_values=cluster0_sizes,
+                y_values=cluster_sizes,
                 x_label=x_label,
                 y_label=y_label,
-                output_name="cluster0_size_vs_models"
+                output_name=output_name
             )
-            self.logger.info("📊 Successfully generated Cluster 1 vs Models plot.")
+            self.logger.info(f"📊 Successfully generated Cluster {cluster_num} vs Models plot.")
         except Exception as e:
-            self.logger.warn(f"⚠️ Failed to generate Cluster 1 vs Models plot: {e}")
+            self.logger.warn(f"⚠️ Failed to generate Cluster {cluster_num} vs Models plot: {e}")
 
 
     def analyze_cluster_labels(self, all_labels, model_counts, cluster_num):
@@ -375,7 +377,7 @@ class Clustering:
             self.logger.info(f"Step {step_idx + 1}: Cluster {cluster_num} size = {cluster_size}")
 
         # Use the dedicated plotting method
-        self._plot_cluster_vs_models(model_counts, cluster_sizes_all)
+        self._plot_cluster_vs_models(model_counts, cluster_sizes_all, cluster_num)
 
 
     def get_results(self, increment=None):
