@@ -178,6 +178,7 @@ class Clustering:
             # Kernel K-Means clustering with RBF Kernel
             clustering_model = KKMeans(
                 n_clusters=self.n_clusters,
+                random_state=self.random_state,
                 kernel='rbf'
             )
             clustering_model.fit(self.score_matrix)
