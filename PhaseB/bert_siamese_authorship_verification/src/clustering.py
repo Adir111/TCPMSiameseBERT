@@ -340,7 +340,7 @@ class Clustering:
         x_label = "Number of Models Used"
         y_label = "Number of fake texts"
         output_name = f"cluster{cluster_num}_size_vs_models"
-        logger.info(f"model_counts: {model_counts},\ncluster_sizes: {cluster_sizes},\ncluster_num: {cluster_num}")
+        self.logger.info(f"model_counts: {model_counts},\ncluster_sizes: {cluster_sizes},\ncluster_num: {cluster_num}")
 
         try:
             self.data_visualizer.plot_line_graph(

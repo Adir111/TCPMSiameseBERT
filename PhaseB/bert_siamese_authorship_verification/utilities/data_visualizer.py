@@ -246,7 +246,7 @@ class DataVisualizer:
             embedded[:, 1],
             c=labels,
             cmap="viridis",
-            s=100,
+            s=120,
             edgecolors="k",
         )
         # if medoid_indices is not None:
