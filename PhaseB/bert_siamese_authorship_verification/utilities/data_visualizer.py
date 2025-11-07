@@ -441,3 +441,22 @@ class DataVisualizer:
 
         label = f"dtw_clustered_heatmap_{'sorted' if is_sorted else 'unsorted'}"
         self._finalize_plot(label, save_path=save_path, add_date=False)
+
+    def plot_line_graph(self, x_values, y_values, title, x_label, y_label, output_name):
+        """
+        Plots and saves a simple line graph.
+        """
+        import matplotlib.pyplot as plt
+        import os
+
+        plt.figure(figsize=(8, 5))
+        plt.plot(x_values, y_values, marker="o", linestyle="-")
+        plt.title(title)
+        plt.xlabel(x_label)
+        plt.ylabel(y_label)
+        plt.grid(True)
+        plt.tight_layout()
+
+        output_path = os.path.join(self.output_dir, f"{output_name}.png")
+        plt.savefig(output_path)
+        plt.close()

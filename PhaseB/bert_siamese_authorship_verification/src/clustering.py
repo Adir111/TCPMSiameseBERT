@@ -3,6 +3,7 @@ Performs clustering (K-Medoids, K-Means and Kernel K-Means) on anomaly score dat
 Handles state management, visualization, and saving clustering results.
 """
 
+import json
 import numpy as np
 from pathlib import Path
 from collections import defaultdict
@@ -188,9 +189,6 @@ class Clustering:
 
         self.__save_results_to_file(model_names, suffix)
         self.logger.info(f"✅ {self.clustering_algorithm.upper()} clustering complete for models: {len(model_names)}")
-        unique, counts = np.unique(self.cluster_labels, return_counts=True)
-        cluster_sizes = dict(zip(unique, counts))
-        self.logger.info(f"📊 Cluster sizes: {cluster_sizes}")
 
         return {
             "model_names": model_names,
@@ -333,3 +331,49 @@ class Clustering:
         self.outside_names = [self.text_names[i] for i in outside_indices]
 
         self.__save_core_vs_outside_to_file(suffix)
+
+
+    def _plot_cluster0_vs_models(self, model_counts, cluster0_sizes):
+        """
+        Uses the DataVisualizer to plot cluster 0 size vs number of models.
+        """
+        title = "Cluster 0 Size vs. Number of Models"
+        x_label = "Number of Models Used"
+        y_label = "Number of Labels in Cluster 0"
+
+        try:
+            self.data_visualizer.plot_line_graph(
+                x_values=model_counts,
+                y_values=cluster0_sizes,
+                title=title,
+                x_label=x_label,
+                y_label=y_label,
+                output_name="cluster0_size_vs_models"
+            )
+            self.logger.info("📊 Successfully generated Cluster 0 vs Models plot using DataVisualizer.")
+        except Exception as e:
+            self.logger.warning(f"⚠️ Failed to generate Cluster 0 vs Models plot: {e}")
+
+
+    def analyze_cluster_labels(self, all_labels, model_counts):
+        """
+        Analyzes collected cluster labels and plots the size of cluster 0
+        as a function of the number of models used.
+        """
+        if not all_labels or not model_counts:
+            self.logger.warning("⚠️ No cluster labels or model counts available for analysis.")
+            return
+
+        self.logger.info("🧩 Analyzing collected cluster labels across steps...")
+
+        cluster0_sizes = []
+
+        for step_idx, labels in enumerate(all_labels):
+            unique, counts = np.unique(labels, return_counts=True)
+            cluster_sizes = dict(zip(unique, counts))
+            cluster0_size = cluster_sizes.get(0, 0)
+            cluster0_sizes.append(cluster0_size)
+            self.logger.info(f"Step {step_idx + 1}: Cluster 0 size = {cluster0_size}, Total = {len(labels)}")
+
+        # Use the dedicated plotting method
+        self._plot_cluster0_vs_models(model_counts, cluster0_sizes)

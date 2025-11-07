@@ -525,6 +525,9 @@ class Procedure:
         clustering = Clustering(config=self.config, logger=self.logger)
         results = clustering.cluster_results(self.clustering_increment)
 
+        all_labels = []
+        model_counts = []
+
         for step_idx, result in enumerate(results):
             suffix = result["suffix"].lstrip("_") or "all_models"
             self.logger.info(f"📈 Visualizing result for: {suffix}")
@@ -532,6 +535,9 @@ class Procedure:
 
             clustering.plot_clustering_results(suffix=suffix)
             clustering.plot_core_vs_outside(suffix=suffix)
+            all_labels.append(result["cluster_labels"])
+            model_counts.append(len(result["model_names"]))
 
         self.logger.info("Printing the clustering summary for all scores")
         clustering.print_full_clustering_summary() # should only print once all is done.
+        clustering.analyze_cluster_labels(all_labels, model_counts)
