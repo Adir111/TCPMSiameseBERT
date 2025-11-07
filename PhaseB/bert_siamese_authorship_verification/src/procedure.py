@@ -540,4 +540,5 @@ class Procedure:
 
         self.logger.info("Printing the clustering summary for all scores")
         clustering.print_full_clustering_summary() # should only print once all is done.
-        clustering.analyze_cluster_labels(all_labels, model_counts)
+        clustering.analyze_cluster_labels(all_labels, model_counts, 0)
+        clustering.analyze_cluster_labels(all_labels, model_counts, 1)
