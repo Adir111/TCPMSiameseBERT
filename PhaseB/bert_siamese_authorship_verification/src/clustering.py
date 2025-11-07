@@ -188,6 +188,9 @@ class Clustering:
 
         self.__save_results_to_file(model_names, suffix)
         self.logger.info(f"✅ {self.clustering_algorithm.upper()} clustering complete for models: {len(model_names)}")
+        unique, counts = np.unique(self.cluster_labels, return_counts=True)
+        cluster_sizes = dict(zip(unique, counts))
+        self.logger.info(f"📊 Cluster sizes: {cluster_sizes}")
 
         return {
             "model_names": model_names,
