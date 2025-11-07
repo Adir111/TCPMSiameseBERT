@@ -287,7 +287,8 @@ class Clustering:
             self.logger.warn("⚠️ No clustering results found. Please run clustering first.")
             return
 
-        medoid_indices = set(self.medoid_indices.tolist()) if self.medoid_indices is not None else set()
+        medoid_indices = set(self.medoid_indices.tolist() if not isinstance(self.medoid_indices,
+                                                                            list) else self.medoid_indices) if self.medoid_indices is not None else set()
         clusters = defaultdict(list)
 
         for idx, (text, label) in enumerate(zip(self.text_names, self.cluster_labels)):
