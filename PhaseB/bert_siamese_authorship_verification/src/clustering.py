@@ -178,7 +178,6 @@ class Clustering:
             # Kernel K-Means clustering with RBF Kernel
             clustering_model = KKMeans(
                 n_clusters=self.n_clusters,
-                random_state=self.random_state,
                 kernel='rbf'
             )
             clustering_model.fit(self.score_matrix)
@@ -333,7 +332,7 @@ class Clustering:
         self.__save_core_vs_outside_to_file(suffix)
 
 
-    def _plot_cluster1_vs_models(self, model_counts, cluster0_sizes):
+    def _plot_cluster_vs_models(self, model_counts, cluster0_sizes):
         """
         Uses the DataVisualizer to plot cluster 0 size vs number of models.
         """
@@ -353,7 +352,7 @@ class Clustering:
             self.logger.warn(f"⚠️ Failed to generate Cluster 1 vs Models plot: {e}")
 
 
-    def analyze_cluster_labels(self, all_labels, model_counts):
+    def analyze_cluster_labels(self, all_labels, model_counts, cluster_num):
         """
         Analyzes collected cluster labels and plots the size of cluster 0
         as a function of the number of models used.
@@ -365,14 +364,14 @@ class Clustering:
         self.logger.info("🧩 Analyzing collected cluster labels across steps...")
         self.logger.info(f"all labels: {all_labels}, model counts: {model_counts}")
 
-        cluster1_sizes = []
+        cluster_sizes = []
 
         for step_idx, labels in enumerate(all_labels):
             unique, counts = np.unique(labels, return_counts=True)
             cluster_sizes = dict(zip(unique, counts))
-            cluster1_size = cluster_sizes.get(1, 0)
-            cluster1_sizes.append(cluster1_size)
-            self.logger.info(f"Step {step_idx + 1}: Cluster 1 size = {cluster1_size}")
+            cluster_size = cluster_sizes.get(cluster_num, 0)
+            cluster_sizes.append(cluster_size)
+            self.logger.info(f"Step {step_idx + 1}: Cluster {cluster_num} size = {cluster_size}")
 
         # Use the dedicated plotting method
-        self._plot_cluster1_vs_models(model_counts, cluster1_sizes)
+        self._plot_cluster_vs_models(model_counts, cluster_sizes)
