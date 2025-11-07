@@ -3,7 +3,6 @@ Performs clustering (K-Medoids, K-Means and Kernel K-Means) on anomaly score dat
 Handles state management, visualization, and saving clustering results.
 """
 
-import json
 import numpy as np
 from pathlib import Path
 from collections import defaultdict
@@ -365,6 +364,7 @@ class Clustering:
             return
 
         self.logger.info("🧩 Analyzing collected cluster labels across steps...")
+        self.logger.info(f"all labels: {all_labels}, model counts: {model_counts}")
 
         cluster0_sizes = []
 
@@ -373,7 +373,7 @@ class Clustering:
             cluster_sizes = dict(zip(unique, counts))
             cluster0_size = cluster_sizes.get(0, 0)
             cluster0_sizes.append(cluster0_size)
-            self.logger.info(f"Step {step_idx + 1}: Cluster 0 size = {cluster0_size}, Total = {len(labels)}")
+            self.logger.info(f"Step {step_idx + 1}: Cluster 0 size = {cluster0_size}")
 
         # Use the dedicated plotting method
         self._plot_cluster0_vs_models(model_counts, cluster0_sizes)
