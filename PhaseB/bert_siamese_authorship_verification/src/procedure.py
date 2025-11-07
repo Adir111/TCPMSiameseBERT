@@ -535,8 +535,8 @@ class Procedure:
 
             clustering.plot_clustering_results(suffix=suffix)
             clustering.plot_core_vs_outside(suffix=suffix)
-            all_labels.append(result["cluster_labels"])
-            model_counts.append(len(result["model_names"]))
+            all_labels.append(result.get("cluster_labels"))
+            model_counts.append(len(result.get("model_names")))
 
         self.logger.info("Printing the clustering summary for all scores")
         clustering.print_full_clustering_summary() # should only print once all is done.

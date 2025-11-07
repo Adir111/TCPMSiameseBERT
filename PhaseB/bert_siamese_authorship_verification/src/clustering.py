@@ -352,7 +352,7 @@ class Clustering:
             )
             self.logger.info("📊 Successfully generated Cluster 0 vs Models plot using DataVisualizer.")
         except Exception as e:
-            self.logger.warning(f"⚠️ Failed to generate Cluster 0 vs Models plot: {e}")
+            self.logger.warn(f"⚠️ Failed to generate Cluster 0 vs Models plot: {e}")
 
 
     def analyze_cluster_labels(self, all_labels, model_counts):
