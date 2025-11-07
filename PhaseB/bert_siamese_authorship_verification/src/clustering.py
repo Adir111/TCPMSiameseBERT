@@ -334,13 +334,13 @@ class Clustering:
         self.__save_core_vs_outside_to_file(suffix)
 
 
-    def _plot_cluster_vs_models(self, model_counts, cluster_sizes, cluster_num):
+    def _plot_cluster_vs_models(self, model_counts, cluster_sizes, cluster_num, algorithm_used):
         """
         Uses the DataVisualizer to plot cluster 0 size vs number of models.
         """
         x_label = "Number of Models Used"
         y_label = "Number of fake texts"
-        output_name = f"cluster{cluster_num}_size_vs_models"
+        output_name = f"Fake authors ({algorithm_used})"
         self.logger.info(f"model_counts: {model_counts},\ncluster_sizes: {cluster_sizes},\ncluster_num: {cluster_num}")
 
         try:
@@ -378,7 +378,7 @@ class Clustering:
             self.logger.info(f"Step {step_idx + 1}: Cluster {cluster_num} size = {cluster_size}")
 
         # Use the dedicated plotting method
-        self._plot_cluster_vs_models(model_counts, cluster_sizes_all, cluster_num)
+        self._plot_cluster_vs_models(model_counts, cluster_sizes_all, cluster_num, self.clustering_algorithm)
 
     import re
 
