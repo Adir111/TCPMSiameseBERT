@@ -402,7 +402,8 @@ class DataVisualizer:
             embeddings_2d[outside_indices, 1],
             c="orange",
             label="Suspicious",
-            edgecolors="k"
+            edgecolors="k",
+            s=120
         )
 
         # Plot core in green
@@ -411,7 +412,8 @@ class DataVisualizer:
             embeddings_2d[core_indices, 1],
             c="green",
             label="Shakespeare (CORE)",
-            edgecolors="k"
+            edgecolors="k",
+            s=120
         )
 
         plt.xlabel("Dim‑1")
