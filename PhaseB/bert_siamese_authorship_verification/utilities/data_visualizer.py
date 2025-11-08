@@ -461,7 +461,7 @@ class DataVisualizer:
                 label=technique
             )
 
-        plt.title("Cluster Size vs. Models (All Techniques)")
+        # plt.title("Cluster Size vs. Models (All Techniques)")
         plt.xlabel("Number of Models Used")
         plt.ylabel("Fake Texts")
         plt.grid(True)
