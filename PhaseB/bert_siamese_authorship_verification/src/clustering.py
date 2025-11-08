@@ -67,6 +67,10 @@ class Clustering:
                 config['data']['clustering_folder_name'] /
                 self.clustering_algorithm.lower()
         )
+        self.output_of_all_clustering_techniques = (
+                Path(config['data']['organised_data_folder_path']) /
+                config['data']['clustering_folder_name']
+        )
         self.output_folder_path.mkdir(parents=True, exist_ok=True)
 
 
@@ -335,66 +339,23 @@ class Clustering:
         self.__save_core_vs_outside_to_file(suffix)
 
 
-    def _plot_cluster_vs_models(self, model_counts, cluster_sizes, cluster_num, algorithm_used):
-        """
-        Uses the DataVisualizer to plot cluster 0 size vs number of models.
-        """
-        x_label = "Number of Models Used"
-        y_label = "Number of fake texts"
-        output_name = f"Fake authors ({algorithm_used})"
-        self.logger.info(f"model_counts: {model_counts},\ncluster_sizes: {cluster_sizes},\ncluster_num: {cluster_num}")
-
-        try:
-            self.data_visualizer.plot_line_graph(
-                x_values=model_counts,
-                y_values=cluster_sizes,
-                x_label=x_label,
-                y_label=y_label,
-                output_name=output_name
-            )
-            self.logger.info(f"📊 Successfully generated Cluster {cluster_num} vs Models plot.")
-        except Exception as e:
-            self.logger.warn(f"⚠️ Failed to generate Cluster {cluster_num} vs Models plot: {e}")
-
-
-    def analyze_cluster_labels(self, all_labels, model_counts, cluster_num):
-        """
-        Analyzes collected cluster labels and plots the size of cluster 0
-        as a function of the number of models used.
-        """
-        if not all_labels or not model_counts:
-            self.logger.warn("⚠️ No cluster labels or model counts available for analysis.")
-            return
-
-        self.logger.info("🧩 Analyzing collected cluster labels across steps...")
-        self.logger.info(f"all labels: {all_labels}, model counts: {model_counts}")
-
-        cluster_sizes_all = []
-
-        for step_idx, labels in enumerate(all_labels):
-            unique, counts = np.unique(labels, return_counts=True)
-            cluster_sizes = dict(zip(unique, counts))
-            cluster_size = cluster_sizes.get(cluster_num, 0)
-            cluster_sizes_all.append(cluster_size)
-            self.logger.info(f"Step {step_idx + 1}: Cluster {cluster_num} size = {cluster_size}")
-
-        # Use the dedicated plotting method
-        self._plot_cluster_vs_models(model_counts, cluster_sizes_all, cluster_num, self.clustering_algorithm)
-
-    import re
-
-    def get_results(self, increment=None):
+    def get_results(self, clustering_technique, increment=None):
         """
         Load previously saved clustering results from JSON files.
 
         Args:
             increment (int, optional): If incremental clustering was used, load all incremental results.
                                        If None, load the "all_models" result only.
+            clustering_technique (str): The name of the clustering technique.
 
         Returns:
             list: List of clustering result dicts matching `cluster_results` structure.
         """
         results = []
+        folder_path = (
+                self.output_of_all_clustering_techniques /
+                clustering_technique.lower()
+        )
 
         # Natural sort helper: numbers in filenames are sorted numerically, 'all' comes last
         def natural_sort_key(file_path):
@@ -404,7 +365,7 @@ class Clustering:
             nums = re.findall(r'\d+', stem)
             return tuple(int(n) for n in nums) if nums else (0,)
 
-        json_files = sorted(self.output_folder_path.glob("clustering_results_*.json"),
+        json_files = sorted(folder_path.glob("clustering_results_*.json"),
                             key=natural_sort_key)
 
         for file_path in json_files:
@@ -448,3 +409,18 @@ class Clustering:
 
         return results
 
+
+    @staticmethod
+    def extract_cluster_sizes(all_labels, cluster_num):
+        """
+        Extracts the sizes of a specific cluster across multiple steps.
+        """
+        cluster_sizes = []
+        for labels in all_labels:
+            unique, counts = np.unique(labels, return_counts=True)
+            cluster_sizes.append(dict(zip(unique, counts)).get(cluster_num, 0))
+        return cluster_sizes
+
+
+    def plot_convergence_comparison(self, all_results):
+        self.data_visualizer.plot_convergence_comparison(all_results)
