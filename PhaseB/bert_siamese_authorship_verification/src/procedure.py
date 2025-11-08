@@ -523,8 +523,7 @@ class Procedure:
         self.logger.info("🔍 Starting clustering procedure...")
 
         clustering = Clustering(config=self.config, logger=self.logger)
-        # results = clustering.cluster_results(self.clustering_increment)
-        results = clustering.get_results(self.clustering_increment)
+        results = clustering.cluster_results(self.clustering_increment)
 
         all_labels = []
         model_counts = []
@@ -541,4 +540,37 @@ class Procedure:
 
         self.logger.info("Printing the clustering summary for all scores")
         clustering.print_full_clustering_summary() # should only print once all is done.
-        clustering.analyze_cluster_labels(all_labels, model_counts, 0)
+        # clustering.analyze_cluster_labels(all_labels, model_counts, 0)
+
+
+    def run_clustering_convergence_graph_procedure(self):
+        """
+        Generates a convergence comparison graph for multiple clustering techniques.
+        """
+        self.logger.info("🔍 Starting clustering convergence graph procedure...")
+
+        clustering = Clustering(config=self.config, logger=self.logger)
+        all_clustering_techniques = ["kk-means", "k-means", "k-medoids"]
+        all_results = {}
+
+        for technique in all_clustering_techniques:
+            self.logger.info(f"📊 Loading clustering results for: {technique}")
+            results = clustering.get_results(technique, self.clustering_increment)
+
+            all_labels = []
+            model_counts = []
+
+            for result in results:
+                all_labels.append(result.get("cluster_labels"))
+                model_counts.append(len(result.get("model_names")))
+
+            # Analyze and collect data for plotting
+            cluster_num = 0
+            cluster_sizes = clustering.extract_cluster_sizes(all_labels, cluster_num)
+            all_results[technique] = {
+                "model_counts": model_counts,
+                "cluster_sizes": cluster_sizes,
+            }
+
+        # Now plot all techniques on one graph
+        clustering.plot_convergence_comparison(all_results)

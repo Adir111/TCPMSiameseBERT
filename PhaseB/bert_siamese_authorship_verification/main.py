@@ -151,6 +151,19 @@ def __fine_tune_berts():
         logger.error(f"❌ An error occurred during fine-tuning: {e}")
 
 
+def __convergence_graph():
+    """Run the convergence graph procedure."""
+    try:
+        logger.log("🚀 Starting Convergence Clustering Procedure...")
+        procedure.run_clustering_convergence_graph_procedure()
+
+        logger.log("✅ Clustering Convergence Procedure completed!")
+        logger.log({"status": "completed"})
+    except Exception as e:
+        logger.error(f"❌ {e}")
+
+
+
 def main():
     """Menu-driven CLI main loop."""
     selections = [
@@ -161,7 +174,8 @@ def main():
         ("DTW Procedure", __dtw, False),
         ("Isolation Forest Procedure", __isolation_forest, False),
         ("Clustering Procedure", __clustering, False),
-        ("Fine-tune All BERTs", __fine_tune_berts, True)
+        ("Fine-tune All BERTs", __fine_tune_berts, True),
+        ("Convergence Comparison Graph", __convergence_graph, False)
     ]
 
     while True:

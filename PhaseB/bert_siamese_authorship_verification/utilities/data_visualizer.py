@@ -446,16 +446,27 @@ class DataVisualizer:
         self._finalize_plot(label, save_path=save_path, add_date=False)
 
 
-    def plot_line_graph(self, x_values, y_values, x_label, y_label, output_name):
+    def plot_convergence_comparison(self, all_results):
         """
-        Plots and saves a simple line graph using the shared finalize method.
+        Plots cluster size vs model count for multiple clustering techniques on one graph.
         """
         plt.figure(figsize=(8, 5))
-        plt.plot(x_values, y_values, marker="o", linestyle="-")
-        plt.xlabel(x_label)
-        plt.ylabel(y_label)
+
+        for technique, data in all_results.items():
+            plt.plot(
+                data["model_counts"],
+                data["cluster_sizes"],
+                marker="o",
+                linestyle="-",
+                label=technique
+            )
+
+        plt.title("Cluster Size vs. Models (All Techniques)")
+        plt.xlabel("Number of Models Used")
+        plt.ylabel("Fake Texts")
         plt.grid(True)
+        plt.legend()
         plt.tight_layout()
 
-        # Use shared finalize method for saving/logging
-        self._finalize_plot(label=output_name)
+        # Save using your unified save helper
+        self._finalize_plot("convergence_comparison", add_date=False)
